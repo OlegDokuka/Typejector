@@ -1,1 +1,1 @@
-﻿asdasd
+﻿///<reference path="MEF/Typejector"/>
