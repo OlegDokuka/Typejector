@@ -54,12 +54,16 @@ All you need are several annotation
 }`
 
 ##Signature
-`   @injection //in this case someClass is Singleton by default
+1. In this case someClass is Singleton by default
+`   @injection
     class someClass {
 
     }
-    @injection(false) //in this case in all dependencies of someClass2 are unique instances
-    class someClass2 {
+`
+2. In this case in all dependencies of someClass2 are unique instances
+``
+    @injection(false)
+    class someClazz {
 
     }
 `
