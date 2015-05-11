@@ -4,54 +4,134 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>Typejector by OlegDokuka</title>
+
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script src="javascripts/main.js"></script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
   </head>
   <body>
-
+    <div class="wrapper">
       <header>
         <h1>Typejector</h1>
         <p>Standalone, powerful dependency injector for TypeScript and Javascript</p>
+
+        <p class="view"><a href="https://github.com/OlegDokuka/Typejector">View the Project on GitHub <small>OlegDokuka/Typejector</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/OlegDokuka/Typejector/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/OlegDokuka/Typejector/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/OlegDokuka/Typejector">View On <strong>GitHub</strong></a></li>
+        </ul>
       </header>
-
-      <div id="banner">
-        <span id="logo"></span>
-
-        <a href="https://github.com/OlegDokuka/Typejector" class="button fork"><strong>View On GitHub</strong></a>
-        <div class="downloads">
-          <span>Downloads:</span>
-          <ul>
-            <li><a href="https://github.com/OlegDokuka/Typejector/zipball/master" class="button">ZIP</a></li>
-            <li><a href="https://github.com/OlegDokuka/Typejector/tarball/master" class="button">TAR</a></li>
-          </ul>
-        </div>
-      </div><!-- end banner -->
-
-    <div class="wrapper">
-      <nav>
-        <ul></ul>
-      </nav>
       <section>
         <h1>
-<a id="awesome-dependency-injector" class="anchor" href="#awesome-dependency-injector" aria-hidden="true"><span class="octicon octicon-link"></span></a>Awesome dependency injector</h1>
+<a id="typejector" class="anchor" href="#typejector" aria-hidden="true"><span class="octicon octicon-link"></span></a>Typejector</h1>
+
+<p>Standalone, powerful dependency injector for TypeScript and Javascript</p>
 
 <h2>
-<a id="coming-soon" class="anchor" href="#coming-soon" aria-hidden="true"><span class="octicon octicon-link"></span></a><strong>Coming soon</strong>
-</h2>
+<a id="requirement" class="anchor" href="#requirement" aria-hidden="true"><span class="octicon octicon-link"></span></a>Requirement</h2>
+
+<p>EcmaScript 5 or higer and Typescript 1.5 beta or higer</p>
+
+<h2>
+<a id="how-it-use" class="anchor" href="#how-it-use" aria-hidden="true"><span class="octicon octicon-link"></span></a>How it use?</h2>
+
+<p>All you need are several annotation</p>
+
+<ul>
+<li>
+<a href="https://github.com/injection" class="user-mention">@injection</a> - annotation for class that should be imported</li>
+<li>
+<a href="https://github.com/inject" class="user-mention">@inject</a> - annotation for property in class for which you want to insert the dependence</li>
+<li>
+<a href="https://github.com/resolve" class="user-mention">@resolve</a> - annotation for class, where exist <a href="https://github.com/inject" class="user-mention">@inject</a> annotations</li>
+</ul>
+
+<h3>
+<a id="example-of-code" class="anchor" href="#example-of-code" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example of code</h3>
+
+<div class="highlight highlight-ts"><pre><span class="pl-k">module</span> <span class="pl-en">Typejector</span>.Sample {
+    <span class="pl-k">import</span> resolve <span class="pl-k">=</span> Annotation.resolve;
+    <span class="pl-k">import</span> inject <span class="pl-k">=</span> Annotation.inject;
+    <span class="pl-k">import</span> injection <span class="pl-k">=</span> Annotation.injection;
+
+
+    @injection
+    <span class="pl-k">class</span> <span class="pl-en">SingletonClass</span> {
+        <span class="pl-k">public</span> cat: <span class="pl-k">string</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Kitty<span class="pl-pds">"</span></span>;
+        <span class="pl-k">public</span> dog: <span class="pl-k">string</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Hot<span class="pl-pds">"</span></span>;
+
+        <span class="pl-k">public</span> <span class="pl-en">say</span>() {
+            <span class="pl-c1">alert</span>(`<span class="pl-k">$</span>{<span class="pl-c1">this</span>.cat}<span class="pl-k">-</span>Cat and <span class="pl-k">$</span>{<span class="pl-c1">this</span>.dog}<span class="pl-k">-</span>Dog`);
+        }
+    }
+    @injection
+    <span class="pl-k">class</span> <span class="pl-en">SimpleClass</span> {
+        <span class="pl-k">public</span> <span class="pl-en">say</span>(<span class="pl-smi">something</span>: <span class="pl-k">string</span>) {
+            <span class="pl-c1">alert</span>(`You said <span class="pl-k">$</span>{something}?`);
+        }
+    }
+
+    @resolve
+    <span class="pl-k">class</span> <span class="pl-en">NeedInjectionsClass</span> {
+        @<span class="pl-en">inject</span>(<span class="pl-smi">SingletonClass</span>)
+        <span class="pl-k">public</span> helper: SingletonClass;
+        @<span class="pl-en">inject</span>(<span class="pl-smi">SimpleClass</span>)
+        <span class="pl-k">public</span> simpleHelper: SimpleClass;
+
+        <span class="pl-en">constructor</span>() {
+            <span class="pl-c1">this</span>.helper.say();
+            <span class="pl-c1">this</span>.simpleHelper.say(<span class="pl-s"><span class="pl-pds">"</span>wow<span class="pl-pds">"</span></span>);
+        }
+    }
+
+    <span class="pl-k">class</span> <span class="pl-en">ChildClass</span> <span class="pl-k">extends</span> NeedInjectionsClass {
+
+    }
+
+    <span class="pl-k">var</span> needInjection <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">ChildClass</span>();
+}</pre></div>
+
+<h2>
+<a id="signature" class="anchor" href="#signature" aria-hidden="true"><span class="octicon octicon-link"></span></a>Signature</h2>
+
+<ol>
+<li>In this case someClass is Singleton by default</li>
+</ol>
+
+<div class="highlight highlight-ts"><pre>@injection
+<span class="pl-k">class</span> <span class="pl-en">someClass</span> {
+}</pre></div>
+
+<ol>
+<li>In this case in all dependencies of someClass2 are unique instances</li>
+</ol>
+
+<div class="highlight highlight-ts"><pre>@injection(<span class="pl-c1">false</span>)
+<span class="pl-k">class</span> <span class="pl-en">someClazz</span> {
+}</pre></div>
       </section>
       <footer>
-        <p>Project maintained by <a href="https://github.com/OlegDokuka">OlegDokuka</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></small></p>
+        <p>This project is maintained by <a href="https://github.com/OlegDokuka">OlegDokuka</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
       </footer>
     </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-    
+    <script src="javascripts/scale.fix.js"></script>
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-62506878-2");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
   </body>
 </html>
