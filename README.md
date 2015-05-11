@@ -6,12 +6,13 @@ EcmaScript 5 or higer and Typescript 1.5 beta or higer
 
 ##How it use?
 All you need are several annotation
-+@injection - annotation for class that should be imported
-+@inject - annotation for property in class for which you want to insert the dependence
-+@resolve - annotation for class, where exist @inject annotations
+- @injection - annotation for class that should be imported
+- @inject - annotation for property in class for which you want to insert the dependence
+- @resolve - annotation for class, where exist @inject annotations
 
 ###Example of code
-`module Typejector.Sample {
+```ts
+module Typejector.Sample {
     import resolve = Annotation.resolve;
     import inject = Annotation.inject;
     import injection = Annotation.injection;
@@ -51,19 +52,19 @@ All you need are several annotation
     }
 
     var needInjection = new ChildClass();
-}`
+}
+```
 
 ##Signature
 1. In this case someClass is Singleton by default
-`   @injection
-    class someClass {
-
-    }
-`
+```ts
+@injection
+class someClass {
+}
+```
 2. In this case in all dependencies of someClass2 are unique instances
-``
-    @injection(false)
-    class someClazz {
-
-    }
-`
+```ts
+@injection(false)
+class someClazz {
+}
+```
