@@ -56,15 +56,22 @@ module Typejector.Sample {
 ```
 
 ##Signature
-1. In this case someClass is Singleton by default
+
+ - In this case someClass is Singleton by default
 ```ts
 @injection
 class someClass {
 }
 ```
-2. In this case in all dependencies of someClass2 are unique instances
+ - In this case in all dependencies of someClass2 are unique instances
 ```ts
 @injection(false)
+class someClazz {
+}
+```
+- We can import class and associate it with special "interface" (in other word abstract class) 
+```ts
+@injection(true, ImplementedInterface)
 class someClazz {
 }
 ```
