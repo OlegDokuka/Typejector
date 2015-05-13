@@ -4,6 +4,7 @@
     export class Injector {
         private static registeredClassesAndMetadata: Array<Interface.Injectable> = new Array<Interface.Injectable>();
         private static createdSingletons: Array<Interface.Singleton<any>> = new Array<Interface.Singleton<any>>();
+
         public static register(injectable: Interface.Injectable) {
             let injectablePosition: number = -1;
 
@@ -31,10 +32,10 @@
             }
 
             if (injectable.isSingleton) {
-                return Injector.singletonInstance<T>(clazz);
+                return Injector.singletonInstance<T>(injectable.creator);
             }
 
-            return new clazz();
+            return new injectable.creator();
         }
 
         private static singletonInstance<T>(clazz: Class): T {

@@ -3,5 +3,6 @@
     export interface Injectable {
         clazz: Class;
         isSingleton: boolean;
+        creator: Class;
     }
 } 

@@ -1,11 +1,20 @@
-﻿///<reference path="../MEF/Typejector"/>
+﻿///<reference path="../../MEF/Typejector"/>
 module Typejector.Sample {
     import resolve = Annotation.resolve;
     import inject = Annotation.inject;
     import injection = Annotation.injection;
 
-    @injection
-    class SingletonClass {
+    class InterfaceClass {
+        public cat: string;
+        public dog: string;
+
+        public say() {
+
+        }
+    }
+
+    @injection(true, InterfaceClass)
+    class SingletonClass extends InterfaceClass {
         public cat: string = "Kitty";
         public dog: string = "Hot";
 
@@ -13,6 +22,17 @@ module Typejector.Sample {
             alert(`${this.cat}-Cat and ${this.dog}-Dog`);
         }
     }
+
+    @injection(true, InterfaceClass)
+    class MockInterfaceClass extends InterfaceClass {
+        public cat: string = "Kitty";
+        public dog: string = "Hot";
+
+        public say() {
+            alert(`Mock-${this.cat}-Cat and Mock-${this.dog}-Dog`);
+        }
+    }
+
     @injection
     class SimpleClass {
         public say(something: string) {
@@ -22,8 +42,8 @@ module Typejector.Sample {
 
     @resolve
     class NeedInjectionsClass {
-        @inject(SingletonClass)
-        public helper: SingletonClass;
+        @inject(InterfaceClass)
+        public helper: InterfaceClass;
         @inject(SimpleClass)
         public simpleHelper: SimpleClass;
 

@@ -26,9 +26,9 @@ var Typejector;
                     throw new Error("No registeret instance for type");
                 }
                 if (injectable.isSingleton) {
-                    return Injector.singletonInstance(clazz);
+                    return Injector.singletonInstance(injectable.creator);
                 }
-                return new clazz();
+                return new injectable.creator();
             };
             Injector.singletonInstance = function (clazz) {
                 var singleton, singletonIndex = -1;
@@ -100,15 +100,32 @@ var Typejector;
     var Annotation;
     (function (Annotation) {
         var Injector = Typejector.Component.Injector;
-        function injection(value) {
+        function injection(value, exportAs) {
             if (value === void 0) { value = true; }
-            if (typeof value === typeof true) {
+            if (typeof value === typeof true && !exportAs) {
                 return function (clazz) {
-                    Injector.register({ isSingleton: value, clazz: clazz });
+                    Injector.register({ isSingleton: value, clazz: clazz, creator: clazz });
+                };
+            }
+            else if (exportAs) {
+                return function (clazz) {
+                    if (!(clazz.prototype instanceof exportAs)) {
+                        throw new Error("Current class should be prototype of exported");
+                    }
+                    Injector.register({
+                        isSingleton: typeof value === typeof true ? value : true,
+                        clazz: clazz,
+                        creator: clazz
+                    });
+                    Injector.register({
+                        isSingleton: typeof value === typeof true ? value : true,
+                        clazz: exportAs,
+                        creator: clazz
+                    });
                 };
             }
             else {
-                Injector.register({ isSingleton: true, clazz: value });
+                Injector.register({ isSingleton: true, clazz: value, creator: value });
             }
         }
         Annotation.injection = injection;
@@ -221,7 +238,74 @@ if (typeof __decorate !== "function") __decorate = function (decorators, target,
         case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
     }
 };
-///<reference path="../MEF/Typejector"/>
+///<reference path="../../MEF/Typejector"/>
+var Typejector;
+(function (Typejector) {
+    var Sample;
+    (function (Sample) {
+        var resolve = Typejector.Annotation.resolve;
+        var inject = Typejector.Annotation.inject;
+        var injection = Typejector.Annotation.injection;
+        var InterfaceClass = (function () {
+            function InterfaceClass() {
+            }
+            InterfaceClass.prototype.say = function () {
+            };
+            return InterfaceClass;
+        })();
+        var SingletonClass = (function (_super) {
+            __extends(SingletonClass, _super);
+            function SingletonClass() {
+                _super.apply(this, arguments);
+                this.cat = "Kitty";
+                this.dog = "Hot";
+            }
+            SingletonClass.prototype.say = function () {
+                alert(this.cat + "-Cat and " + this.dog + "-Dog");
+            };
+            SingletonClass = __decorate([
+                injection(true, InterfaceClass)
+            ], SingletonClass);
+            return SingletonClass;
+        })(InterfaceClass);
+        var SimpleClass = (function () {
+            function SimpleClass() {
+            }
+            SimpleClass.prototype.say = function (something) {
+                alert("You said " + something + "?");
+            };
+            SimpleClass = __decorate([
+                injection
+            ], SimpleClass);
+            return SimpleClass;
+        })();
+        var NeedInjectionsClass = (function () {
+            function NeedInjectionsClass() {
+                this.helper.say();
+                this.simpleHelper.say("wow");
+            }
+            __decorate([
+                inject(InterfaceClass)
+            ], NeedInjectionsClass.prototype, "helper");
+            __decorate([
+                inject(SimpleClass)
+            ], NeedInjectionsClass.prototype, "simpleHelper");
+            NeedInjectionsClass = __decorate([
+                resolve
+            ], NeedInjectionsClass);
+            return NeedInjectionsClass;
+        })();
+        var ChildClass = (function (_super) {
+            __extends(ChildClass, _super);
+            function ChildClass() {
+                _super.apply(this, arguments);
+            }
+            return ChildClass;
+        })(NeedInjectionsClass);
+        var needInjection = new ChildClass();
+    })(Sample = Typejector.Sample || (Typejector.Sample = {}));
+})(Typejector || (Typejector = {}));
+///<reference path="../../MEF/Typejector"/>
 var Typejector;
 (function (Typejector) {
     var Sample;

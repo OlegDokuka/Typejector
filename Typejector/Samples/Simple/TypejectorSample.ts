@@ -1,4 +1,4 @@
-﻿///<reference path="../MEF/Typejector"/>
+﻿///<reference path="../../MEF/Typejector"/>
 module Typejector.Sample {
     import resolve = Annotation.resolve;
     import inject = Annotation.inject;
