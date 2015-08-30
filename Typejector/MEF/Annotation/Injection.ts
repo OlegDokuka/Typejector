@@ -1,36 +1,26 @@
 ﻿module Typejector.Annotation {
-    import Injector = Component.Injector;
     import Class = Type.Class;
+    import Metadata = Typejector.Component.Metadata.Metadata;
+    import BeanDescriptor = Component.Context.Config.BeanDescriptor;
 
-    export function injection(isSingleton?: boolean)
-    export function injection(clazz: Class)
-    export function injection(clazz: Class|boolean, exportAs: Class)
-    export function injection(value: any = true, exportAs?: Class) {
-        if (typeof value === typeof true && !exportAs) {
-            return (clazz: Class) => {
-                Injector.register({ isSingleton: value, clazz: clazz, creator: clazz });
-            }
-        }
-        else if (exportAs) {
-            return (clazz: Class) => {
-                if (!(clazz.prototype instanceof exportAs)) {
-                    throw new Error("Current class should be prototype of exported");
-                }
-                Injector.register({
-                    isSingleton: typeof value === typeof true ? value : true,
-                    clazz: clazz,
-                    creator: clazz
-                });
+    export function injection(metadata: Metadata[])
+    export function injection(clazz: Class, ...metadata: Metadata[]): void
+    export function injection(value: any, ...metadata: Metadata[]) {
+        let descriptor: BeanDescriptor = new BeanDescriptor();
 
-                Injector.register({
-                    isSingleton: typeof value === typeof true ? value : true,
-                    clazz: exportAs,
-                    creator: clazz
-                });
+        if (typeof value === typeof []) {
+            return (clazz: Class) => {
+                descriptor.clazz = clazz;
+                descriptor.metadata = value;
+
+                Typejector.getContext().register(descriptor);
             }
         }
         else {
-            Injector.register({ isSingleton: true, clazz: value, creator: value });
+            descriptor.clazz = value
+            descriptor.metadata = metadata;
+
+            Typejector.getContext().register(descriptor);
         }
     }
 } 
