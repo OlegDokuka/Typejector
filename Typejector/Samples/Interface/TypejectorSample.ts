@@ -1,61 +1,62 @@
-﻿///<reference path="../../MEF/Typejector"/>
+﻿//<reference path="../../MEF/Typejector"/>
 module Typejector.Sample {
-    import resolve = Annotation.resolve;
-    import inject = Annotation.inject;
-    import injection = Annotation.injection;
+    //import resolve = Annotation.resolve;
+    //import inject = Annotation.inject;
+    //import injection = Annotation.injection;
+    //import Class = Type.Class
 
-    class InterfaceClass {
-        public cat: string;
-        public dog: string;
+    //class InterfaceClass {
+    //    public cat: string;
+    //    public dog: string;
 
-        public say() {
+    //    public say() {
 
-        }
-    }
+    //    }
+    //}
 
-    @injection(true, InterfaceClass)
-    class SingletonClass extends InterfaceClass {
-        public cat: string = "Kitty";
-        public dog: string = "Hot";
+    //@injection(true, InterfaceClass)
+    //class SingletonClass extends InterfaceClass {
+    //    public cat: string = "Kitty";
+    //    public dog: string = "Hot";
 
-        public say() {
-            alert(`${this.cat}-Cat and ${this.dog}-Dog`);
-        }
-    }
+    //    public say() {
+    //        alert(`${this.cat}-Cat and ${this.dog}-Dog`);
+    //    }
+    //}
 
-    @injection(true, InterfaceClass)
-    class MockInterfaceClass extends InterfaceClass {
-        public cat: string = "Kitty";
-        public dog: string = "Hot";
+    //@injection(true, InterfaceClass)
+    //class MockInterfaceClass extends InterfaceClass {
+    //    public cat: string = "Kitty";
+    //    public dog: string = "Hot";
 
-        public say() {
-            alert(`Mock-${this.cat}-Cat and Mock-${this.dog}-Dog`);
-        }
-    }
+    //    public say() {
+    //        alert(`Mock-${this.cat}-Cat and Mock-${this.dog}-Dog`);
+    //    }
+    //}
 
-    @injection
-    class SimpleClass {
-        public say(something: string) {
-            alert(`You said ${something}?`);
-        }
-    }
+    //@injection
+    //class SimpleClass {
+    //    public say(something: string) {
+    //        alert(`You said ${something}?`);
+    //    }
+    //}
 
-    @resolve
-    class NeedInjectionsClass {
-        @inject(InterfaceClass)
-        public helper: InterfaceClass;
-        @inject(SimpleClass)
-        public simpleHelper: SimpleClass;
+    //@resolve
+    //class NeedInjectionsClass {
+    //    @inject(InterfaceClass)
+    //    public helper: InterfaceClass;
+    //    @inject(SimpleClass)
+    //    public simpleHelper: SimpleClass;
 
-        constructor() {
-            this.helper.say();
-            this.simpleHelper.say("wow");
-        }
-    }
+    //    constructor() {
+    //        this.helper.say();
+    //        this.simpleHelper.say("wow");
+    //    }
+    //}
 
-    class ChildClass extends NeedInjectionsClass {
+    //class ChildClass extends NeedInjectionsClass {
 
-    }
+    //}
 
-    var needInjection = new ChildClass();
+    //var needInjection = new ChildClass();
 }

@@ -1,0 +1,15 @@
+{
+  "version": "1.5.4",
+  "compilerOptions": {
+    "target": "es5",
+    "declaration": false,
+    "noImplicitAny": false,
+    "removeComments": true,
+    "noLib": false,
+    "emitDecoratorMetadata": true,
+    "sourceMap": true,
+    "listFiles": true,
+    "outDir": "Compiled",
+    "experimentalDecorators": true
+  }
+}
