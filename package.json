@@ -1,0 +1,31 @@
+{
+  "devDependencies": {
+    "gulp": "3.9.0",
+    "gulp-typescript": "2.8.1",
+    "typescript": "1.6.0-beta",
+    "marge2": "0.3.6",
+    "gulp-clean": "0.3.1"
+  },
+  "description": "Typejector powerful dependency injector container for Typescript",
+  "author": "Oleg Dokuka <shadowgun@i.ua>",
+  "name": "typejector",
+  "version": "0.2.0",
+  "homepage": "http://olegdokuka.github.io/Typejector/",
+  "license": "MIT",
+  "main": "Typejector/Compiled/typejector.js",
+  "keywords": [
+    "TypeScript",
+    "Typejector",
+    "DI",
+    "Dependecy Injection",
+    "IoC",
+    "Inverse of Control"
+  ],
+  "bugs": {
+    "url": "https://github.com/OlegDokuka/Typejector/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OlegDokuka/Typejector.git"
+  }
+}

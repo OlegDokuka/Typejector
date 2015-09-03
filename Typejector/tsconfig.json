@@ -1,15 +1,19 @@
 {
-  "version": "1.5.4",
+  "version": "1.6.0-beta",
   "compilerOptions": {
     "target": "es5",
-    "declaration": false,
+    "declaration": true,
     "noImplicitAny": false,
     "removeComments": true,
     "noLib": false,
     "emitDecoratorMetadata": true,
     "sourceMap": true,
     "listFiles": true,
-    "outDir": "Compiled",
+    "outDir": "",
+    "out": "Typejector/Compiled/typejector.js",
     "experimentalDecorators": true
-  }
+  },
+  "files": [
+    "app.ts"
+  ]
 }
