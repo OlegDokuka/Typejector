@@ -1389,3 +1389,8 @@ Typejector/obj/Debug/Typejector.pdb
 /Typejector/node_modules/.bin/ntsc
 /.vs/config/applicationhost.config
 /node_modules
+/Typejector/gulpfile.js
+/Typejector/package.json
+/.vs/Typejector/v14/.suo
+/npm-debug.log
+/archive.zip
