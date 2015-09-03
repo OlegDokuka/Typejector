@@ -9,6 +9,7 @@
   "description": "Typejector powerful dependency injector container for Typescript",
   "author": "Oleg Dokuka <shadowgun@i.ua>",
   "name": "typejector",
+  "readme": "README.MD",
   "version": "0.2.0",
   "homepage": "http://olegdokuka.github.io/Typejector/",
   "license": "MIT",

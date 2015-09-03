@@ -1,4 +1,6 @@
 /// <reference path="Interface/IEvent.ts" />
+// Typejector View Module -------
+// Realize Typejector view class and halper classes such as Point and etc.
 var Typejector;
 (function (Typejector) {
     var Event;
@@ -14,6 +16,11 @@ var Typejector;
                     }
                 };
             }
+            /** Подписаться на событие
+            * @param {ICallback<ArgType>} callback Callback, который будет вызван при вызове функции
+            * @param {any} subscriber Контекст, в котором должен быть вызван callback
+            * @returns {ITypedSubscription<ArgType>} Объект типизированной подписки
+            */
             Event.prototype.Subscribe = function (callback, subscriber) {
                 var that = this, res = {
                     Callback: callback,
@@ -23,6 +30,10 @@ var Typejector;
                 this.Callbacks.push({ Callback: callback, Subscriber: subscriber });
                 return res;
             };
+            /**
+            *   Unsubscribe some callback from current event
+            *   @param {Interface.ICallback<ArgType>} subscribet callback
+            **/
             Event.prototype.Unsubscribe = function (callback) {
                 var filteredList = [];
                 for (var i = 0; i < this.Callbacks.length; i++) {
@@ -284,6 +295,7 @@ var Typejector;
         (function (Factory) {
             var Support;
             (function (Support) {
+                //TODO: it doesnot work! Provide name generation!
                 var BeanNameGenerator = (function () {
                     function BeanNameGenerator() {
                     }
@@ -757,6 +769,7 @@ var Typejector;
             var Bean = Component.Factory.Support.Bean;
             var DefaultBeanDefinitionPostProcessor = Component.Factory.Support.DefaultBeanDefinitionPostProcessor;
             var ApplicationContext = (function () {
+                //TODO: Add autoconfiguration for avoding initialization in constructor
                 function ApplicationContext() {
                     this.mainBeanFactory = new Component.Factory.Support.DefaultListableBeanFactory();
                     this.mainBeanFactory.addBeanDefinitionPostProcessor(new DefaultBeanDefinitionPostProcessor());
@@ -970,4 +983,36 @@ var Typejector;
     Typejector.getContext = getContext;
 })(Typejector || (Typejector = {}));
 ///<reference path="MEF/Typejector"/> 
+var Typejector;
+(function (Typejector) {
+    var Component;
+    (function (Component) {
+        var Factory;
+        (function (Factory) {
+            var ObjectFactoryBuilder = (function () {
+                function ObjectFactoryBuilder() {
+                    this.args = [];
+                }
+                ObjectFactoryBuilder.prototype.withArgs = function (args) {
+                    this.args = args;
+                    return this;
+                };
+                ObjectFactoryBuilder.prototype.forClass = function (clazz) {
+                    this.clazz = clazz;
+                    return this;
+                };
+                ObjectFactoryBuilder.prototype.build = function () {
+                    var _this = this;
+                    return {
+                        getObject: function () {
+                            return new (_this.clazz.bind.apply(_this.clazz, _this.args))();
+                        }
+                    };
+                };
+                return ObjectFactoryBuilder;
+            })();
+            Factory.ObjectFactoryBuilder = ObjectFactoryBuilder;
+        })(Factory = Component.Factory || (Component.Factory = {}));
+    })(Component = Typejector.Component || (Typejector.Component = {}));
+})(Typejector || (Typejector = {}));
 //# sourceMappingURL=typejector.js.map

@@ -1,0 +1,25 @@
+{
+  "name": "Typejector",
+  "version": "0.2.0",
+  "homepage": "https://github.com/OlegDokuka/Typejector",
+  "authors": [
+    "Shadowgun <shadowgun@i.ua>"
+  ],
+  "description": "Powerful dependency injector for TypeScript",
+  "main": "Typejector\\Compiled\\typejector.js",
+  "keywords": [
+    "Typejector",
+    "DI",
+    "IoC",
+    "TypeScript",
+    "TDD"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
