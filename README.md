@@ -1,3 +1,5 @@
+[![npm version](https://badge.fury.io/js/typejector.svg)](http://badge.fury.io/js/typejector)
+
 # Typejector
 
 [![Join the chat at https://gitter.im/OlegDokuka/Typejector](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/OlegDokuka/Typejector?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
