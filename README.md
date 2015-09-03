@@ -1,4 +1,5 @@
 [![npm version](https://badge.fury.io/js/typejector.svg)](http://badge.fury.io/js/typejector)
+[![Bower version](https://badge.fury.io/bo/typejector.svg)](http://badge.fury.io/bo/typejector)
 
 # Typejector
 

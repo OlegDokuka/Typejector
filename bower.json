@@ -1,10 +1,14 @@
 {
   "name": "Typejector",
   "version": "0.2.0",
-  "homepage": "https://github.com/OlegDokuka/Typejector",
+  "homepage": "http://olegdokuka.github.io/Typejector/",
   "authors": [
-    "Shadowgun <shadowgun@i.ua>"
+    "Oleg Dokuka <shadowgun@i.ua>"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OlegDokuka/Typejector.git"
+  },
   "description": "Powerful dependency injector for TypeScript",
   "main": "Typejector\\Compiled\\typejector.js",
   "keywords": [
@@ -16,7 +20,6 @@
   ],
   "license": "MIT",
   "ignore": [
-    "**/.*",
     "node_modules",
     "bower_components",
     "test",
