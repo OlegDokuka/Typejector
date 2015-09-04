@@ -19,11 +19,6 @@ I`m open to suggestion and if you want to help me - create new issue, or write o
 ##Requirement
 EcmaScript 5 or higer and Typescript 1.5 beta or higer
 
-##How it use?
-All you need are several annotation
-- @injection - annotation for class that should be imported
-- @singletor - work like @injection but add special metadata that mark this class as singleton object
-- @interface - work like @injection but add special metadata that mark this class as interface and prevent create instance of this class.
-- @inject - annotation for property|method argument|ctor argument in class for which you want to insert the dependency
+## How to use it?
 
-###Example of code
+To understand how to use Typejector looks at the [Getting Started](https://github.com/OlegDokuka/Typejector/wiki/Getting-Started) section.
