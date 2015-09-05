@@ -38,6 +38,9 @@
             assert(instance);
             assert(beanDefinititon);
 
+
+            //let superBeanDefinition = this.getBeanDefinition(beanDefinititon.clazz
+
             for (let property of beanDefinititon.properties) {
                 instance[property.name] = this.resolveDependency(property.clazz);
             }

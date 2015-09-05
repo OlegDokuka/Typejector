@@ -320,7 +320,7 @@ var Typejector;
                 var DefaultBeanDefinitionPostProcessor = (function () {
                     function DefaultBeanDefinitionPostProcessor() {
                     }
-                    DefaultBeanDefinitionPostProcessor.prototype.postProcessBeanDefinition = function (beanDefinition) {
+                    DefaultBeanDefinitionPostProcessor.prototype.postProcessBeanDefinition = function (beanDefinition, beanDefinitionRegistry) {
                         beanDefinition.scopeNames.forEach(function (it, id) { return it == Support.SingletonScope.NAME || it == Support.PrototypeScope.NAME ?
                             beanDefinition.scopeNames.splice(id, 1) : void (0); });
                         if (Component.BeanUtils.isSingleton(beanDefinition)) {
@@ -381,8 +381,15 @@ var Typejector;
                     DefaultBeanDefinitionRegistry.prototype.applyBeanDefinitionPostProcessor = function (beanDefinition) {
                         for (var _i = 0, _a = this.beanDefinitionPostProcessors; _i < _a.length; _i++) {
                             var processor = _a[_i];
-                            processor.postProcessBeanDefinition(beanDefinition);
+                            processor.postProcessBeanDefinition(beanDefinition, this);
                         }
+                    };
+                    DefaultBeanDefinitionRegistry.prototype.getBeanDefinitionNames = function () {
+                        var resultBeanDefinitionNames = [];
+                        for (var name_1 in this.registeredBeanDefinitions) {
+                            resultBeanDefinitionNames.push(name_1);
+                        }
+                        return resultBeanDefinitionNames;
                     };
                     return DefaultBeanDefinitionRegistry;
                 })();
@@ -526,6 +533,7 @@ var Typejector;
                     AbstractAutowireCapableBeanFactory.prototype.initializeBean = function (instance, beanDefinititon) {
                         assert(instance);
                         assert(beanDefinititon);
+                        //let superBeanDefinition = this.getBeanDefinition(beanDefinititon.clazz
                         for (var _i = 0, _a = beanDefinititon.properties; _i < _a.length; _i++) {
                             var property = _a[_i];
                             instance[property.name] = this.resolveDependency(property.clazz);

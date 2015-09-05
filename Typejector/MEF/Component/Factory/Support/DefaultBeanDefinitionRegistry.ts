@@ -49,8 +49,18 @@
 
         private applyBeanDefinitionPostProcessor(beanDefinition: BeanDefinition) {
             for (let processor of this.beanDefinitionPostProcessors) {
-                processor.postProcessBeanDefinition(beanDefinition);
+                processor.postProcessBeanDefinition(beanDefinition, this);
             }
+        }
+
+        public getBeanDefinitionNames(): string[] {
+            let resultBeanDefinitionNames = [];
+
+            for (let name in this.registeredBeanDefinitions) {
+                resultBeanDefinitionNames.push(name);
+            }
+
+            return resultBeanDefinitionNames;
         }
 
     }

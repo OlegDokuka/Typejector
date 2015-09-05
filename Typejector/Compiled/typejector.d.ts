@@ -190,6 +190,7 @@ declare module Typejector.Component.Factory.Registry {
         registerBeanDefinition(beanName: string, beanDefinition: BeanDefinition): void;
         getBeanDefinition(beanName: string): BeanDefinition;
         addBeanDefinitionPostProcessor(beanDefinitionPostProcessor: BeanDefinitionPostProcessor): void;
+        getBeanDefinitionNames(): string[];
     }
 }
 declare namespace Typejector.Component.Factory {
@@ -220,8 +221,9 @@ declare namespace Typejector.Component.Factory {
 }
 declare namespace Typejector.Component.Factory {
     import BeanDefinition = Config.BeanDefinition;
+    import BeanDefinitionRegistry = Registry.BeanDefinitionRegistry;
     interface BeanDefinitionPostProcessor {
-        postProcessBeanDefinition(beanDefinition: BeanDefinition): void;
+        postProcessBeanDefinition(beanDefinition: BeanDefinition, beanDefinitionRegistry: BeanDefinitionRegistry): void;
     }
 }
 declare namespace Typejector.Component.Factory {
@@ -244,8 +246,9 @@ declare namespace Typejector.Component.Factory.Support {
 }
 declare namespace Typejector.Component.Factory.Support {
     import BeanDefinition = Config.BeanDefinition;
+    import BeanDefinitionRegistry = Registry.BeanDefinitionRegistry;
     class DefaultBeanDefinitionPostProcessor implements BeanDefinitionPostProcessor {
-        postProcessBeanDefinition(beanDefinition: BeanDefinition): void;
+        postProcessBeanDefinition(beanDefinition: BeanDefinition, beanDefinitionRegistry: BeanDefinitionRegistry): void;
     }
 }
 declare namespace Typejector.Component.Factory.Support {
@@ -259,6 +262,7 @@ declare namespace Typejector.Component.Factory.Support {
         addBeanDefinitionPostProcessor(beanDefinitionPostProcessor: BeanDefinitionPostProcessor): void;
         protected getRegisteredBeanDefinitions(): BeanDefinition[];
         private applyBeanDefinitionPostProcessor(beanDefinition);
+        getBeanDefinitionNames(): string[];
     }
 }
 declare namespace Typejector.Component.Factory.Support {
