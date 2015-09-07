@@ -17,7 +17,8 @@ Good news, version 0.2 is available now. The main concept of new version of DI i
 I`m open to suggestion and if you want to help me - create new issue, or write on project gitter.
 
 ##Requirement
-EcmaScript 5 or higer and Typescript 1.5 beta or higer
+
+EcmaScript 5 or higer and Typescript 1.5 or higer
 
 ## How to use it?
 

@@ -1,1 +1,1 @@
-﻿///<reference path="MEF/Typejector"/>
+﻿///<reference path="./MEF/Typejector"/>

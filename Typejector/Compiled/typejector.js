@@ -345,6 +345,48 @@ var Typejector;
         (function (Factory) {
             var Support;
             (function (Support) {
+                var MergeBeanDefinitionPostProcessor = (function () {
+                    function MergeBeanDefinitionPostProcessor() {
+                    }
+                    MergeBeanDefinitionPostProcessor.prototype.postProcessBeanDefinition = function (beanDefinition, beanDefinitionRegistry) {
+                        var _this = this;
+                        beanDefinitionRegistry.getBeanDefinitionNames()
+                            .map(function (it) { return beanDefinitionRegistry.getBeanDefinition(it); })
+                            .filter(function (it) { return it.clazz !== beanDefinition.clazz && Component.BeanUtils.isAssignable(it.clazz, beanDefinition.clazz); })
+                            .forEach(function (it) { return _this.merge(beanDefinition, it); });
+                    };
+                    MergeBeanDefinitionPostProcessor.prototype.merge = function (beanDefinition, superBeanDefinition) {
+                        if (superBeanDefinition.constructorArguments.length > beanDefinition.constructorArguments.length) {
+                            for (var i = beanDefinition.constructorArguments.length; i < superBeanDefinition.constructorArguments.length; i++) {
+                                beanDefinition.constructorArguments[i] = superBeanDefinition.constructorArguments[i];
+                            }
+                        }
+                        superBeanDefinition.methods.forEach(function (it) {
+                            if (!beanDefinition.methods.some(function (val) { return val.name === it.name; })) {
+                                beanDefinition.methods.push(it);
+                            }
+                        });
+                        superBeanDefinition.properties.forEach(function (it) {
+                            if (!beanDefinition.properties.some(function (val) { return val.name === it.name; })) {
+                                beanDefinition.properties.push(it);
+                            }
+                        });
+                    };
+                    return MergeBeanDefinitionPostProcessor;
+                })();
+                Support.MergeBeanDefinitionPostProcessor = MergeBeanDefinitionPostProcessor;
+            })(Support = Factory.Support || (Factory.Support = {}));
+        })(Factory = Component.Factory || (Component.Factory = {}));
+    })(Component = Typejector.Component || (Typejector.Component = {}));
+})(Typejector || (Typejector = {}));
+var Typejector;
+(function (Typejector) {
+    var Component;
+    (function (Component) {
+        var Factory;
+        (function (Factory) {
+            var Support;
+            (function (Support) {
                 var DefaultBeanDefinitionRegistry = (function () {
                     function DefaultBeanDefinitionRegistry() {
                         this.registeredBeanDefinitions = [];
@@ -385,11 +427,7 @@ var Typejector;
                         }
                     };
                     DefaultBeanDefinitionRegistry.prototype.getBeanDefinitionNames = function () {
-                        var resultBeanDefinitionNames = [];
-                        for (var name_1 in this.registeredBeanDefinitions) {
-                            resultBeanDefinitionNames.push(name_1);
-                        }
-                        return resultBeanDefinitionNames;
+                        return this.registeredBeanDefinitions.map(function (it) { return it.name; });
                     };
                     return DefaultBeanDefinitionRegistry;
                 })();
@@ -776,11 +814,13 @@ var Typejector;
             var BeanNameGenerator = Component.Factory.Support.BeanNameGenerator;
             var Bean = Component.Factory.Support.Bean;
             var DefaultBeanDefinitionPostProcessor = Component.Factory.Support.DefaultBeanDefinitionPostProcessor;
+            var MergeBeanDefinitionPostProcessor = Component.Factory.Support.MergeBeanDefinitionPostProcessor;
             var ApplicationContext = (function () {
                 //TODO: Add autoconfiguration for avoding initialization in constructor
                 function ApplicationContext() {
                     this.mainBeanFactory = new Component.Factory.Support.DefaultListableBeanFactory();
                     this.mainBeanFactory.addBeanDefinitionPostProcessor(new DefaultBeanDefinitionPostProcessor());
+                    this.mainBeanFactory.addBeanDefinitionPostProcessor(new MergeBeanDefinitionPostProcessor());
                 }
                 ApplicationContext.prototype.register = function (typeDescriptor) {
                     var beanDefinition;
@@ -966,6 +1006,7 @@ var Typejector;
 ///<reference path="Component/Factory/ConfigurableListableBeanFactory"/>
 ///<reference path="Component/Factory/Support/BeanNameGenerator"/>
 ///<reference path="Component/Factory/Support/DefaultBeanDefinitionPostProcessor"/>
+///<reference path="Component/Factory/Support/MergeBeanDefinitionPostProcessor"/>
 ///<reference path="Component/Factory/Support/DefaultBeanDefinitionRegistry"/>
 ///<reference path="Component/Factory/Support/FactoryBeanRegistrySupport"/>
 ///<reference path="Component/Factory/Support/AbstractBeanFactory"/>
@@ -990,7 +1031,7 @@ var Typejector;
     }
     Typejector.getContext = getContext;
 })(Typejector || (Typejector = {}));
-///<reference path="MEF/Typejector"/> 
+///<reference path="./MEF/Typejector"/> 
 var Typejector;
 (function (Typejector) {
     var Component;

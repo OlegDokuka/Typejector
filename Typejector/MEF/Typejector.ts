@@ -26,6 +26,7 @@
 ///<reference path="Component/Factory/ConfigurableListableBeanFactory"/>
 ///<reference path="Component/Factory/Support/BeanNameGenerator"/>
 ///<reference path="Component/Factory/Support/DefaultBeanDefinitionPostProcessor"/>
+///<reference path="Component/Factory/Support/MergeBeanDefinitionPostProcessor"/>
 ///<reference path="Component/Factory/Support/DefaultBeanDefinitionRegistry"/>
 ///<reference path="Component/Factory/Support/FactoryBeanRegistrySupport"/>
 ///<reference path="Component/Factory/Support/AbstractBeanFactory"/>

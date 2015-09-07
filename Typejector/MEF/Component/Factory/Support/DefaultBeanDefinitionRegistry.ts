@@ -54,13 +54,7 @@
         }
 
         public getBeanDefinitionNames(): string[] {
-            let resultBeanDefinitionNames = [];
-
-            for (let name in this.registeredBeanDefinitions) {
-                resultBeanDefinitionNames.push(name);
-            }
-
-            return resultBeanDefinitionNames;
+            return this.registeredBeanDefinitions.map(it=> it.name);
         }
 
     }

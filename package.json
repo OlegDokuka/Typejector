@@ -6,11 +6,11 @@
     "marge2": "0.3.6",
     "gulp-clean": "0.3.1"
   },
-  "description": "Typejector powerful dependency injector container for Typescript",
+  "description": "Typejector powerful dependency injection container for Typescript",
   "author": "Oleg Dokuka <shadowgun@i.ua>",
   "name": "typejector",
   "readme": "README.MD",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "homepage": "http://olegdokuka.github.io/Typejector/",
   "license": "MIT",
   "main": "Typejector/Compiled/typejector.js",

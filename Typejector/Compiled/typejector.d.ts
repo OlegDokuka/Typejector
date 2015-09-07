@@ -253,6 +253,14 @@ declare namespace Typejector.Component.Factory.Support {
 }
 declare namespace Typejector.Component.Factory.Support {
     import BeanDefinition = Config.BeanDefinition;
+    import BeanDefinitionRegistry = Registry.BeanDefinitionRegistry;
+    class MergeBeanDefinitionPostProcessor implements BeanDefinitionPostProcessor {
+        postProcessBeanDefinition(beanDefinition: BeanDefinition, beanDefinitionRegistry: BeanDefinitionRegistry): void;
+        private merge(beanDefinition, superBeanDefinition);
+    }
+}
+declare namespace Typejector.Component.Factory.Support {
+    import BeanDefinition = Config.BeanDefinition;
     class DefaultBeanDefinitionRegistry implements Registry.BeanDefinitionRegistry {
         private registeredBeanDefinitions;
         private beanDefinitionPostProcessors;

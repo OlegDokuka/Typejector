@@ -12,6 +12,7 @@
     import MethodDescriptor = Component.Factory.Config.MethodDescriptor;
     import Bean = Component.Factory.Support.Bean;
     import DefaultBeanDefinitionPostProcessor = Component.Factory.Support.DefaultBeanDefinitionPostProcessor;
+    import MergeBeanDefinitionPostProcessor = Component.Factory.Support.MergeBeanDefinitionPostProcessor;
 
     export class ApplicationContext implements Context {
         private mainBeanFactory = new Factory.Support.DefaultListableBeanFactory();
@@ -19,6 +20,7 @@
         //TODO: Add autoconfiguration for avoding initialization in constructor
         constructor() {
             this.mainBeanFactory.addBeanDefinitionPostProcessor(new DefaultBeanDefinitionPostProcessor());
+            this.mainBeanFactory.addBeanDefinitionPostProcessor(new MergeBeanDefinitionPostProcessor());
         }
 
         register(typeDescriptor: TypeDescription) {
