@@ -1,9 +1,18 @@
 var gulp = require('gulp'),
     ts = require('gulp-typescript'),
     merge = require('merge2'),
-    clean = require('gulp-clean');
+    clean = require('gulp-clean'),
+    fs = require('fs'),
+    path = require('path');
 
 var tsProject = ts.createProject('Typejector/tsconfig.json', {typescript: require('typescript')});
+
+function getFolders(dir) {
+    return fs.readdirSync(dir)
+        .filter(function (file) {
+            return fs.statSync(path.join(dir, file)).isDirectory();
+        });
+}
 
 gulp.task('build', function () {
     var tsResult = tsProject.src()
@@ -12,16 +21,22 @@ gulp.task('build', function () {
 });
 
 gulp.task('example', function () {
-    var tsResult = gulp.src('Example/**/*.ts')
-        .pipe(ts({
-            typescript: require('typescript'),
-            experimentalDecorators: true,
-            target: 'es5',
-            noImplicitAny: false,
-            sourceMap: true,
-            declarationFiles: true
-        }));
-    return tsResult.js.pipe(gulp.dest('Example/'));
+    var base = 'Example',
+        folders = getFolders(base),
+        tasks = folders.map(function (folder) {
+            console.log(path.join(base, folder, '/*.ts'));
+
+            return gulp.src(path.join(base, folder, '/*.ts'))
+                .pipe(ts({
+                    typescript: require('typescript'),
+                    experimentalDecorators: true,
+                    target: 'es5',
+                    noImplicitAny: false
+                }))
+                .js.pipe(gulp.dest(path.join(base, folder)));
+        });
+
+
 });
 
 gulp.task('clean', function () {

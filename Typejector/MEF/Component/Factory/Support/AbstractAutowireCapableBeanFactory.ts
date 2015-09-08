@@ -3,7 +3,7 @@
     import BeanDefinition = Config.BeanDefinition;
     import TypeDescriptor = Config.TypeDescriptor;
     export class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
-        createBean<T>(clazz: Class): T {
+        createBean<T>(clazz:Class):T {
             assert(clazz);
 
             let beanDefinition = this.getBeanDefinition(BeanNameGenerator.generateBeanName(clazz));
@@ -11,8 +11,8 @@
             return this.doCreateBean(beanDefinition);
         }
 
-        protected doCreateBean(beanDefinition: BeanDefinition) {
-            let bean: any;
+        protected doCreateBean(beanDefinition:BeanDefinition) {
+            let bean:any;
 
             bean = this.doCreateObject(beanDefinition);
 
@@ -25,16 +25,20 @@
             return bean;
         }
 
-        protected doCreateObject(beanDefinition: BeanDefinition) {
-            let resolvedValues: any[];
+        protected doCreateObject(beanDefinition:BeanDefinition) {
+            let resolvedValues:any[];
 
             resolvedValues = beanDefinition.constructorArguments
-                .map((td) => this.resolveDependency(td));
+                .map((td) => {
+                    assert(td);
 
-            return BeanUtils.newInstance(beanDefinition.clazz, resolvedValues);
+                    return this.resolveDependency(td);
+                });
+
+            return BeanUtils.newInstance(beanDefinition.clazz, ...resolvedValues);
         }
 
-        initializeBean<T>(instance: T, beanDefinititon: BeanDefinition): T {
+        initializeBean<T>(instance:T, beanDefinititon:BeanDefinition):T {
             assert(instance);
             assert(beanDefinititon);
 
@@ -57,8 +61,8 @@
             return instance;
         }
 
-        applyBeanPostProcessorsBeforeInitialization<T>(existingBean: T, beanDefinititon: BeanDefinition): T {
-           	let result = existingBean;
+        applyBeanPostProcessorsBeforeInitialization<T>(existingBean:T, beanDefinititon:BeanDefinition):T {
+            let result = existingBean;
 
 
             assert(existingBean);
@@ -75,7 +79,7 @@
             return result;
         }
 
-        applyBeanPostProcessorsAfterInitialization<T>(existingBean: T, beanDefinititon: BeanDefinition): T {
+        applyBeanPostProcessorsAfterInitialization<T>(existingBean:T, beanDefinititon:BeanDefinition):T {
             let result = existingBean;
 
 
@@ -93,7 +97,7 @@
             return result;
         }
 
-        protected doGetFactory<T>(beanDefinition: BeanDefinition): ObjectFactory<T> {
+        protected doGetFactory<T>(beanDefinition:BeanDefinition):ObjectFactory<T> {
             return {
                 getObject: () => {
                     return this.createBean<T>(beanDefinition.clazz);
@@ -101,13 +105,13 @@
             };
         }
 
-        resolveDependency(typeDescriptor: TypeDescriptor): any {
+        resolveDependency(typeDescriptor:TypeDescriptor):any {
             assert(typeDescriptor);
 
             return this.doResolveDependency(typeDescriptor);
         }
 
-        protected doResolveDependency(typeDescriptor: TypeDescriptor): any {
+        protected doResolveDependency(typeDescriptor:TypeDescriptor):any {
             throw new Error("Method not implement");
         }
     }
