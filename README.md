@@ -14,7 +14,7 @@ Good news, version 0.2 is available now. The main concept of new version of DI i
 
 ##For everyone who read this article and wants to help develop this idea and project
 
-I`m open to suggestion and if you want to help me - create new issue, or write on project gitter.
+I`m open to suggestion and if you want to help me - just create new issue, or write on project gitter.
 
 ##Requirement
 
