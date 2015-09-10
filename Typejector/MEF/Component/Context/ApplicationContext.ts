@@ -4,7 +4,7 @@
     import TypeDescription = Factory.Config.TypeDescriptor;
     import DependencyDescriptor = Factory.Config.DependencyDescriptor;
     import BeanDescriptor = Config.BeanDescriptor;
-    import ConstructorDependencyDescriptor = Config.ConstructorDependencyDescriptor;
+    import ArgumentDependencyDescriptor = Config.ArgumentDependencyDescriptor;
     import FieldDependencyDescriptor = Config.FieldDependencyDescriptor;
     import MethodDependencyDescriptor = Config.MethodDependencyDescriptor;
     import BeanDefinition = Component.Factory.Config.BeanDefinition;
@@ -29,20 +29,22 @@
             if (typeDescriptor instanceof DependencyDescriptor) {
                 beanDefinition = this.doGetOrCreateBeanDefinition(typeDescriptor.parent);
 
-                if (typeDescriptor instanceof MethodDependencyDescriptor) {
-                    let methodDescriptor: MethodDescriptor;
+                if (typeDescriptor instanceof ArgumentDependencyDescriptor) {
+                    if (typeDescriptor.name) {
+                        let methodDescriptor: MethodDescriptor;
 
-                    methodDescriptor = (methodDescriptor = beanDefinition.methods
-                        .filter((md) => md.name === typeDescriptor.name)[0]) ? methodDescriptor :
-                        (beanDefinition.methods[beanDefinition.methods.push({
-                            name: typeDescriptor.name,
-                            arguments: []
-                        }) - 1]);
+                        methodDescriptor = (methodDescriptor = beanDefinition.methods
+                            .filter((md) => md.name === typeDescriptor.name)[0]) ? methodDescriptor :
+                            (beanDefinition.methods[beanDefinition.methods.push({
+                                name: typeDescriptor.name,
+                                arguments: []
+                            }) - 1]);
 
-                    methodDescriptor.arguments[typeDescriptor.position] = typeDescriptor;
-                }
-                else if (typeDescriptor instanceof ConstructorDependencyDescriptor) {
-                    beanDefinition.constructorArguments[typeDescriptor.position] = typeDescriptor;
+                        methodDescriptor.arguments[typeDescriptor.position] = typeDescriptor;
+                    }
+                    else {
+                        beanDefinition.constructorArguments[typeDescriptor.position] = typeDescriptor;
+                    }
                 }
                 else if (typeDescriptor instanceof FieldDependencyDescriptor) {
                     beanDefinition.properties.push({ name: typeDescriptor.name, clazz: typeDescriptor });
@@ -80,13 +82,13 @@
 
         containsBean(beanName: string): boolean
         containsBean(clazz: Class): boolean
-        containsBean(item: Class|string): boolean {
+        containsBean(item: Class | string): boolean {
             return this.mainBeanFactory.containsBean(<any>item);
         }
 
         getBean<T>(beanName: string): T
         getBean<T>(clazz: Class): T
-        getBean<T>(item: Class|string): T {
+        getBean<T>(item: Class | string): T {
             return this.mainBeanFactory.getBean<T>(<any>item);
         }
     }

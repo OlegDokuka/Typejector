@@ -1,6 +1,5 @@
 declare module Typejector.Type {
     type Class = {
-        new (): any;
         new (...args: any[]): any;
     };
 }
@@ -12,11 +11,13 @@ declare module Typejector.Event.Interface {
         Callback: ICallback<ArgType>;
         Subscriber: any;
     }
+    /** Базовый интерфейс подписки на событие. Минимальная функциональность. Можем просто отписаться и все. */
     interface ISubscription {
         Unsubscribe: {
             (): void;
         };
     }
+    /** Типизированная версия. Включает ссылки на событие и callback */
     interface ITypedSubscription<ArgType> extends ISubscription {
         Callback: ICallback<ArgType>;
         Event: Event<ArgType>;
@@ -25,7 +26,16 @@ declare module Typejector.Event.Interface {
 declare module Typejector.Event {
     class Event<ArgType> {
         private Callbacks;
+        /** Подписаться на событие
+        * @param {ICallback<ArgType>} callback Callback, который будет вызван при вызове функции
+        * @param {any} subscriber Контекст, в котором должен быть вызван callback
+        * @returns {ITypedSubscription<ArgType>} Объект типизированной подписки
+        */
         Subscribe(callback: Interface.ICallback<ArgType>, subscriber: any): Interface.ITypedSubscription<ArgType>;
+        /**
+        *   Unsubscribe some callback from current event
+        *   @param {Interface.ICallback<ArgType>} subscribet callback
+        **/
         Unsubscribe(callback: Interface.ICallback<ArgType>): void;
         Trigger: Interface.ICallback<ArgType>;
     }
@@ -337,14 +347,9 @@ declare namespace Typejector.Component.Context.Config {
     }
 }
 declare namespace Typejector.Component.Context.Config {
-    import DependencyDescriptor = Factory.Config.DependencyDescriptor;
-    class ConstructorDependencyDescriptor extends DependencyDescriptor {
-        position: number;
-    }
-}
-declare namespace Typejector.Component.Context.Config {
-    class MethodDependencyDescriptor extends ConstructorDependencyDescriptor {
-        name: string;
+    import MethodDescriptor = Factory.Config.MethodDescriptor;
+    class MethodDependencyDescriptor extends FieldDependencyDescriptor implements MethodDescriptor {
+        arguments: Array<FieldDependencyDescriptor>;
     }
 }
 declare namespace Typejector.Component.Context.Config {
@@ -389,4 +394,23 @@ declare module Typejector.Annotation {
 declare module Typejector {
     import Context = Component.Context.Context;
     function getContext(): Context;
+}
+declare namespace Typejector.Annotation {
+    function postConstructor(target: Object, propertyKey: string | symbol, descriptor: PropertyDescriptor): void;
+    function postConstructor(order: number): any;
+}
+declare namespace Typejector.Component.Context.Config {
+    class ArgumentDependencyDescriptor extends FieldDependencyDescriptor {
+        position: number;
+    }
+}
+declare namespace Typejector.Component.Factory {
+    import Class = Type.Class;
+    class ObjectFactoryBuilder<T> {
+        private args;
+        private clazz;
+        withArgs(args: any[]): ObjectFactoryBuilder<T>;
+        forClass(clazz: Class): ObjectFactoryBuilder<T>;
+        build(): ObjectFactory<T>;
+    }
 }
