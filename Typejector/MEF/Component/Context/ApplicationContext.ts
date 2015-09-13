@@ -11,8 +11,10 @@
     import BeanNameGenerator = Component.Factory.Support.BeanNameGenerator;
     import MethodDescriptor = Component.Factory.Config.MethodDescriptor;
     import Bean = Component.Factory.Support.Bean;
+    import ArrayUtils = Util.ArrayUtils;
     import DefaultBeanDefinitionPostProcessor = Component.Factory.Support.DefaultBeanDefinitionPostProcessor;
     import MergeBeanDefinitionPostProcessor = Component.Factory.Support.MergeBeanDefinitionPostProcessor;
+    import PostConstructorDependencyDescriptor = Config.PostConstructorDependencyDescriptor;
 
     export class ApplicationContext implements Context {
         private mainBeanFactory = new Factory.Support.DefaultListableBeanFactory();
@@ -30,21 +32,27 @@
                 beanDefinition = this.doGetOrCreateBeanDefinition(typeDescriptor.parent);
 
                 if (typeDescriptor instanceof ArgumentDependencyDescriptor) {
-                    if (typeDescriptor.name) {
-                        let methodDescriptor: MethodDescriptor;
-
-                        methodDescriptor = (methodDescriptor = beanDefinition.methods
-                            .filter((md) => md.name === typeDescriptor.name)[0]) ? methodDescriptor :
-                            (beanDefinition.methods[beanDefinition.methods.push({
-                                name: typeDescriptor.name,
-                                arguments: []
-                            }) - 1]);
+                    if (typeDescriptor.methodName) {
+                        let methodDescriptor =
+                            BeanUtils.getOrCreateMethodDescriptor(beanDefinition, typeDescriptor.methodName);
 
                         methodDescriptor.arguments[typeDescriptor.position] = typeDescriptor;
                     }
                     else {
                         beanDefinition.constructorArguments[typeDescriptor.position] = typeDescriptor;
                     }
+                }
+                else if (typeDescriptor instanceof PostConstructorDependencyDescriptor) {
+                    let existedMethodDescriptor = BeanUtils.getMethodDescriptor(beanDefinition, typeDescriptor.name);
+
+                    if (existedMethodDescriptor) {
+                        typeDescriptor.arguments = existedMethodDescriptor.arguments;
+                        ArrayUtils.
+                    } else {
+                        typeDescriptor.arguments = [];
+                    }
+
+                    beanDefinition.postConstructors.push(typeDescriptor);
                 }
                 else if (typeDescriptor instanceof FieldDependencyDescriptor) {
                     beanDefinition.properties.push({ name: typeDescriptor.name, clazz: typeDescriptor });

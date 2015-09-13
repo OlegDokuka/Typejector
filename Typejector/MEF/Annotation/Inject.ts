@@ -2,7 +2,7 @@
     import Class = Type.Class;
     import DependencyDescriptor = Component.Factory.Config.DependencyDescriptor;
     import FieldDependencyDescriptor = Component.Context.Config.FieldDependencyDescriptor;
-    import ConstructorDependencyDescriptor = Component.Context.Config.ConstructorDependencyDescriptor;
+    import ArgumentDependencyDescriptor = Component.Context.Config.ArgumentDependencyDescriptor;
     import MethodDependencyDescriptor = Component.Context.Config.MethodDependencyDescriptor;
 
     export function inject(requestType: Class, ...genericTypes: Class[]): any {
@@ -21,22 +21,16 @@
                 } break;
                 case 2: {
                     if (typeof properties[1] === typeof 1) {
+                        descriptor = new ArgumentDependencyDescriptor();
+                        descriptor.clazz = requestType;
+                        descriptor.genericTypes = genericTypes;
+                        (<ArgumentDependencyDescriptor>descriptor).name = properties[0];
+                        (<ArgumentDependencyDescriptor>descriptor).position = properties[1];
                         if (typeof prototype === typeof inject) {
-                            descriptor = new ConstructorDependencyDescriptor();
-
-                            descriptor.clazz = requestType;
                             descriptor.parent = prototype;
-                            descriptor.genericTypes = genericTypes;
-                            (<ConstructorDependencyDescriptor>descriptor).position = properties[1];
                         }
                         else if (typeof prototype === typeof Object.prototype) {
-                            descriptor = new MethodDependencyDescriptor();
-
-                            descriptor.clazz = requestType;
                             descriptor.parent = prototype.constructor;
-                            descriptor.genericTypes = genericTypes;
-                            (<MethodDependencyDescriptor>descriptor).name = properties[0];
-                            (<MethodDependencyDescriptor>descriptor).position = properties[1];
                         }
                     }
                 } break;

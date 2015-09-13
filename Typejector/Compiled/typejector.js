@@ -184,6 +184,7 @@ var Typejector;
                         this.constructorArguments = [];
                         this.properties = [];
                         this.methods = [];
+                        this.postConstructors = [];
                     }
                     Bean.prototype.hasMetadata = function (metadata) {
                         return this.metadata.some(function (val) { return val instanceof metadata; });
@@ -210,6 +211,17 @@ var Typejector;
             };
             BeanUtils.isSingleton = function (beanDefinition) {
                 return Component.Metadata.SingletonMetadata.test(beanDefinition.metadata);
+            };
+            BeanUtils.getMethodDescriptor = function (beanDefinition, methodName) {
+                return beanDefinition.methods
+                    .filter(function (md) { return md.name === methodName; })[0];
+            };
+            BeanUtils.getOrCreateMethodDescriptor = function (beanDefinition, methodName) {
+                var existedMethodDescriptor = BeanUtils.getMethodDescriptor(beanDefinition, methodName);
+                return existedMethodDescriptor != undefined ? existedMethodDescriptor : beanDefinition.methods[beanDefinition.methods.push({
+                    name: methodName,
+                    arguments: []
+                }) - 1];
             };
             BeanUtils.newInstance = function (clazz) {
                 var args = [];
@@ -750,26 +762,6 @@ var Typejector;
         (function (Context) {
             var Config;
             (function (Config) {
-                var MethodDependencyDescriptor = (function (_super) {
-                    __extends(MethodDependencyDescriptor, _super);
-                    function MethodDependencyDescriptor() {
-                        _super.apply(this, arguments);
-                    }
-                    return MethodDependencyDescriptor;
-                })(Config.FieldDependencyDescriptor);
-                Config.MethodDependencyDescriptor = MethodDependencyDescriptor;
-            })(Config = Context.Config || (Context.Config = {}));
-        })(Context = Component.Context || (Component.Context = {}));
-    })(Component = Typejector.Component || (Typejector.Component = {}));
-})(Typejector || (Typejector = {}));
-var Typejector;
-(function (Typejector) {
-    var Component;
-    (function (Component) {
-        var Context;
-        (function (Context) {
-            var Config;
-            (function (Config) {
                 var DependencyDescriptor = Component.Factory.Config.DependencyDescriptor;
                 var FieldDependencyDescriptor = (function (_super) {
                     __extends(FieldDependencyDescriptor, _super);
@@ -789,14 +781,57 @@ var Typejector;
     (function (Component) {
         var Context;
         (function (Context) {
+            var Config;
+            (function (Config) {
+                var DependencyDescriptor = Component.Factory.Config.DependencyDescriptor;
+                var ArgumentDependencyDescriptor = (function (_super) {
+                    __extends(ArgumentDependencyDescriptor, _super);
+                    function ArgumentDependencyDescriptor() {
+                        _super.apply(this, arguments);
+                    }
+                    return ArgumentDependencyDescriptor;
+                })(DependencyDescriptor);
+                Config.ArgumentDependencyDescriptor = ArgumentDependencyDescriptor;
+            })(Config = Context.Config || (Context.Config = {}));
+        })(Context = Component.Context || (Component.Context = {}));
+    })(Component = Typejector.Component || (Typejector.Component = {}));
+})(Typejector || (Typejector = {}));
+var Typejector;
+(function (Typejector) {
+    var Component;
+    (function (Component) {
+        var Context;
+        (function (Context) {
+            var Config;
+            (function (Config) {
+                var MethodDependencyDescriptor = (function (_super) {
+                    __extends(MethodDependencyDescriptor, _super);
+                    function MethodDependencyDescriptor() {
+                        _super.apply(this, arguments);
+                    }
+                    return MethodDependencyDescriptor;
+                })(Config.FieldDependencyDescriptor);
+                Config.MethodDependencyDescriptor = MethodDependencyDescriptor;
+            })(Config = Context.Config || (Context.Config = {}));
+        })(Context = Component.Context || (Component.Context = {}));
+    })(Component = Typejector.Component || (Typejector.Component = {}));
+})(Typejector || (Typejector = {}));
+var Typejector;
+(function (Typejector) {
+    var Component;
+    (function (Component) {
+        var Context;
+        (function (Context) {
             var DependencyDescriptor = Component.Factory.Config.DependencyDescriptor;
             var BeanDescriptor = Context.Config.BeanDescriptor;
             var ArgumentDependencyDescriptor = Context.Config.ArgumentDependencyDescriptor;
             var FieldDependencyDescriptor = Context.Config.FieldDependencyDescriptor;
             var BeanNameGenerator = Component.Factory.Support.BeanNameGenerator;
             var Bean = Component.Factory.Support.Bean;
+            var ArrayUtils = Typejector.Util.ArrayUtils;
             var DefaultBeanDefinitionPostProcessor = Component.Factory.Support.DefaultBeanDefinitionPostProcessor;
             var MergeBeanDefinitionPostProcessor = Component.Factory.Support.MergeBeanDefinitionPostProcessor;
+            var PostConstructorDependencyDescriptor = Context.Config.PostConstructorDependencyDescriptor;
             var ApplicationContext = (function () {
                 //TODO: Add autoconfiguration for avoding initialization in constructor
                 function ApplicationContext() {
@@ -809,19 +844,25 @@ var Typejector;
                     if (typeDescriptor instanceof DependencyDescriptor) {
                         beanDefinition = this.doGetOrCreateBeanDefinition(typeDescriptor.parent);
                         if (typeDescriptor instanceof ArgumentDependencyDescriptor) {
-                            if (typeDescriptor.name) {
-                                var methodDescriptor;
-                                methodDescriptor = (methodDescriptor = beanDefinition.methods
-                                    .filter(function (md) { return md.name === typeDescriptor.name; })[0]) ? methodDescriptor :
-                                    (beanDefinition.methods[beanDefinition.methods.push({
-                                        name: typeDescriptor.name,
-                                        arguments: []
-                                    }) - 1]);
+                            if (typeDescriptor.methodName) {
+                                var methodDescriptor = Component.BeanUtils.getOrCreateMethodDescriptor(beanDefinition, typeDescriptor.methodName);
                                 methodDescriptor.arguments[typeDescriptor.position] = typeDescriptor;
                             }
                             else {
                                 beanDefinition.constructorArguments[typeDescriptor.position] = typeDescriptor;
                             }
+                        }
+                        else if (typeDescriptor instanceof PostConstructorDependencyDescriptor) {
+                            var existedMethodDescriptor = Component.BeanUtils.getMethodDescriptor(beanDefinition, typeDescriptor.name);
+                            if (existedMethodDescriptor) {
+                                typeDescriptor.arguments = existedMethodDescriptor.arguments;
+                                ArrayUtils.
+                                ;
+                            }
+                            else {
+                                typeDescriptor.arguments = [];
+                            }
+                            beanDefinition.postConstructors.push(typeDescriptor);
                         }
                         else if (typeDescriptor instanceof FieldDependencyDescriptor) {
                             beanDefinition.properties.push({ name: typeDescriptor.name, clazz: typeDescriptor });
@@ -864,8 +905,7 @@ var Typejector;
     var Annotation;
     (function (Annotation) {
         var FieldDependencyDescriptor = Typejector.Component.Context.Config.FieldDependencyDescriptor;
-        var ConstructorDependencyDescriptor = Typejector.Component.Context.Config.ConstructorDependencyDescriptor;
-        var MethodDependencyDescriptor = Typejector.Component.Context.Config.MethodDependencyDescriptor;
+        var ArgumentDependencyDescriptor = Typejector.Component.Context.Config.ArgumentDependencyDescriptor;
         function inject(requestType) {
             var genericTypes = [];
             for (var _i = 1; _i < arguments.length; _i++) {
@@ -890,20 +930,16 @@ var Typejector;
                     case 2:
                         {
                             if (typeof properties[1] === typeof 1) {
+                                descriptor = new ArgumentDependencyDescriptor();
+                                descriptor.clazz = requestType;
+                                descriptor.genericTypes = genericTypes;
+                                descriptor.name = properties[0];
+                                descriptor.position = properties[1];
                                 if (typeof prototype === typeof inject) {
-                                    descriptor = new ConstructorDependencyDescriptor();
-                                    descriptor.clazz = requestType;
                                     descriptor.parent = prototype;
-                                    descriptor.genericTypes = genericTypes;
-                                    descriptor.position = properties[1];
                                 }
                                 else if (typeof prototype === typeof Object.prototype) {
-                                    descriptor = new MethodDependencyDescriptor();
-                                    descriptor.clazz = requestType;
                                     descriptor.parent = prototype.constructor;
-                                    descriptor.genericTypes = genericTypes;
-                                    descriptor.name = properties[0];
-                                    descriptor.position = properties[1];
                                 }
                             }
                         }
@@ -998,9 +1034,9 @@ var Typejector;
 ///<reference path="Component/Factory/Support/DefaultListableBeanFactory"/>
 ///<reference path="Component/Context/Context"/>
 ///<reference path="Component/Context/Config/BeanDescriptor"/>
-///<reference path="Component/Context/Config/ConstructorDependencyDescriptor"/>
-///<reference path="Component/Context/Config/MethodDependencyDescriptor"/>
 ///<reference path="Component/Context/Config/FieldDependencyDescriptor"/>
+///<reference path="Component/Context/Config/ArgumentDependencyDescriptor"/>
+///<reference path="Component/Context/Config/MethodDependencyDescriptor"/>
 ///<reference path="Component/Context/ApplicationContext"/>
 ///<reference path="Annotation/Inject"/>
 ///<reference path="Annotation/Injection"/>
@@ -1018,14 +1054,42 @@ var Typejector;
 ///<reference path="./MEF/Typejector"/> 
 var Typejector;
 (function (Typejector) {
+    var Util;
+    (function (Util) {
+        var ArrayUtils = (function () {
+            function ArrayUtils() {
+            }
+            ArrayUtils.remove = function (src, element) {
+                assert(src);
+                assert(element);
+                var index = src.indexOf(element);
+                if (index > -1) {
+                    src.splice(index, 1);
+                    return true;
+                }
+                return false;
+            };
+            return ArrayUtils;
+        })();
+        Util.ArrayUtils = ArrayUtils;
+    })(Util = Typejector.Util || (Typejector.Util = {}));
+})(Typejector || (Typejector = {}));
+var Typejector;
+(function (Typejector) {
     var Annotation;
     (function (Annotation) {
-        function postConstructor(target, propertyKey, descriptor) {
+        var PostConstructorDependencyDescriptor = Typejector.Component.Context.Config.PostConstructorDependencyDescriptor;
+        function postConstructor(target, propertyKey, descriptor, order) {
             if (propertyKey && descriptor) {
+                var descriptor_1 = new PostConstructorDependencyDescriptor();
+                descriptor_1.parent = target.constructor;
+                descriptor_1.name = propertyKey;
+                descriptor_1.order = order;
+                Typejector.getContext().register(descriptor_1);
             }
             else {
-                return function (target, propertyKey, descriptor) {
-                    postConstructor(target, propertyKey, descriptor);
+                return function (parent, propertyKey, descriptor) {
+                    postConstructor(parent, propertyKey, descriptor, target);
                 };
             }
         }
@@ -1040,14 +1104,14 @@ var Typejector;
         (function (Context) {
             var Config;
             (function (Config) {
-                var ArgumentDependencyDescriptor = (function (_super) {
-                    __extends(ArgumentDependencyDescriptor, _super);
-                    function ArgumentDependencyDescriptor() {
+                var PostConstructorDependencyDescriptor = (function (_super) {
+                    __extends(PostConstructorDependencyDescriptor, _super);
+                    function PostConstructorDependencyDescriptor() {
                         _super.apply(this, arguments);
                     }
-                    return ArgumentDependencyDescriptor;
-                })(Config.FieldDependencyDescriptor);
-                Config.ArgumentDependencyDescriptor = ArgumentDependencyDescriptor;
+                    return PostConstructorDependencyDescriptor;
+                })(Config.MethodDependencyDescriptor);
+                Config.PostConstructorDependencyDescriptor = PostConstructorDependencyDescriptor;
             })(Config = Context.Config || (Context.Config = {}));
         })(Context = Component.Context || (Component.Context = {}));
     })(Component = Typejector.Component || (Typejector.Component = {}));

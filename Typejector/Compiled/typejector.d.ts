@@ -109,6 +109,7 @@ declare namespace Typejector.Component.Factory.Config {
         constructorArguments: Array<TypeDescriptor>;
         properties: Array<PropertyDescriptor>;
         methods: Array<MethodDescriptor>;
+        postConstructors: Array<MethodDescriptor>;
     }
 }
 declare module Typejector.Component.Factory.Config {
@@ -128,6 +129,7 @@ declare module Typejector.Component.Factory.Support {
         constructorArguments: Array<Config.TypeDescriptor>;
         properties: Array<Config.PropertyDescriptor>;
         methods: Array<Config.MethodDescriptor>;
+        postConstructors: Array<Config.MethodDescriptor>;
         hasMetadata(metadata: {
             new (): Metadata.Metadata;
         }): boolean;
@@ -140,6 +142,8 @@ declare namespace Typejector.Component {
         static isAssignable(clazz: Class, classFrom: Class): boolean;
         static isAbstract(beanDefinition: BeanDefinition): boolean;
         static isSingleton(beanDefinition: BeanDefinition): boolean;
+        static getMethodDescriptor(beanDefinition: BeanDefinition, methodName: string): Factory.Config.MethodDescriptor;
+        static getOrCreateMethodDescriptor(beanDefinition: BeanDefinition, methodName: string): Factory.Config.MethodDescriptor;
         static newInstance(clazz: Class, ...args: any[]): any;
     }
 }
@@ -347,15 +351,24 @@ declare namespace Typejector.Component.Context.Config {
     }
 }
 declare namespace Typejector.Component.Context.Config {
-    import MethodDescriptor = Factory.Config.MethodDescriptor;
-    class MethodDependencyDescriptor extends FieldDependencyDescriptor implements MethodDescriptor {
-        arguments: Array<FieldDependencyDescriptor>;
+    import DependencyDescriptor = Factory.Config.DependencyDescriptor;
+    class FieldDependencyDescriptor extends DependencyDescriptor {
+        name: string;
     }
 }
 declare namespace Typejector.Component.Context.Config {
     import DependencyDescriptor = Factory.Config.DependencyDescriptor;
-    class FieldDependencyDescriptor extends DependencyDescriptor {
-        name: string;
+    class ArgumentDependencyDescriptor extends DependencyDescriptor {
+        position: number;
+        methodName: string;
+    }
+}
+declare namespace Typejector.Component.Context.Config {
+    import MethodDescriptor = Factory.Config.MethodDescriptor;
+    import TypeDescriptor = Factory.Config.TypeDescriptor;
+    class MethodDependencyDescriptor extends FieldDependencyDescriptor implements MethodDescriptor {
+        arguments: Array<TypeDescriptor>;
+        returnType: TypeDescriptor;
     }
 }
 declare namespace Typejector.Component.Context {
@@ -395,13 +408,19 @@ declare module Typejector {
     import Context = Component.Context.Context;
     function getContext(): Context;
 }
+declare namespace Typejector.Util {
+    class ArrayUtils {
+        static remove<T>(src: Array<T>, element: T): boolean;
+    }
+}
 declare namespace Typejector.Annotation {
-    function postConstructor(target: Object, propertyKey: string | symbol, descriptor: PropertyDescriptor): void;
+    function postConstructor(target: Object, propertyKey: string, descriptor: PropertyDescriptor): void;
+    function postConstructor(target: Object, propertyKey: string, descriptor: PropertyDescriptor, order: number): void;
     function postConstructor(order: number): any;
 }
 declare namespace Typejector.Component.Context.Config {
-    class ArgumentDependencyDescriptor extends FieldDependencyDescriptor {
-        position: number;
+    class PostConstructorDependencyDescriptor extends MethodDependencyDescriptor {
+        order: number;
     }
 }
 declare namespace Typejector.Component.Factory {

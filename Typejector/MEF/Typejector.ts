@@ -34,9 +34,9 @@
 ///<reference path="Component/Factory/Support/DefaultListableBeanFactory"/>
 ///<reference path="Component/Context/Context"/>
 ///<reference path="Component/Context/Config/BeanDescriptor"/>
-///<reference path="Component/Context/Config/ConstructorDependencyDescriptor"/>
-///<reference path="Component/Context/Config/MethodDependencyDescriptor"/>
 ///<reference path="Component/Context/Config/FieldDependencyDescriptor"/>
+///<reference path="Component/Context/Config/ArgumentDependencyDescriptor"/>
+///<reference path="Component/Context/Config/MethodDependencyDescriptor"/>
 ///<reference path="Component/Context/ApplicationContext"/>
 ///<reference path="Annotation/Inject"/>
 ///<reference path="Annotation/Injection"/>

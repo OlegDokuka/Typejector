@@ -1,13 +1,21 @@
 ﻿namespace Typejector.Annotation {
-    export function postConstructor(target: Object, propertyKey: string | symbol, descriptor: PropertyDescriptor): void
-    export function postConstructor(order: number): any
-    export function postConstructor(target: any, propertyKey?: string | symbol, descriptor?: PropertyDescriptor): any {
-        if (propertyKey && descriptor) {
+    import PostConstructorDependencyDescriptor = Component.Context.Config.PostConstructorDependencyDescriptor;
 
+    export function postConstructor(target: Object, propertyKey: string, descriptor: PropertyDescriptor): void
+    export function postConstructor(target: Object, propertyKey: string, descriptor: PropertyDescriptor, order: number): void
+    export function postConstructor(order: number): any
+    export function postConstructor(target: any, propertyKey?: string, descriptor?: PropertyDescriptor, order?: number): any {
+        if (propertyKey && descriptor) {
+            let descriptor = new PostConstructorDependencyDescriptor();
+            descriptor.parent = target.constructor;
+            descriptor.name = propertyKey;
+            descriptor.order = order;
+
+            Typejector.getContext().register(descriptor);
         }
         else {
-            return (target: Object, propertyKey: string | symbol, descriptor: PropertyDescriptor) => {
-                postConstructor(target, propertyKey, descriptor);
+            return (parent: Object, propertyKey: string, descriptor: PropertyDescriptor) => {
+                postConstructor(parent, propertyKey, descriptor, target);
             }
         }
     }
