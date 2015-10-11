@@ -1,7 +1,8 @@
 ﻿module Typejector.Component.Factory.Config {
     import Class = Type.Class;
-    export interface MethodDescriptor {
+    export interface MethodDescriptor extends AnnotatedObject {
         name: string;
         arguments: Array<TypeDescriptor>;
+        returnType: TypeDescriptor;
     }
 } 

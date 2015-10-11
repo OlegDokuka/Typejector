@@ -1,11 +1,9 @@
 ﻿namespace Typejector.Component.Factory.Support {
-    import Class = Type.Class;
     import BeanDefinition = Config.BeanDefinition;
-    import BeanDefinitionRegistry = Registry.BeanDefinitionRegistry;
 
-    export class DefaultBeanDefinitionPostProcessor implements BeanDefinitionPostProcessor {
-        postProcessBeanDefinition(beanDefinition: BeanDefinition, beanDefinitionRegistry:BeanDefinitionRegistry): void {
-            beanDefinition.scopeNames.forEach((it, id) => it == SingletonScope.NAME || it == PrototypeScope.NAME ?
+    export class DefaultBeanDefinitionPostProcessor extends BeanDefinitionPostProcessor {
+        postProcessBeanDefinition(beanDefinition: BeanDefinition): void {
+            beanDefinition.scopeNames.forEach((it, id) => it === SingletonScope.NAME || it === PrototypeScope.NAME ?
                 beanDefinition.scopeNames.splice(id, 1) : void (0));
 
             if (BeanUtils.isSingleton(beanDefinition)) {

@@ -1,8 +1,8 @@
 ﻿namespace Typejector.Component.Context.Config {
     import TypeDescriptor = Factory.Config.TypeDescriptor;
-    import Metadata = Component.Metadata.Metadata
+    import AnnotatedObject = Component.Factory.Config.AnnotatedObject;
 
-    export class BeanDescriptor extends TypeDescriptor {
-        metadata: Metadata[];
+    export class BeanDescriptor extends TypeDescriptor implements AnnotatedObject {
+        annotations: Function[];
     }
 }

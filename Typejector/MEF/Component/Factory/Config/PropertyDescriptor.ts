@@ -1,6 +1,6 @@
 ﻿module Typejector.Component.Factory.Config {
     import Class = Type.Class;
-    export interface PropertyDescriptor {
+    export interface PropertyDescriptor extends AnnotatedObject {
         name: string;
         clazz: TypeDescriptor;
     }

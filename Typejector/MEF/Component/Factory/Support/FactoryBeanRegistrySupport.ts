@@ -2,11 +2,28 @@
     import Class = Type.Class;
     import BeanDefinition = Config.BeanDefinition;
 
-    export class FactoryBeanRegistrySupport extends DefaultBeanDefinitionRegistry {
+    export abstract class FactoryBeanRegistrySupport extends DefaultBeanDefinitionRegistry implements Registry.FactoryBeanRegistry {
+        private registeredFactoriesBeans: { [key: string]: ObjectFactory<any> } = {};
 
-        getFactory<T>(beanName: string): ObjectFactory<T>
-        getFactory<T>(clazz: Class): ObjectFactory<T>
-        getFactory<T>(item: Class|string): ObjectFactory<T> {
+
+        registerFactory<T>(beanName: string, factory: ObjectFactory<T>): void;
+        registerFactory<T>(clazz: Class, factory: ObjectFactory<T>): void;
+        registerFactory<T>(item: Class | string, factory: ObjectFactory<T>): void {
+            let name: string;
+
+            if (typeof item === typeof "") {
+                name = <string>item;
+            }
+            else {
+                name = BeanNameGenerator.generateBeanName(<Class>item);
+            }
+
+            this.registeredFactoriesBeans[name] = factory;
+        }
+
+        getFactory<T>(beanName: string): ObjectFactory<T>;
+        getFactory<T>(clazz: Class): ObjectFactory<T>;
+        getFactory<T>(item: Class | string): ObjectFactory<T> {
             let beanDefinition: BeanDefinition;
 
             if (typeof item === typeof "") {
@@ -16,11 +33,14 @@
                 beanDefinition = this.getBeanDefinition(BeanNameGenerator.generateBeanName(<Class>item));
             }
 
+
+            if (beanDefinition.factoryMethodName && beanDefinition.factoryMethodName in this.registeredFactoriesBeans) {
+                return this.registeredFactoriesBeans[beanDefinition.factoryMethodName];
+            }
+
             return this.doGetFactory<T>(beanDefinition);
         }
 
-        protected doGetFactory<T>(beanDefinition: BeanDefinition): ObjectFactory<T> {
-            throw new Error("Method not implement");
-        }
+        protected abstract doGetFactory<T>(beanDefinition: BeanDefinition): ObjectFactory<T>;
     }
 }

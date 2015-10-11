@@ -1,9 +1,4 @@
 ﻿namespace Typejector.Component.Factory.Support {
-    import Class = Type.Class;
-
-    import BeanDefinition = Config.BeanDefinition;
-    import Scope = Config.Scope;
-    import SingletonMetadata = Metadata.SingletonMetadata;
 
     export class SingletonScope extends PrototypeScope {
         private objectCache = [];
@@ -15,7 +10,7 @@
                 return result;
             }
 
-            result = super.get<T>(name, objectFactory);
+            result = super.get(name, objectFactory);
 
             this.objectCache[name] = result;
 

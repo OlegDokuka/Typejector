@@ -4,12 +4,11 @@
     import BeanDefinition = Config.BeanDefinition;
     import Scope = Config.Scope;
 
-    export class AbstractBeanFactory extends FactoryBeanRegistrySupport implements ConfigurableBeanFactory {
+    export abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport implements ConfigurableBeanFactory {
         private prototypeScope = new PrototypeScope();
         private singletonScope = new SingletonScope();
         private registeredScopes: Array<Scope> = [];
         private beanPostProcessors: Array<BeanPostProcessor> = [];
-
 
         addBeanPostProcessor(beanPostProcessor: BeanPostProcessor): void {
             this.beanPostProcessors.push(beanPostProcessor);
@@ -19,8 +18,8 @@
             return this.beanPostProcessors;
         }
 
-        containsBean(beanName: string): boolean
-        containsBean(clazz: Class): boolean
+        containsBean(beanName: string): boolean;
+        containsBean(clazz: Class): boolean;
         containsBean(item: Class|string): boolean {
             let beanName: string;
 
@@ -32,8 +31,8 @@
             return this.containsBeanDefinition(beanName);
         }
 
-        getBean<T>(beanName: string): T
-        getBean<T>(clazz: Class): T
+        getBean<T>(beanName: string): T;
+        getBean<T>(clazz: Class): T;
         getBean<T>(item: Class|string): T {
             let beanDefinition: BeanDefinition;
 
@@ -49,9 +48,7 @@
             return this.doGetBean(beanDefinition);
         }
 
-        protected doGetBean(beanDifinition: BeanDefinition): any {
-            throw new Error("Method not implement");
-        }
+        protected abstract doGetBean(beanDifinition: BeanDefinition): any;
 
         registerScope(scopeName: string, scope: Scope): void {
             this.registeredScopes[scopeName] = scope;
@@ -62,11 +59,11 @@
                 return this.registeredScopes[scopeName];
             }
 
-            if (scopeName == PrototypeScope.NAME) {
+            if (scopeName === PrototypeScope.NAME) {
                 return this.prototypeScope;
             }
 
-            if (scopeName == SingletonScope.NAME) {
+            if (scopeName === SingletonScope.NAME) {
                 return this.singletonScope;
             }
 

@@ -1,5 +1,5 @@
 {
-  "version": "1.6.0-beta",
+  "version": "1.6.0",
   "compilerOptions": {
     "target": "es5",
     "declaration": true,

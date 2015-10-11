@@ -1,22 +1,23 @@
 ﻿namespace Typejector.Annotation {
-    import PostConstructorDependencyDescriptor = Component.Context.Config.PostConstructorDependencyDescriptor;
+    import MethodDependencyDescriptor = Component.Context.Config.MethodDependencyDescriptor;
 
-    export function postConstructor(target: Object, propertyKey: string, descriptor: PropertyDescriptor): void
-    export function postConstructor(target: Object, propertyKey: string, descriptor: PropertyDescriptor, order: number): void
-    export function postConstructor(order: number): any
+    export function postConstructor(target: Object, propertyKey: string, descriptor: PropertyDescriptor): void;
+    export function postConstructor(target: Object, propertyKey: string, descriptor: PropertyDescriptor, order: number): void;
+    export function postConstructor(order: number): MethodDecorator;
     export function postConstructor(target: any, propertyKey?: string, descriptor?: PropertyDescriptor, order?: number): any {
         if (propertyKey && descriptor) {
-            let descriptor = new PostConstructorDependencyDescriptor();
-            descriptor.parent = target.constructor;
-            descriptor.name = propertyKey;
-            descriptor.order = order;
+            const dependencyDescriptor = new MethodDependencyDescriptor();
 
-            Typejector.getContext().register(descriptor);
+            dependencyDescriptor.parent = target.constructor;
+            dependencyDescriptor.name = propertyKey;
+            dependencyDescriptor.annotations.push(postConstructor);
+
+            Typejector.getContext().register(dependencyDescriptor);
         }
         else {
-            return (parent: Object, propertyKey: string, descriptor: PropertyDescriptor) => {
-                postConstructor(parent, propertyKey, descriptor, target);
-            }
+            return (parent: Object, propertyName: string, propertyDescriptor: PropertyDescriptor) => {
+                postConstructor(parent, propertyName, propertyDescriptor, target);
+            };
         }
     }
 }

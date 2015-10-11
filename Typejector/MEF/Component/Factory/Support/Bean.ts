@@ -3,18 +3,20 @@
 
     export class Bean implements Config.BeanDefinition {
         clazz: Class;
-        metadata: Array<Metadata.Metadata> = [];
 
+
+        annotations: Function[] = [];
         name: string;
         scopeNames: string[] = [];
+        factoryMethodName: string;
 
         constructorArguments: Array<Config.TypeDescriptor> = [];
         properties: Array<Config.PropertyDescriptor> = [];
         methods: Array<Config.MethodDescriptor> = [];
         postConstructors: Array<Config.MethodDescriptor> = [];
 
-        public hasMetadata(metadata: { new (): Metadata.Metadata }): boolean {
-            return this.metadata.some((val) => val instanceof metadata);
+        public hasAnnotation(annotation: Function): boolean {
+            return this.annotations.some((val) => val === annotation);
         }
     }
 } 

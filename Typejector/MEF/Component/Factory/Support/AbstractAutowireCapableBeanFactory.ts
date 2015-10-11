@@ -2,17 +2,23 @@
     import Class = Type.Class;
     import BeanDefinition = Config.BeanDefinition;
     import TypeDescriptor = Config.TypeDescriptor;
-    export class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
-        createBean<T>(clazz:Class):T {
+    import ArrayUtils = Util.ArrayUtils;
+    import inject = Annotation.inject;
+    import postConstructor = Annotation.postConstructor;
+    import ObjectFactory = Factory.ObjectFactory;
+    import Scope = Factory.Config.Scope;
+
+    export abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
+        createBean<T>(clazz: Class): T {
             assert(clazz);
 
-            let beanDefinition = this.getBeanDefinition(BeanNameGenerator.generateBeanName(clazz));
+            const  beanDefinition = this.getBeanDefinition(BeanNameGenerator.generateBeanName(clazz));
 
             return this.doCreateBean(beanDefinition);
         }
 
-        protected doCreateBean(beanDefinition:BeanDefinition) {
-            let bean:any;
+        protected doCreateBean(beanDefinition: BeanDefinition) {
+            let bean: any;
 
             bean = this.doCreateObject(beanDefinition);
 
@@ -25,44 +31,47 @@
             return bean;
         }
 
-        protected doCreateObject(beanDefinition:BeanDefinition) {
-            let resolvedValues:any[];
+        protected doCreateObject(beanDefinition: BeanDefinition) {
+            let bean:any,
+                scopes: Scope[],
+                beanObjectFactory = this.getFactory(beanDefinition.name);
 
-            resolvedValues = beanDefinition.constructorArguments
-                .map((td) => {
-                    assert(td);
+            scopes = beanDefinition.scopeNames.map(scopeName=> this.getRegisteredScope(scopeName));
 
-                    return this.resolveDependency(td);
-                });
+            for (let scope of scopes) {
+                bean = scope.get(beanDefinition.name, beanObjectFactory);
 
-            return BeanUtils.newInstance(beanDefinition.clazz, ...resolvedValues);
+                if (bean != undefined) {
+                    break;
+                }
+            }
+
+            return bean;
         }
 
-        initializeBean<T>(instance:T, beanDefinititon:BeanDefinition):T {
+        initializeBean<T>(instance: T, beanDefinititon: BeanDefinition): T {
             assert(instance);
             assert(beanDefinititon);
-
-
-            //let superBeanDefinition = this.getBeanDefinition(beanDefinititon.clazz
 
             for (let property of beanDefinititon.properties) {
                 instance[property.name] = this.resolveDependency(property.clazz);
             }
-            for (let method of beanDefinititon.methods) {
-                let args = [];
+
+            beanDefinititon.methods.filter((it) => ArrayUtils.contains(it.annotations, inject)).forEach((method) => {
+                const  args = [];
 
                 for (let argType of method.arguments) {
                     args.push(this.resolveDependency(argType));
                 }
 
                 instance[method.name].apply(instance, args);
-            }
+            });
 
             return instance;
         }
 
-        applyBeanPostProcessorsBeforeInitialization<T>(existingBean:T, beanDefinititon:BeanDefinition):T {
-            let result = existingBean;
+        applyBeanPostProcessorsBeforeInitialization<T>(existingBean: T, beanDefinititon: BeanDefinition): T {
+            let instance = existingBean;
 
 
             assert(existingBean);
@@ -70,16 +79,27 @@
 
 
             for (let beanProcessor of this.getBeanPostProcessors()) {
-                result = beanProcessor.postProcessBeforeInitialization(result, beanDefinititon);
+                instance = beanProcessor.postProcessBeforeInitialization(instance, beanDefinititon);
 
-                if (result == null) {
-                    return result;
+                if (instance == null) {
+                    return instance;
                 }
             }
-            return result;
+            
+            beanDefinititon.methods.filter((it) => ArrayUtils.contains(it.annotations, postConstructor)).forEach((method) => {
+                const args = [];
+
+                for (let argType of method.arguments) {
+                    args.push(this.resolveDependency(argType));
+                }
+
+                instance[method.name].apply(instance, args);
+            });
+
+            return instance;
         }
 
-        applyBeanPostProcessorsAfterInitialization<T>(existingBean:T, beanDefinititon:BeanDefinition):T {
+        applyBeanPostProcessorsAfterInitialization<T>(existingBean: T, beanDefinititon: BeanDefinition): T {
             let result = existingBean;
 
 
@@ -97,22 +117,27 @@
             return result;
         }
 
-        protected doGetFactory<T>(beanDefinition:BeanDefinition):ObjectFactory<T> {
+        protected doGetFactory<T>(beanDefinition: BeanDefinition): ObjectFactory<T> {
             return {
                 getObject: () => {
-                    return this.createBean<T>(beanDefinition.clazz);
+                    const resolvedValues = beanDefinition.constructorArguments
+                        .map((td) => {
+                            assert(td);
+
+                            return this.resolveDependency(td);
+                        });
+
+                    return BeanUtils.newInstance(beanDefinition.clazz, ...resolvedValues);
                 }
             };
         }
 
-        resolveDependency(typeDescriptor:TypeDescriptor):any {
+        resolveDependency(typeDescriptor: TypeDescriptor): any {
             assert(typeDescriptor);
 
             return this.doResolveDependency(typeDescriptor);
         }
 
-        protected doResolveDependency(typeDescriptor:TypeDescriptor):any {
-            throw new Error("Method not implement");
-        }
+        protected abstract doResolveDependency(typeDescriptor: TypeDescriptor): any;
     }
 }

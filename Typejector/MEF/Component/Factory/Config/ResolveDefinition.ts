@@ -5,6 +5,5 @@
         constructorArguments: Array<TypeDescriptor>;
         properties: Array<PropertyDescriptor>;
         methods: Array<MethodDescriptor>;
-        postConstructors: Array<MethodDescriptor>;
     }
 } 

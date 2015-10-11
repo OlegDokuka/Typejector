@@ -1,5 +1,4 @@
 ﻿namespace Typejector.Component.Factory.Support {
-    import Class = Type.Class;
     import BeanDefinition = Config.BeanDefinition;
 
     export class DefaultBeanDefinitionRegistry implements Registry.BeanDefinitionRegistry {
@@ -7,36 +6,33 @@
         private beanDefinitionPostProcessors: Array<BeanDefinitionPostProcessor> = [];
 
         containsBeanDefinition(beanName: string): boolean {
-            return this.registeredBeanDefinitions.some(it=> it.name == beanName);
+            return this.registeredBeanDefinitions.some(it=> it.name === beanName);
         }
 
         registerBeanDefinition(beanName: string, beanDefinition: BeanDefinition): void {
-            let existedBeanDefinition: BeanDefinition;
-
-
             assert(beanDefinition, "BeanDefinition must be presented");
 
-
-            this.applyBeanDefinitionPostProcessor(beanDefinition);
-
-            existedBeanDefinition = this.registeredBeanDefinitions.filter(it=> it.name == beanName)[0];
+            const existedBeanDefinition = this.registeredBeanDefinitions.filter(it => it.name === beanName)[0];
 
             if (existedBeanDefinition == undefined) {
                 this.registeredBeanDefinitions.push(beanDefinition);
             }
             else {
-                let beanPosition = this.registeredBeanDefinitions.indexOf(existedBeanDefinition);
+                const beanPosition = this.registeredBeanDefinitions.indexOf(existedBeanDefinition);
 
                 this.registeredBeanDefinitions[beanPosition] = beanDefinition;
             }
+
+            
+            this.applyBeanDefinitionPostProcessor(beanDefinition);
         }
 
         getBeanDefinition(beanName: string): BeanDefinition {
             if (!this.containsBeanDefinition(beanName)) {
-                throw new Error("No such bean definitions found");
+                throw new Error(`No such bean definitions found for name '${beanName}'`);
             }
 
-            return this.registeredBeanDefinitions.filter(it=> it.name == beanName)[0];
+            return this.registeredBeanDefinitions.filter(it=> it.name === beanName)[0];
         }
 
         addBeanDefinitionPostProcessor(beanDefinitionPostProcessor: BeanDefinitionPostProcessor): void {
@@ -49,11 +45,11 @@
 
         private applyBeanDefinitionPostProcessor(beanDefinition: BeanDefinition) {
             for (let processor of this.beanDefinitionPostProcessors) {
-                processor.postProcessBeanDefinition(beanDefinition, this);
+                processor.postProcessBeanDefinition(beanDefinition);
             }
         }
 
-        public getBeanDefinitionNames(): string[] {
+        getBeanDefinitionNames(): string[] {
             return this.registeredBeanDefinitions.map(it=> it.name);
         }
 

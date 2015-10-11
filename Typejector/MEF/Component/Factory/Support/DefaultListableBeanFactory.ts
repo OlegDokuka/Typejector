@@ -54,9 +54,8 @@
             let bean: any;
 
             if (BeanUtils.isAbstract(beanDefinition)) {
-                let beanDefinitions: BeanDefinition[];
-
-                beanDefinitions = this.doGetBeanDefinitionsOfType(beanDefinition.clazz)
+                const beanDefinitions: BeanDefinition[]
+                    = this.doGetBeanDefinitionsOfType(beanDefinition.clazz);
 
                 if (!beanDefinitions.length) {
                     throw new Error(`No ${beanDefinition.name} class found`);
@@ -65,18 +64,7 @@
                 bean = this.doGetBean(beanDefinitions.pop());
             }
             else {
-                let scopes: Scope[],
-                    beanObjectFactory = this.doGetFactory(beanDefinition);
-
-                scopes = beanDefinition.scopeNames.map(scopeName=> this.getRegisteredScope(scopeName));
-
-                for (let scope of scopes) {
-                    bean = scope.get(beanDefinition.name, beanObjectFactory);
-
-                    if (bean != undefined) {
-                        break;
-                    }
-                }
+                bean = this.createBean(beanDefinition.clazz);
             }
 
             return bean;
