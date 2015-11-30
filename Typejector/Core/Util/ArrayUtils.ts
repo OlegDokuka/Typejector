@@ -13,8 +13,9 @@
 
             return false;
         }
+        
 
-        public static contains<T>(src: Array<T>, element: T): boolean {
+        public static contains<T>(src: Array<T>, element: T): boolean{
             assert(src);
             assert(element);
 
