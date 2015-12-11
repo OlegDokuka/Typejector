@@ -2,6 +2,7 @@
 
 import injection = Typejector.Annotation.injection;
 import inject = Typejector.Annotation.inject;
+import postConstructor = Typejector.Annotation.postConstructor;
 
 let context:Typejector.Component.Context.Context,
     noiseMaker:NoiseMakerClass;
@@ -14,10 +15,12 @@ class SimpleNoiser {
         alert(`Noise from ${this.stringField}`);
     }
 }
+
 @injection
  class NoiseMakerClass {
     @inject(SimpleNoiser) ownNoiser:SimpleNoiser = undefined;
 
+    @postConstructor
     doWork() {
         this.ownNoiser.makeNoise();
     }

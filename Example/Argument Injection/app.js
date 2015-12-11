@@ -30,9 +30,13 @@ var NoiseMakerClass = (function () {
         console.assert(externalNoiser);
         this.ownNoiser = externalNoiser;
     }
-    NoiseMakerClass.prototype.doWork = function () {
+    NoiseMakerClass.prototype.doWork = function (externalNoiser) {
         this.ownNoiser.makeNoise();
     };
+    Object.defineProperty(NoiseMakerClass.prototype, "doWork",
+        __decorate([
+            __param(0, inject(SimpleNoiser))
+        ], NoiseMakerClass.prototype, "doWork", Object.getOwnPropertyDescriptor(NoiseMakerClass.prototype, "doWork")));
     NoiseMakerClass = __decorate([
         injection,
         __param(0, inject(SimpleNoiser))

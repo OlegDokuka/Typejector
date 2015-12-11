@@ -3,14 +3,14 @@
     import Class = Type.Class;
 
     @singleton
-    export class JasmineTestEngine extends TestEngine {
-        public generateTest(owner: Class, mathodName: string, method: Function): Function {
+    export class MochaTestEngine extends TestEngine {
+        public generateTest(owner:Class, methodName:string, method:Function):Function {
             // ReSharper disable once Lambda
             const jasmineTest = function () {
                 describe("Test application", () => {
-                    it(`Test Method: ${mathodName}`, () => {
+                    it(`Test Method: ${methodName}`, () => {
                         // ReSharper disable once SuspiciousThisUsage
-                        expect(method.call(this)).toBeDefined();
+                        assert(method.call(this));
                     });
                 });
             };

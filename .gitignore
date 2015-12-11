@@ -16,6 +16,7 @@ Typejector.v12.suo
 /Test/gulpfile.js
 /Test/package.json
 /.vs/*
+/.vscode/*
 /.idea/*
 /.settings/*
 /npm-debug.log

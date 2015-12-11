@@ -1,10 +1,13 @@
 {
   "devDependencies": {
-    "gulp": "3.9.0",
-    "gulp-typescript": "2.8.1",
-    "typescript": "1.6.0-beta",
-    "marge2": "0.3.6",
-    "gulp-clean": "0.3.1"
+    "gulp": "latest",
+    "gulp-typescript": "latest",
+    "typescript": "1.6.2",
+    "merge2": "latest",
+    "gulp-clean": "latest",
+    "mocha": "latest",
+    "gulp-mocha": "latest",
+    "tsd": "latest"
   },
   "description": "Typejector powerful dependency injection container for Typescript",
   "author": "Oleg Dokuka <shadowgun@i.ua>",

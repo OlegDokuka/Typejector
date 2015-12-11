@@ -26,7 +26,7 @@ class NoiseMakerClass {
         this.ownNoiser = externalNoiser;
     }
 
-    doWork() {
+    doWork(@inject(SimpleNoiser) externalNoiser) {
         this.ownNoiser.makeNoise();
     }
 }

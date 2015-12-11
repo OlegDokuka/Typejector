@@ -22,6 +22,7 @@ Typejector/obj/*
 /.idea/*
 /.settings/*
 /npm-debug.log
+/.vscode/*
 /archive.zip
 Typejector/web.Debug.config
 Typejector/web.Release.config

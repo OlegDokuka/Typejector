@@ -1,11 +1,12 @@
 ﻿/// <reference path="../../Typejector/MEF/Typejector.ts"/>
-/// <reference path="../Scripts/typings/jasmine/jasmine.d.ts"/>
+/// <reference path="../../typings/mocha/mocha.d.ts"/>
+/// <reference path="../../typings/expect.js/expect.js.d.ts"/>
 /// <reference path="Component/Engine/TestEngine.ts"/>
-/// <reference path="Component/Engine/Jasmine/JasmineTestEngine.ts"/>
+/// <reference path="Component/Engine/Mocha/MochaTestEngine.ts"/>
 /// <reference path="Annotation/TestCase.ts"/>
 /// <reference path="Annotation/TestMethod.ts"/>
-/// <reference path="Component/Config/TestCaseBeenPostProcessor.ts"/>
-/// <reference path="Component/Config/TestCaseBeenDefinitionPostProcessor.ts"/>
+/// <reference path="Component/Config/TestCaseBeanPostProcessor.ts"/>
+/// <reference path="Component/Config/TestCaseBeanDefinitionPostProcessor.ts"/>
 module Typejector.Test {
     import injection = Typejector.Annotation.injection;
     import inject = Typejector.Annotation.inject;
@@ -14,8 +15,6 @@ module Typejector.Test {
     import testCase = Test.Annotation.testCase;
     import config = Typejector.Annotation.config;
     import factoryMethod = Typejector.Annotation.factoryMethod;
-
-
 
     @injection
     export class MockClass {
@@ -49,12 +48,4 @@ module Typejector.Test {
             return true;
         }
     }
-
-    describe("Test application", () => {
-        let bean = Typejector.getContext().getBean<TestClass>(TestClass);
-
-        it("test", () => {
-            expect(bean.test.test).toEqual("Yoio");
-        });
-    });
 }

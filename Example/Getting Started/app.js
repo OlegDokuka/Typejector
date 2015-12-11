@@ -9,6 +9,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 var injection = Typejector.Annotation.injection;
 var inject = Typejector.Annotation.inject;
+var postConstructor = Typejector.Annotation.postConstructor;
 var context, noiseMaker;
 var SimpleNoiser = (function () {
     function SimpleNoiser() {
@@ -32,6 +33,10 @@ var NoiseMakerClass = (function () {
     __decorate([
         inject(SimpleNoiser)
     ], NoiseMakerClass.prototype, "ownNoiser");
+    Object.defineProperty(NoiseMakerClass.prototype, "doWork",
+        __decorate([
+            postConstructor
+        ], NoiseMakerClass.prototype, "doWork", Object.getOwnPropertyDescriptor(NoiseMakerClass.prototype, "doWork")));
     NoiseMakerClass = __decorate([
         injection
     ], NoiseMakerClass);

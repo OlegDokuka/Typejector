@@ -21,13 +21,10 @@ var Typejector;
                 return src.indexOf(element) > -1;
             };
             return ArrayUtils;
-        })();
+        }());
         Util.ArrayUtils = ArrayUtils;
     })(Util = Typejector.Util || (Typejector.Util = {}));
 })(Typejector || (Typejector = {}));
-/// <reference path="Interface/IEvent.ts" />
-// Typejector View Module -------
-// Realize Typejector view class and halper classes such as Point and etc.
 var Typejector;
 (function (Typejector) {
     var Event;
@@ -43,11 +40,6 @@ var Typejector;
                     }
                 };
             }
-            /** Подписаться на событие
-            * @param {ICallback<ArgType>} callback Callback, который будет вызван при вызове функции
-            * @param {any} subscriber Контекст, в котором должен быть вызван callback
-            * @returns {ITypedSubscription<ArgType>} Объект типизированной подписки
-            */
             Event.prototype.Subscribe = function (callback, subscriber) {
                 var that = this, res = {
                     Callback: callback,
@@ -57,10 +49,6 @@ var Typejector;
                 this.Callbacks.push({ Callback: callback, Subscriber: subscriber });
                 return res;
             };
-            /**
-            *   Unsubscribe some callback from current event
-            *   @param {Interface.ICallback<ArgType>} subscribet callback
-            **/
             Event.prototype.Unsubscribe = function (callback) {
                 var filteredList = [];
                 for (var i = 0; i < this.Callbacks.length; i++) {
@@ -71,7 +59,7 @@ var Typejector;
                 this.Callbacks = filteredList;
             };
             return Event;
-        })();
+        }());
         Event_1.Event = Event;
     })(Event = Typejector.Event || (Typejector.Event = {}));
 })(Typejector || (Typejector = {}));
@@ -87,7 +75,7 @@ var Typejector;
                 this.message = message ? message : this.message;
             }
             return IllegalArgumentException;
-        })();
+        }());
         Exception.IllegalArgumentException = IllegalArgumentException;
         function assert(object, message) {
             if (object == undefined) {
@@ -115,7 +103,7 @@ var Typejector;
                         return Array === this.clazz || Array.prototype.isPrototypeOf(this.clazz.prototype);
                     };
                     return TypeDescriptor;
-                })();
+                }());
                 Config.TypeDescriptor = TypeDescriptor;
             })(Config = Factory.Config || (Factory.Config = {}));
         })(Factory = Component.Factory || (Component.Factory = {}));
@@ -140,7 +128,7 @@ var Typejector;
                         _super.apply(this, arguments);
                     }
                     return DependencyDescriptor;
-                })(Config.TypeDescriptor);
+                }(Config.TypeDescriptor));
                 Config.DependencyDescriptor = DependencyDescriptor;
             })(Config = Factory.Config || (Factory.Config = {}));
         })(Factory = Component.Factory || (Component.Factory = {}));
@@ -161,7 +149,7 @@ var Typejector;
                         _super.apply(this, arguments);
                     }
                     return BeanDescriptor;
-                })(TypeDescriptor);
+                }(TypeDescriptor));
                 Config.BeanDescriptor = BeanDescriptor;
             })(Config = Context.Config || (Context.Config = {}));
         })(Context = Component.Context || (Component.Context = {}));
@@ -183,7 +171,7 @@ var Typejector;
                         this.annotations = [];
                     }
                     return FieldDependencyDescriptor;
-                })(DependencyDescriptor);
+                }(DependencyDescriptor));
                 Config.FieldDependencyDescriptor = FieldDependencyDescriptor;
             })(Config = Context.Config || (Context.Config = {}));
         })(Context = Component.Context || (Component.Context = {}));
@@ -204,7 +192,7 @@ var Typejector;
                         _super.apply(this, arguments);
                     }
                     return ArgumentDependencyDescriptor;
-                })(DependencyDescriptor);
+                }(DependencyDescriptor));
                 Config.ArgumentDependencyDescriptor = ArgumentDependencyDescriptor;
             })(Config = Context.Config || (Context.Config = {}));
         })(Context = Component.Context || (Component.Context = {}));
@@ -225,7 +213,7 @@ var Typejector;
                         this.arguments = [];
                     }
                     return MethodDependencyDescriptor;
-                })(Config.FieldDependencyDescriptor);
+                }(Config.FieldDependencyDescriptor));
                 Config.MethodDependencyDescriptor = MethodDependencyDescriptor;
             })(Config = Context.Config || (Context.Config = {}));
         })(Context = Component.Context || (Component.Context = {}));
@@ -403,7 +391,7 @@ var Typejector;
                         return this.annotations.some(function (val) { return val === annotation; });
                     };
                     return Bean;
-                })();
+                }());
                 Support.Bean = Bean;
             })(Support = Factory.Support || (Factory.Support = {}));
         })(Factory = Component.Factory || (Component.Factory = {}));
@@ -417,7 +405,6 @@ var Typejector;
         (function (Factory) {
             var Support;
             (function (Support) {
-                //TODO: it doesnot work! Provide name generation!
                 var BeanNameGenerator = (function () {
                     function BeanNameGenerator() {
                     }
@@ -425,7 +412,7 @@ var Typejector;
                         return clazz.toString();
                     };
                     return BeanNameGenerator;
-                })();
+                }());
                 Support.BeanNameGenerator = BeanNameGenerator;
             })(Support = Factory.Support || (Factory.Support = {}));
         })(Factory = Component.Factory || (Component.Factory = {}));
@@ -443,12 +430,6 @@ var Typejector;
         var BeanUtils = (function () {
             function BeanUtils() {
             }
-            /**
-             * Class represented by the @arg clazz object is a superclass or superinterface of @arg classFrom
-             * @param clazz superclass or superinterface
-             * @param classFrom class that required some checking
-             * @returns Boolean result of checking
-             */
             BeanUtils.isAssignable = function (clazz, classFrom) {
                 return clazz === classFrom || clazz.prototype.isPrototypeOf(classFrom.prototype);
             };
@@ -506,7 +487,7 @@ var Typejector;
                 };
             };
             return BeanUtils;
-        })();
+        }());
         Component.BeanUtils = BeanUtils;
     })(Component = Typejector.Component || (Typejector.Component = {}));
 })(Typejector || (Typejector = {}));
@@ -527,7 +508,7 @@ var Typejector;
                     PrototypeScope.prototype.remove = function (name) {
                     };
                     return PrototypeScope;
-                })();
+                }());
                 Support.PrototypeScope = PrototypeScope;
                 var PrototypeScope;
                 (function (PrototypeScope) {
@@ -564,7 +545,7 @@ var Typejector;
                         delete this.objectCache[name];
                     };
                     return SingletonScope;
-                })(Support.PrototypeScope);
+                }(Support.PrototypeScope));
                 Support.SingletonScope = SingletonScope;
                 var SingletonScope;
                 (function (SingletonScope) {
@@ -584,7 +565,7 @@ var Typejector;
                 function BeanPostProcessor() {
                 }
                 return BeanPostProcessor;
-            })();
+            }());
             Factory.BeanPostProcessor = BeanPostProcessor;
         })(Factory = Component.Factory || (Component.Factory = {}));
     })(Component = Typejector.Component || (Typejector.Component = {}));
@@ -599,7 +580,7 @@ var Typejector;
                 function BeanDefinitionPostProcessor() {
                 }
                 return BeanDefinitionPostProcessor;
-            })();
+            }());
             Factory.BeanDefinitionPostProcessor = BeanDefinitionPostProcessor;
         })(Factory = Component.Factory || (Component.Factory = {}));
     })(Component = Typejector.Component || (Typejector.Component = {}));
@@ -628,7 +609,7 @@ var Typejector;
                         }
                     };
                     return DefaultBeanDefinitionPostProcessor;
-                })(Factory.BeanDefinitionPostProcessor);
+                }(Factory.BeanDefinitionPostProcessor));
                 Support.DefaultBeanDefinitionPostProcessor = DefaultBeanDefinitionPostProcessor;
             })(Support = Factory.Support || (Factory.Support = {}));
         })(Factory = Component.Factory || (Component.Factory = {}));
@@ -673,7 +654,7 @@ var Typejector;
                         });
                     };
                     return MergeBeanDefinitionPostProcessor;
-                })(Factory.BeanDefinitionPostProcessor);
+                }(Factory.BeanDefinitionPostProcessor));
                 Support.MergeBeanDefinitionPostProcessor = MergeBeanDefinitionPostProcessor;
             })(Support = Factory.Support || (Factory.Support = {}));
         })(Factory = Component.Factory || (Component.Factory = {}));
@@ -730,7 +711,7 @@ var Typejector;
                         });
                     };
                     return ConfigBeanDefinitionPostProcessor;
-                })(Factory.BeanDefinitionPostProcessor);
+                }(Factory.BeanDefinitionPostProcessor));
                 Support.ConfigBeanDefinitionPostProcessor = ConfigBeanDefinitionPostProcessor;
             })(Support = Factory.Support || (Factory.Support = {}));
         })(Factory = Component.Factory || (Component.Factory = {}));
@@ -786,7 +767,7 @@ var Typejector;
                         return this.registeredBeanDefinitions.map(function (it) { return it.name; });
                     };
                     return DefaultBeanDefinitionRegistry;
-                })();
+                }());
                 Support.DefaultBeanDefinitionRegistry = DefaultBeanDefinitionRegistry;
             })(Support = Factory.Support || (Factory.Support = {}));
         })(Factory = Component.Factory || (Component.Factory = {}));
@@ -830,7 +811,7 @@ var Typejector;
                         return this.doGetFactory(beanDefinition);
                     };
                     return FactoryBeanRegistrySupport;
-                })(Support.DefaultBeanDefinitionRegistry);
+                }(Support.DefaultBeanDefinitionRegistry));
                 Support.FactoryBeanRegistrySupport = FactoryBeanRegistrySupport;
             })(Support = Factory.Support || (Factory.Support = {}));
         })(Factory = Component.Factory || (Component.Factory = {}));
@@ -893,7 +874,7 @@ var Typejector;
                         return undefined;
                     };
                     return AbstractBeanFactory;
-                })(Support.FactoryBeanRegistrySupport);
+                }(Support.FactoryBeanRegistrySupport));
                 Support.AbstractBeanFactory = AbstractBeanFactory;
             })(Support = Factory.Support || (Factory.Support = {}));
         })(Factory = Component.Factory || (Component.Factory = {}));
@@ -932,8 +913,8 @@ var Typejector;
                         var _this = this;
                         var bean, scopes, beanObjectFactory = this.getFactory(beanDefinition.name);
                         scopes = beanDefinition.scopeNames.map(function (scopeName) { return _this.getRegisteredScope(scopeName); });
-                        for (var _i = 0; _i < scopes.length; _i++) {
-                            var scope = scopes[_i];
+                        for (var _i = 0, scopes_1 = scopes; _i < scopes_1.length; _i++) {
+                            var scope = scopes_1[_i];
                             bean = scope.get(beanDefinition.name, beanObjectFactory);
                             if (bean != undefined) {
                                 break;
@@ -1012,7 +993,7 @@ var Typejector;
                         return this.doResolveDependency(typeDescriptor);
                     };
                     return AbstractAutowireCapableBeanFactory;
-                })(Support.AbstractBeanFactory);
+                }(Support.AbstractBeanFactory));
                 Support.AbstractAutowireCapableBeanFactory = AbstractAutowireCapableBeanFactory;
             })(Support = Factory.Support || (Factory.Support = {}));
         })(Factory = Component.Factory || (Component.Factory = {}));
@@ -1084,7 +1065,7 @@ var Typejector;
                         return result;
                     };
                     return DefaultListableBeanFactory;
-                })(Support.AbstractAutowireCapableBeanFactory);
+                }(Support.AbstractAutowireCapableBeanFactory));
                 Support.DefaultListableBeanFactory = DefaultListableBeanFactory;
             })(Support = Factory.Support || (Factory.Support = {}));
         })(Factory = Component.Factory || (Component.Factory = {}));
@@ -1108,7 +1089,6 @@ var Typejector;
             var MethodDependencyDescriptor = Context.Config.MethodDependencyDescriptor;
             var singleton = Typejector.Annotation.singleton;
             var ApplicationContext = (function () {
-                //TODO: Add autoconfiguration for avoding initialization in constructor
                 function ApplicationContext() {
                     this.mainBeanFactory = new Component.Factory.Support.DefaultListableBeanFactory();
                     this.mainBeanFactory.addBeanDefinitionPostProcessor(new DefaultBeanDefinitionPostProcessor());
@@ -1172,59 +1152,11 @@ var Typejector;
                 };
                 ApplicationContext.prototype.getBeanFactory = function () { return this.mainBeanFactory; };
                 return ApplicationContext;
-            })();
+            }());
             Context.ApplicationContext = ApplicationContext;
         })(Context = Component.Context || (Component.Context = {}));
     })(Component = Typejector.Component || (Typejector.Component = {}));
 })(Typejector || (Typejector = {}));
-///<reference path="../Core/Type/Class.ts"/>
-///<reference path="../Core/Util/ArrayUtils.ts"/>
-///<reference path="../Core/Event/Event.ts"/>
-///<reference path="../Core/Exception/Assert.ts"/>
-///<reference path="Component/Factory/Config/AnnotatedObject.ts"/>
-///<reference path="Component/Factory/Config/TypeDescriptor.ts"/>
-///<reference path="Component/Factory/Config/DependencyDescriptor.ts"/>
-///<reference path="Component/Factory/Config/PropertyDescriptor.ts"/>
-///<reference path="Component/Factory/Config/MethodDescriptor.ts"/>
-///<reference path="Component/Factory/Config/ResolveDefinition.ts"/>
-///<reference path="Component/Factory/Config/BeanDefinition.ts"/>
-///<reference path="Component/Context/Config/BeanDescriptor.ts"/>
-///<reference path="Component/Context/Config/FieldDependencyDescriptor.ts"/>
-///<reference path="Component/Context/Config/ArgumentDependencyDescriptor.ts"/>
-///<reference path="Component/Context/Config/MethodDependencyDescriptor.ts"/>
-///<reference path="Annotation/Inject.ts"/>
-///<reference path="Annotation/Injection.ts"/>
-///<reference path="Annotation/Abstract.ts"/>
-///<reference path="Annotation/Singleton.ts"/>
-///<reference path="Annotation/PostConstructor.ts"/>
-///<reference path="Annotation/FactoryMethod.ts"/>
-///<reference path="Annotation/Config.ts"/>
-///<reference path="Component/Factory/Support/Bean.ts"/>
-///<reference path="Component/Factory/Support/BeanNameGenerator.ts"/>
-///<reference path="Component/BeanUtils.ts"/>
-///<reference path="Component/Factory/ObjectFactory.ts"/>
-///<reference path="Component/Factory/Config/Scope.ts"/>
-///<reference path="Component/Factory/Support/PrototypeScope.ts"/>
-///<reference path="Component/Factory/Support/SingletonScope.ts"/>
-///<reference path="Component/Factory/BeanFactory.ts"/>
-///<reference path="Component/Factory/Registry/BeanDefinitionRegistry.ts"/>
-///<reference path="Component/Factory/Registry/FactoryBeanRegistry.ts"/>
-///<reference path="Component/Factory/AutowireCapableBeanFactory.ts"/>
-///<reference path="Component/Factory/ListableBeanFactory.ts"/>
-///<reference path="Component/Factory/BeanPostProcessor.ts"/>
-///<reference path="Component/Factory/BeanDefinitionPostProcessor.ts"/>
-///<reference path="Component/Factory/ConfigurableBeanFactory.ts"/>
-///<reference path="Component/Factory/ConfigurableListableBeanFactory.ts"/>
-///<reference path="Component/Factory/Support/DefaultBeanDefinitionPostProcessor.ts"/>
-///<reference path="Component/Factory/Support/MergeBeanDefinitionPostProcessor.ts"/>
-///<reference path="Component/Factory/Support/ConfigBeanDefinitionPostProcessor.ts"/>
-///<reference path="Component/Factory/Support/DefaultBeanDefinitionRegistry.ts"/>
-///<reference path="Component/Factory/Support/FactoryBeanRegistrySupport.ts"/>
-///<reference path="Component/Factory/Support/AbstractBeanFactory.ts"/>
-///<reference path="Component/Factory/Support/AbstractAutowireCapableBeanFactory.ts"/>
-///<reference path="Component/Factory/Support/DefaultListableBeanFactory.ts"/>
-///<reference path="Component/Context/Context.ts"/>
-///<reference path="Component/Context/ApplicationContext.ts"/>
 var Typejector;
 (function (Typejector) {
     var ApplicationContext = Typejector.Component.Context.ApplicationContext;
@@ -1234,37 +1166,3 @@ var Typejector;
     }
     Typejector.getContext = getContext;
 })(Typejector || (Typejector = {}));
-///<reference path="./MEF/Typejector.ts"/> 
-var Typejector;
-(function (Typejector) {
-    var Component;
-    (function (Component) {
-        var Factory;
-        (function (Factory) {
-            var ObjectFactoryBuilder = (function () {
-                function ObjectFactoryBuilder() {
-                    this.args = [];
-                }
-                ObjectFactoryBuilder.prototype.withArgs = function (args) {
-                    this.args = args;
-                    return this;
-                };
-                ObjectFactoryBuilder.prototype.forClass = function (clazz) {
-                    this.clazz = clazz;
-                    return this;
-                };
-                ObjectFactoryBuilder.prototype.build = function () {
-                    var _this = this;
-                    return {
-                        getObject: function () {
-                            return new (_this.clazz.bind.apply(_this.clazz, _this.args))();
-                        }
-                    };
-                };
-                return ObjectFactoryBuilder;
-            })();
-            Factory.ObjectFactoryBuilder = ObjectFactoryBuilder;
-        })(Factory = Component.Factory || (Component.Factory = {}));
-    })(Component = Typejector.Component || (Typejector.Component = {}));
-})(Typejector || (Typejector = {}));
-//# sourceMappingURL=typejector.js.map

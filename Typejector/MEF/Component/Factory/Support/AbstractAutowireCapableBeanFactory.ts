@@ -7,7 +7,7 @@
     import postConstructor = Annotation.postConstructor;
     import ObjectFactory = Factory.ObjectFactory;
     import Scope = Factory.Config.Scope;
-
+//todo: singleton not working. Rethink instance creation  flow
     export abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
         createBean<T>(clazz: Class): T {
             assert(clazz);
