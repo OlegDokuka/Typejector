@@ -9,6 +9,10 @@
             let argsCount = properties.length,
                 descriptor: DependencyDescriptor;
 
+            var a = Reflect.getMetadata("design:type", prototype.constructor, properties[0]);
+            var b = Reflect.getMetadata("design:type", prototype, properties[0]);
+
+
             switch (argsCount) {
                 case 1: {
                     descriptor = new FieldDependencyDescriptor();

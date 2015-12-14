@@ -85,7 +85,27 @@
                     return instance;
                 }
             }
-            
+
+            return instance;
+        }
+
+        applyBeanPostProcessorsAfterInitialization<T>(existingBean: T, beanDefinititon: BeanDefinition): T {
+            let instance = existingBean;
+
+
+            assert(existingBean);
+            assert(beanDefinititon);
+
+
+            for (let beanProcessor of this.getBeanPostProcessors()) {
+                instance = beanProcessor.postProcessAfterInitialization(result, beanDefinititon);
+
+                if (instance == null) {
+                    return instance;
+                }
+            }
+
+
             beanDefinititon.methods.filter((it) => ArrayUtils.contains(it.annotations, postConstructor)).forEach((method) => {
                 const args = [];
 
@@ -97,24 +117,6 @@
             });
 
             return instance;
-        }
-
-        applyBeanPostProcessorsAfterInitialization<T>(existingBean: T, beanDefinititon: BeanDefinition): T {
-            let result = existingBean;
-
-
-            assert(existingBean);
-            assert(beanDefinititon);
-
-
-            for (let beanProcessor of this.getBeanPostProcessors()) {
-                result = beanProcessor.postProcessAfterInitialization(result, beanDefinititon);
-
-                if (result == null) {
-                    return result;
-                }
-            }
-            return result;
         }
 
         protected doGetFactory<T>(beanDefinition: BeanDefinition): ObjectFactory<T> {
