@@ -3,5 +3,6 @@
         name: string;
         scopeNames: string[];
         factoryMethodName: string;
+        isReady: boolean;
     }
 } 

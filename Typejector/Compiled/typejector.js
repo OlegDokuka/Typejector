@@ -956,6 +956,7 @@ var Typejector;
             (function (Support) {
                 var Bean = (function () {
                     function Bean() {
+                        this.isReady = false;
                         this.annotations = [];
                         this.scopeNames = [];
                         this.constructorArguments = [];
@@ -1319,7 +1320,9 @@ var Typejector;
                             var beanPosition = this.registeredBeanDefinitions.indexOf(existedBeanDefinition);
                             this.registeredBeanDefinitions[beanPosition] = beanDefinition;
                         }
-                        this.applyBeanDefinitionPostProcessor(beanDefinition);
+                        if (beanDefinition.isReady) {
+                            this.applyBeanDefinitionPostProcessor(beanDefinition);
+                        }
                     };
                     DefaultBeanDefinitionRegistry.prototype.getBeanDefinition = function (beanName) {
                         if (!this.containsBeanDefinition(beanName)) {
@@ -1478,35 +1481,38 @@ var Typejector;
                         return this.doCreateBean(beanDefinition);
                     };
                     AbstractAutowireCapableBeanFactory.prototype.doCreateBean = function (beanDefinition) {
-                        var bean;
-                        bean = this.doCreateObject(beanDefinition);
-                        bean = this.applyBeanPostProcessorsBeforeInitialization(bean, beanDefinition);
-                        bean = this.initializeBean(bean, beanDefinition);
-                        bean = this.applyBeanPostProcessorsAfterInitialization(bean, beanDefinition);
-                        return bean;
-                    };
-                    AbstractAutowireCapableBeanFactory.prototype.doCreateObject = function (beanDefinition) {
                         var _this = this;
                         var bean, scopes, beanObjectFactory = this.getFactory(beanDefinition.name);
                         scopes = beanDefinition.scopeNames.map(function (scopeName) { return _this.getRegisteredScope(scopeName); });
                         for (var _i = 0; _i < scopes.length; _i++) {
                             var scope = scopes[_i];
-                            bean = scope.get(beanDefinition.name, beanObjectFactory);
+                            bean = scope.get(beanDefinition.name, {
+                                getObject: function () {
+                                    var bean = beanObjectFactory.getObject();
+                                    if (bean == undefined) {
+                                        return bean;
+                                    }
+                                    bean = _this.applyBeanPostProcessorsBeforeInitialization(bean, beanDefinition);
+                                    bean = _this.initializeBean(bean, beanDefinition);
+                                    bean = _this.applyBeanPostProcessorsAfterInitialization(bean, beanDefinition);
+                                    return bean;
+                                }
+                            });
                             if (bean != undefined) {
                                 break;
                             }
                         }
                         return bean;
                     };
-                    AbstractAutowireCapableBeanFactory.prototype.initializeBean = function (instance, beanDefinititon) {
+                    AbstractAutowireCapableBeanFactory.prototype.initializeBean = function (instance, beanDefinition) {
                         var _this = this;
                         assert(instance);
-                        assert(beanDefinititon);
-                        for (var _i = 0, _a = beanDefinititon.properties; _i < _a.length; _i++) {
+                        assert(beanDefinition);
+                        for (var _i = 0, _a = beanDefinition.properties; _i < _a.length; _i++) {
                             var property = _a[_i];
                             instance[property.name] = this.resolveDependency(property.clazz);
                         }
-                        beanDefinititon.methods.filter(function (it) { return ArrayUtils.contains(it.annotations, inject); }).forEach(function (method) {
+                        beanDefinition.methods.filter(function (it) { return ArrayUtils.contains(it.annotations, inject); }).forEach(function (method) {
                             var args = [];
                             for (var _i = 0, _a = method.arguments; _i < _a.length; _i++) {
                                 var argType = _a[_i];
@@ -1536,8 +1542,8 @@ var Typejector;
                         assert(beanDefinititon);
                         for (var _i = 0, _a = this.getBeanPostProcessors(); _i < _a.length; _i++) {
                             var beanProcessor = _a[_i];
-                            instance = beanProcessor.postProcessAfterInitialization(result, beanDefinititon);
-                            if (instance == null) {
+                            instance = beanProcessor.postProcessAfterInitialization(instance, beanDefinititon);
+                            if (instance == undefined) {
                                 return instance;
                             }
                         }
@@ -1679,6 +1685,7 @@ var Typejector;
                     applicationContextBeanDefinition.clazz = ApplicationContext;
                     applicationContextBeanDefinition.factoryMethodName = applicationContextBeanDefinition.name;
                     applicationContextBeanDefinition.annotations.push(singleton);
+                    applicationContextBeanDefinition.isReady = true;
                     this.mainBeanFactory.registerFactory(applicationContextBeanDefinition.factoryMethodName, {
                         getObject: function () { return _this; }
                     });
@@ -1715,6 +1722,7 @@ var Typejector;
                     else if (typeDescriptor instanceof BeanDescriptor) {
                         beanDefinition = Component.BeanUtils.getOrCreateBeanDefinition(this.mainBeanFactory, typeDescriptor.clazz);
                         beanDefinition.annotations = typeDescriptor.annotations;
+                        beanDefinition.isReady = true;
                     }
                     assert(beanDefinition, "no bean definition resolved from passed info");
                     this.mainBeanFactory.registerBeanDefinition(beanDefinition.name, beanDefinition);
@@ -1733,7 +1741,7 @@ var Typejector;
         })(Context = Component.Context || (Component.Context = {}));
     })(Component = Typejector.Component || (Typejector.Component = {}));
 })(Typejector || (Typejector = {}));
-///<reference path="../node_modules/reflect-metadata/Reflect.ts"/>
+///<reference path="../../node_modules/reflect-metadata/Reflect.ts"/>
 ///<reference path="../Core/Type/Class.ts"/>
 ///<reference path="../Core/Util/ArrayUtils.ts"/>
 ///<reference path="../Core/Event/Event.ts"/>

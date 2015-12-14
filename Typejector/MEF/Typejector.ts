@@ -1,4 +1,4 @@
-﻿///<reference path="../node_modules/reflect-metadata/Reflect.ts"/>
+﻿///<reference path="../../node_modules/reflect-metadata/Reflect.ts"/>
 ///<reference path="../Core/Type/Class.ts"/>
 ///<reference path="../Core/Util/ArrayUtils.ts"/>
 ///<reference path="../Core/Event/Event.ts"/>

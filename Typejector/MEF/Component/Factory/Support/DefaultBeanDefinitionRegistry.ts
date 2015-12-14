@@ -23,15 +23,16 @@
                 this.registeredBeanDefinitions[beanPosition] = beanDefinition;
             }
 
-            
-            this.applyBeanDefinitionPostProcessor(beanDefinition);
+            if(beanDefinition.isReady) {
+                this.applyBeanDefinitionPostProcessor(beanDefinition);
+            }
         }
 
         getBeanDefinition(beanName: string): BeanDefinition {
             if (!this.containsBeanDefinition(beanName)) {
                 throw new Error(`No such bean definitions found for name '${beanName}'`);
             }
-
+            //todo: find primary bean or
             return this.registeredBeanDefinitions.filter(it=> it.name === beanName)[0];
         }
 

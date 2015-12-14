@@ -31,8 +31,9 @@ var NoiseMakerClass = (function () {
     function NoiseMakerClass() {
         this.ownNoiser = undefined;
     }
-    NoiseMakerClass.prototype.doWork = function () {
+    NoiseMakerClass.prototype.doWork = function (a) {
         this.ownNoiser.makeNoise();
+        return "";
     };
     __decorate([
         inject(SimpleNoiser), 
@@ -42,8 +43,8 @@ var NoiseMakerClass = (function () {
         __decorate([
             postConstructor, 
             __metadata('design:type', Function), 
-            __metadata('design:paramtypes', []), 
-            __metadata('design:returntype', void 0)
+            __metadata('design:paramtypes', [String]), 
+            __metadata('design:returntype', String)
         ], NoiseMakerClass.prototype, "doWork", Object.getOwnPropertyDescriptor(NoiseMakerClass.prototype, "doWork")));
     NoiseMakerClass = __decorate([
         injection, 

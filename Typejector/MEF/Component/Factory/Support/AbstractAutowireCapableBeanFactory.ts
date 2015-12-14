@@ -9,37 +9,39 @@
     import Scope = Factory.Config.Scope;
 //todo: singleton not working. Rethink instance creation  flow
     export abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
-        createBean<T>(clazz: Class): T {
+        createBean<T>(clazz:Class):T {
             assert(clazz);
 
-            const  beanDefinition = this.getBeanDefinition(BeanNameGenerator.generateBeanName(clazz));
+            const beanDefinition = this.getBeanDefinition(BeanNameGenerator.generateBeanName(clazz));
 
             return this.doCreateBean(beanDefinition);
         }
 
-        protected doCreateBean(beanDefinition: BeanDefinition) {
-            let bean: any;
-
-            bean = this.doCreateObject(beanDefinition);
-
-            bean = this.applyBeanPostProcessorsBeforeInitialization(bean, beanDefinition);
-
-            bean = this.initializeBean(bean, beanDefinition);
-
-            bean = this.applyBeanPostProcessorsAfterInitialization(bean, beanDefinition);
-
-            return bean;
-        }
-
-        protected doCreateObject(beanDefinition: BeanDefinition) {
+        protected doCreateBean(beanDefinition:BeanDefinition) {
             let bean:any,
-                scopes: Scope[],
+                scopes:Scope[],
                 beanObjectFactory = this.getFactory(beanDefinition.name);
 
             scopes = beanDefinition.scopeNames.map(scopeName=> this.getRegisteredScope(scopeName));
 
             for (let scope of scopes) {
-                bean = scope.get(beanDefinition.name, beanObjectFactory);
+                bean = scope.get(beanDefinition.name, {
+                    getObject: ()=> {
+                        let bean = beanObjectFactory.getObject();
+
+                        if (bean == undefined) {
+                            return bean;
+                        }
+
+                        bean = this.applyBeanPostProcessorsBeforeInitialization(bean, beanDefinition);
+
+                        bean = this.initializeBean(bean, beanDefinition);
+
+                        bean = this.applyBeanPostProcessorsAfterInitialization(bean, beanDefinition);
+
+                        return bean;
+                    }
+                });
 
                 if (bean != undefined) {
                     break;
@@ -49,16 +51,16 @@
             return bean;
         }
 
-        initializeBean<T>(instance: T, beanDefinititon: BeanDefinition): T {
+        initializeBean<T>(instance:T, beanDefinition:BeanDefinition):T {
             assert(instance);
-            assert(beanDefinititon);
+            assert(beanDefinition);
 
-            for (let property of beanDefinititon.properties) {
+            for (let property of beanDefinition.properties) {
                 instance[property.name] = this.resolveDependency(property.clazz);
             }
 
-            beanDefinititon.methods.filter((it) => ArrayUtils.contains(it.annotations, inject)).forEach((method) => {
-                const  args = [];
+            beanDefinition.methods.filter((it) => ArrayUtils.contains(it.annotations, inject)).forEach((method) => {
+                const args = [];
 
                 for (let argType of method.arguments) {
                     args.push(this.resolveDependency(argType));
@@ -70,7 +72,7 @@
             return instance;
         }
 
-        applyBeanPostProcessorsBeforeInitialization<T>(existingBean: T, beanDefinititon: BeanDefinition): T {
+        applyBeanPostProcessorsBeforeInitialization<T>(existingBean:T, beanDefinititon:BeanDefinition):T {
             let instance = existingBean;
 
 
@@ -89,7 +91,7 @@
             return instance;
         }
 
-        applyBeanPostProcessorsAfterInitialization<T>(existingBean: T, beanDefinititon: BeanDefinition): T {
+        applyBeanPostProcessorsAfterInitialization<T>(existingBean:T, beanDefinititon:BeanDefinition):T {
             let instance = existingBean;
 
 
@@ -98,9 +100,9 @@
 
 
             for (let beanProcessor of this.getBeanPostProcessors()) {
-                instance = beanProcessor.postProcessAfterInitialization(result, beanDefinititon);
+                instance = beanProcessor.postProcessAfterInitialization(instance, beanDefinititon);
 
-                if (instance == null) {
+                if (instance == undefined) {
                     return instance;
                 }
             }
@@ -119,7 +121,7 @@
             return instance;
         }
 
-        protected doGetFactory<T>(beanDefinition: BeanDefinition): ObjectFactory<T> {
+        protected doGetFactory<T>(beanDefinition:BeanDefinition):ObjectFactory<T> {
             return {
                 getObject: () => {
                     const resolvedValues = beanDefinition.constructorArguments
@@ -134,12 +136,12 @@
             };
         }
 
-        resolveDependency(typeDescriptor: TypeDescriptor): any {
+        resolveDependency(typeDescriptor:TypeDescriptor):any {
             assert(typeDescriptor);
 
             return this.doResolveDependency(typeDescriptor);
         }
 
-        protected abstract doResolveDependency(typeDescriptor: TypeDescriptor): any;
+        protected abstract doResolveDependency(typeDescriptor:TypeDescriptor):any;
     }
 }

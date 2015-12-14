@@ -21,8 +21,9 @@ class SimpleNoiser {
     @inject(SimpleNoiser) ownNoiser:SimpleNoiser = undefined;
 
     @postConstructor
-    doWork() {
+    doWork(a:string):string {
         this.ownNoiser.makeNoise();
+        return "";
     }
 }
 

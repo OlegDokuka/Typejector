@@ -5,6 +5,8 @@
         clazz: Class;
 
 
+        isReady: boolean = false;
+
         annotations: Function[] = [];
         name: string;
         scopeNames: string[] = [];
