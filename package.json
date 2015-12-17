@@ -15,7 +15,7 @@
   "description": "Typejector powerful dependency injection container for Typescript",
   "author": "Oleg Dokuka <shadowgun@i.ua>",
   "name": "typejector",
-  "version": "0.2.2",
+  "version": "0.3.1",
   "homepage": "http://olegdokuka.github.io/Typejector/",
   "license": "MIT",
   "main": "Typejector/Compiled/typejector.js",
