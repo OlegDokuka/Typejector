@@ -1,41 +1,42 @@
 ﻿///<reference path="../../Typejector/Compiled/typejector.d.ts"/>
+module Example.ArgumentInjection {
+    import injection = Typejector.Annotation.injection;
+    import inject = Typejector.Annotation.inject;
 
-import injection = Typejector.Annotation.injection;
-import inject = Typejector.Annotation.inject;
-
-let context:Typejector.Component.Context.Context,
-    noiseMaker:NoiseMakerClass;
+    let context:Typejector.Component.Context.Context,
+        noiseMaker:NoiseMakerClass;
 
 
-@injection
-class SimpleNoiser {
-    stringField:string = "SimpleClass";
+    @injection
+    class SimpleNoiser {
+        stringField:string = "SimpleClass";
 
-    makeNoise():void {
-        alert(`Noise from ${this.stringField}`);
+        makeNoise():void {
+            alert(`Noise from ${this.stringField}`);
+        }
     }
+    @injection
+    class NoiseMakerClass {
+
+        private ownNoiser:SimpleNoiser;
+
+        constructor(@inject(SimpleNoiser) externalNoiser) {
+            console.assert(externalNoiser);
+
+            this.ownNoiser = externalNoiser;
+        }
+
+        doWork() {
+            this.ownNoiser.makeNoise();
+        }
+    }
+
+
+    context = Typejector.getContext();
+    noiseMaker = context.getBean<NoiseMakerClass>(NoiseMakerClass);
+
+    noiseMaker.doWork();
 }
-@injection
-class NoiseMakerClass {
-
-    private ownNoiser:SimpleNoiser;
-
-    constructor(@inject(SimpleNoiser) externalNoiser) {
-        console.assert(externalNoiser);
-
-        this.ownNoiser = externalNoiser;
-    }
-
-    doWork(@inject(SimpleNoiser) externalNoiser) {
-        this.ownNoiser.makeNoise();
-    }
-}
-
-
-context = Typejector.getContext();
-noiseMaker = context.getBean<NoiseMakerClass>(NoiseMakerClass);
-
-noiseMaker.doWork();
 
 
 

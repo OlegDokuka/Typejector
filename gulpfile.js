@@ -51,6 +51,9 @@ gulp.task('compileTests', function () {
 gulp.task('test', function () {
     return gulp.src('Test/Compiled/typejector.js', {read: false})
         // gulp-mocha needs filepaths so you can't have any plugins before it
+        .pipe(function(){
+            global.expect = require('expect');
+        })
         .pipe(mocha({reporter: 'nyan'}));
 });
 

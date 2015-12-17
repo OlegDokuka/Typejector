@@ -10,7 +10,7 @@
                 describe("Test application", () => {
                     it(`Test Method: ${methodName}`, () => {
                         // ReSharper disable once SuspiciousThisUsage
-                        assert(method.call(this));
+                        method.call(this);
                     });
                 });
             };

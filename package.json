@@ -8,7 +8,9 @@
     "mocha": "latest",
     "gulp-mocha": "latest",
     "tsd": "latest",
-	"reflect-metadata": "latest"
+	"reflect-metadata": "latest",
+    "expect": "latest",
+    "requirejs": "latest"
   },
   "description": "Typejector powerful dependency injection container for Typescript",
   "author": "Oleg Dokuka <shadowgun@i.ua>",

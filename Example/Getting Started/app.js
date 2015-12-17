@@ -1,4 +1,3 @@
-///<reference path="../../Typejector/Compiled/typejector.d.ts"/>
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
     switch (arguments.length) {
@@ -10,49 +9,55 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var injection = Typejector.Annotation.injection;
-var inject = Typejector.Annotation.inject;
-var postConstructor = Typejector.Annotation.postConstructor;
-var context, noiseMaker;
-var SimpleNoiser = (function () {
-    function SimpleNoiser() {
-        this.stringField = "SimpleClass";
-    }
-    SimpleNoiser.prototype.makeNoise = function () {
-        alert("Noise from " + this.stringField);
-    };
-    SimpleNoiser = __decorate([
-        injection, 
-        __metadata('design:paramtypes', [])
-    ], SimpleNoiser);
-    return SimpleNoiser;
-})();
-var NoiseMakerClass = (function () {
-    function NoiseMakerClass() {
-        this.ownNoiser = undefined;
-    }
-    NoiseMakerClass.prototype.doWork = function (a) {
-        this.ownNoiser.makeNoise();
-        return "";
-    };
-    __decorate([
-        inject(SimpleNoiser), 
-        __metadata('design:type', SimpleNoiser)
-    ], NoiseMakerClass.prototype, "ownNoiser");
-    Object.defineProperty(NoiseMakerClass.prototype, "doWork",
-        __decorate([
-            postConstructor, 
-            __metadata('design:type', Function), 
-            __metadata('design:paramtypes', [String]), 
-            __metadata('design:returntype', String)
-        ], NoiseMakerClass.prototype, "doWork", Object.getOwnPropertyDescriptor(NoiseMakerClass.prototype, "doWork")));
-    NoiseMakerClass = __decorate([
-        injection, 
-        __metadata('design:paramtypes', [])
-    ], NoiseMakerClass);
-    return NoiseMakerClass;
-})();
-context = Typejector.getContext();
-noiseMaker = context.getBean(NoiseMakerClass);
-noiseMaker.doWork();
+///<reference path="../../Typejector/Compiled/typejector.d.ts"/>
+var Example;
+(function (Example) {
+    var GettingStarted;
+    (function (GettingStarted) {
+        var injection = Typejector.Annotation.injection;
+        var inject = Typejector.Annotation.inject;
+        var postConstructor = Typejector.Annotation.postConstructor;
+        var context, noiseMaker;
+        var SimpleNoiser = (function () {
+            function SimpleNoiser() {
+                this.stringField = "SimpleClass";
+            }
+            SimpleNoiser.prototype.makeNoise = function () {
+                alert("Noise from " + this.stringField);
+            };
+            SimpleNoiser = __decorate([
+                injection, 
+                __metadata('design:paramtypes', [])
+            ], SimpleNoiser);
+            return SimpleNoiser;
+        })();
+        var NoiseMakerClass = (function () {
+            function NoiseMakerClass() {
+                this.ownNoiser = undefined;
+            }
+            NoiseMakerClass.prototype.doWork = function () {
+                this.ownNoiser.makeNoise();
+            };
+            __decorate([
+                inject(SimpleNoiser), 
+                __metadata('design:type', SimpleNoiser)
+            ], NoiseMakerClass.prototype, "ownNoiser");
+            Object.defineProperty(NoiseMakerClass.prototype, "doWork",
+                __decorate([
+                    postConstructor, 
+                    __metadata('design:type', Function), 
+                    __metadata('design:paramtypes', []), 
+                    __metadata('design:returntype', void 0)
+                ], NoiseMakerClass.prototype, "doWork", Object.getOwnPropertyDescriptor(NoiseMakerClass.prototype, "doWork")));
+            NoiseMakerClass = __decorate([
+                injection, 
+                __metadata('design:paramtypes', [])
+            ], NoiseMakerClass);
+            return NoiseMakerClass;
+        })();
+        context = Typejector.getContext();
+        noiseMaker = context.getBean(NoiseMakerClass);
+        noiseMaker.doWork();
+    })(GettingStarted = Example.GettingStarted || (Example.GettingStarted = {}));
+})(Example || (Example = {}));
 //# sourceMappingURL=app.js.map
