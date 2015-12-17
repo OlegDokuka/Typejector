@@ -28,3 +28,4 @@ Typejector.v12.suo
 *.csproj
 /**/*.sln.*
 /**/packages.config
+typings/

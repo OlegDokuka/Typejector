@@ -28,3 +28,4 @@ Typejector/web.Debug.config
 Typejector/web.Release.config
 Typejector/web.config
 *.csproj
+typings/
