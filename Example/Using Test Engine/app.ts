@@ -13,8 +13,12 @@ namespace Example.TestEngine {
     export class MyFirstTestCase {
         @testMethod
         public firstTestMethod() {
-            expect(false).to.be(true);
+            expect(true).to.ok()
         }
+    }
+
+    export class SecCLass extends MyFirstTestCase{
+
     }
 
     mocha.run();

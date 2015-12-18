@@ -9,7 +9,7 @@
     "gulp-mocha": "latest",
     "tsd": "latest",
 	"reflect-metadata": "latest",
-    "expect": "latest",
+    "expect.js": "latest",
     "requirejs": "latest"
   },
   "description": "Typejector powerful dependency injection container for Typescript",
