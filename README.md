@@ -8,17 +8,27 @@
 
 Standalone, powerful dependency injector for TypeScript and Javascript
 
-Good news, version 0.2 is available now. The main concept of new version of DI is based on powerful Spring DI container with all magic in it. 
+*Good news, version 0.3 is available now.* 
 
-
-
-##For everyone who read this article and wants to help develop this idea and project
-
-I`m open to suggestion and if you want to help me - just create new issue, or write on project gitter.
+The main concept of DI is based on powerful Spring DI container with all magic in it. 
 
 ##Requirement
 
 EcmaScript 5 or higer and Typescript 1.5 or higer
+
+***NOTE***: Unfortunately, project dose not support TypeScript 1.7 (['Why?' - here](https://github.com/Microsoft/TypeScript/issues/6034)).
+
+## How to install it?
+
+    $ npm install typejector
+ 
+### For using project source code
+
+    ///<reference path="node_modules/typejector/Typejector/app.ts"/>
+
+### For using in scripts dependency
+
+    ///<reference path="node_modules/typejector/Typejector/Compiled/typejector.d.ts"/>
 
 ## How to use it?
 
