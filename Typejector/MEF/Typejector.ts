@@ -3,6 +3,9 @@
 ///<reference path="../Core/Util/ArrayUtils.ts"/>
 ///<reference path="../Core/Event/Event.ts"/>
 ///<reference path="../Core/Exception/Assert.ts"/>
+///<reference path="../Core/Collections/Map.ts"/>
+///<reference path="Component/Factory/Support/BeanNameGenerator.ts"/>
+///<reference path="Annotation/Utils/AnnotationUtils.ts"/>
 ///<reference path="Component/Factory/Config/AnnotatedObject.ts"/>
 ///<reference path="Component/Factory/Config/TypeDescriptor.ts"/>
 ///<reference path="Component/Factory/Config/DependencyDescriptor.ts"/>
@@ -22,7 +25,6 @@
 ///<reference path="Annotation/FactoryMethod.ts"/>
 ///<reference path="Annotation/Config.ts"/>
 ///<reference path="Component/Factory/Support/Bean.ts"/>
-///<reference path="Component/Factory/Support/BeanNameGenerator.ts"/>
 ///<reference path="Component/BeanUtils.ts"/>
 ///<reference path="Component/Factory/ObjectFactory.ts"/>
 ///<reference path="Component/Factory/Config/Scope.ts"/>
