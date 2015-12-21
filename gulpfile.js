@@ -70,7 +70,10 @@ gulp.task('clean', function () {
             'Typejector/Core/**/*.d.ts',
             'Typejector/MEF/**/*.js',
             'Typejector/MEF/**/*.js.map',
-            'Typejector/MEF/**/*.d.ts'
+            'Typejector/MEF/**/*.d.ts',
+            'UnitTest/Typejector/**/*.js',
+            'UnitTest/Typejector/**/*.js.map',
+            'UnitTest/Typejector/**/*.d.ts'
         ], {read: false})
         .pipe(clean({force: true}));
 });

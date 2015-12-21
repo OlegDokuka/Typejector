@@ -4,6 +4,7 @@
 /// <reference path="../../Typejector/MEF/Typejector.ts"/>
 /// <reference path="../../typings/mocha/mocha.d.ts"/>
 /// <reference path="Annotation/Utils/AnnotationUtilsTest.ts"/>
+/// <reference path="Annotation/AnnotationIntegrationTest.ts"/>
 namespace Typejector{
 
 }

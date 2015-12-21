@@ -754,35 +754,61 @@ var Typejector;
 Map = Map == undefined ? Typejector.Collections.Map : Map;
 var Typejector;
 (function (Typejector) {
+    var Component;
+    (function (Component) {
+        var Factory;
+        (function (Factory) {
+            var Support;
+            (function (Support) {
+                var BeanNameGenerator = (function () {
+                    function BeanNameGenerator() {
+                    }
+                    BeanNameGenerator.generateBeanName = function (clazz) {
+                        return clazz['name'] ? clazz['name'] : BeanNameGenerator.extractFunctionName(clazz);
+                    };
+                    BeanNameGenerator.extractFunctionName = function (clazz) {
+                        var expression = /^function (.*?)\(\)/ig, matches = expression.exec(clazz.toString());
+                        return matches[1];
+                    };
+                    return BeanNameGenerator;
+                })();
+                Support.BeanNameGenerator = BeanNameGenerator;
+            })(Support = Factory.Support || (Factory.Support = {}));
+        })(Factory = Component.Factory || (Component.Factory = {}));
+    })(Component = Typejector.Component || (Typejector.Component = {}));
+})(Typejector || (Typejector = {}));
+var Typejector;
+(function (Typejector) {
     var Annotation;
     (function (Annotation) {
         var Utils;
         (function (Utils) {
             var ArrayUtils = Typejector.Util.ArrayUtils;
             var BeanNameGenerator = Typejector.Component.Factory.Support.BeanNameGenerator;
-            var AnnotationUtils = (function () {
-                function AnnotationUtils() {
+            var Annotations = (function () {
+                function Annotations() {
                 }
-                AnnotationUtils.add = function (annotation, annotationData, target, targetKey) {
-                    var metadataValue = Reflect.getMetadata(AnnotationUtils.ANNOTATION_KEY, target, targetKey);
+                Annotations.add = function (annotation, annotationData, target, targetKey) {
+                    var metadataValue = Reflect.getMetadata(Annotations.ANNOTATION_KEY, target, targetKey);
                     metadataValue = metadataValue == undefined ? [] : metadataValue;
                     if (!ArrayUtils.contains(metadataValue, annotation)) {
                         metadataValue.push(annotation);
                     }
-                    Reflect.defineMetadata(AnnotationUtils.ANNOTATION_DATA_KEY + BeanNameGenerator.generateBeanName(annotation), annotationData, target, targetKey);
-                    Reflect.defineMetadata(AnnotationUtils.ANNOTATION_KEY, metadataValue, target, targetKey);
-                    return AnnotationUtils;
+                    Reflect.defineMetadata(Annotations.ANNOTATION_DATA_KEY + BeanNameGenerator.generateBeanName(annotation), annotationData, target, targetKey);
+                    Reflect.defineMetadata(Annotations.ANNOTATION_KEY, metadataValue, target, targetKey);
+                    return Annotations;
                 };
-                AnnotationUtils.get = function (target, targetKey) {
+                Annotations.get = function (target, targetKey) {
                     var result = new Map();
-                    var metadataValue = Reflect.getMetadata(AnnotationUtils.ANNOTATION_KEY, target, targetKey);
-                    metadataValue.forEach(function (annotation) { return result.set(annotation, Reflect.getMetadata(AnnotationUtils.ANNOTATION_DATA_KEY + BeanNameGenerator.generateBeanName(annotation), target, targetKey)); });
+                    var metadataValue = Reflect.getMetadata(Annotations.ANNOTATION_KEY, target, targetKey);
+                    metadataValue.forEach(function (annotation) { return result.set(annotation, Reflect.getMetadata(Annotations.ANNOTATION_DATA_KEY + BeanNameGenerator.generateBeanName(annotation), target, targetKey)); });
+                    return result;
                 };
-                AnnotationUtils.ANNOTATION_KEY = "design:annotation";
-                AnnotationUtils.ANNOTATION_DATA_KEY = "design:annotation:";
-                return AnnotationUtils;
+                Annotations.ANNOTATION_KEY = "design:annotation";
+                Annotations.ANNOTATION_DATA_KEY = "design:annotation:";
+                return Annotations;
             })();
-            Utils.AnnotationUtils = AnnotationUtils;
+            Utils.Annotations = Annotations;
         })(Utils = Annotation.Utils || (Annotation.Utils = {}));
     })(Annotation = Typejector.Annotation || (Typejector.Annotation = {}));
 })(Typejector || (Typejector = {}));
@@ -921,8 +947,9 @@ var Typejector;
 (function (Typejector) {
     var Annotation;
     (function (Annotation) {
+        var Annotations = Annotation.Utils.Annotations;
         function inject(target, propertyKey) {
-            Reflect.defineMetadata("design:annotation", inject, target, propertyKey);
+            Annotations.add(inject, {}, target, propertyKey);
         }
         Annotation.inject = inject;
     })(Annotation = Typejector.Annotation || (Typejector.Annotation = {}));
@@ -931,11 +958,14 @@ var Typejector;
 (function (Typejector) {
     var Annotation;
     (function (Annotation) {
-        function injection(value) {
-            var annotation = [];
+        var Annotations = Annotation.Utils.Annotations;
+        function injection(clazz) {
+            var annotations = [];
             for (var _i = 1; _i < arguments.length; _i++) {
-                annotation[_i - 1] = arguments[_i];
+                annotations[_i - 1] = arguments[_i];
             }
+            Annotations.add(injection, {}, clazz);
+            annotations.forEach(function (annotation) { return Annotations.add(annotation, {}, clazz); });
         }
         Annotation.injection = injection;
     })(Annotation = Typejector.Annotation || (Typejector.Annotation = {}));
@@ -964,20 +994,9 @@ var Typejector;
 (function (Typejector) {
     var Annotation;
     (function (Annotation) {
-        var MethodDependencyDescriptor = Typejector.Component.Context.Config.MethodDependencyDescriptor;
-        function postConstructor(target, propertyKey, descriptor, order) {
-            if (propertyKey && descriptor) {
-                var dependencyDescriptor = new MethodDependencyDescriptor();
-                dependencyDescriptor.parent = target.constructor;
-                dependencyDescriptor.name = propertyKey;
-                dependencyDescriptor.annotations.push(postConstructor);
-                Typejector.getContext().register(dependencyDescriptor);
-            }
-            else {
-                return function (parent, propertyName, propertyDescriptor) {
-                    postConstructor(parent, propertyName, propertyDescriptor, target);
-                };
-            }
+        var Annotations = Annotation.Utils.Annotations;
+        function postConstructor(target, propertyKey) {
+            Annotations.add(postConstructor, {}, target, propertyKey);
         }
         Annotation.postConstructor = postConstructor;
     })(Annotation = Typejector.Annotation || (Typejector.Annotation = {}));
@@ -986,18 +1005,9 @@ var Typejector;
 (function (Typejector) {
     var Annotation;
     (function (Annotation) {
-        var MethodDependencyDescriptor = Typejector.Component.Context.Config.MethodDependencyDescriptor;
-        var TypeDescriptor = Typejector.Component.Factory.Config.TypeDescriptor;
-        function factoryMethod(returnType) {
-            return function (parent, propertyName, propertyDescriptor) {
-                var dependencyDescriptor = new MethodDependencyDescriptor(), typeDescriptor = new TypeDescriptor();
-                typeDescriptor.clazz = returnType;
-                dependencyDescriptor.annotations.push(factoryMethod);
-                dependencyDescriptor.parent = parent.constructor;
-                dependencyDescriptor.name = propertyName;
-                dependencyDescriptor.returnType = typeDescriptor;
-                Typejector.getContext().register(dependencyDescriptor);
-            };
+        var Annotations = Annotation.Utils.Annotations;
+        function factoryMethod(parent, propertyName) {
+            Annotations.add(factoryMethod, {}, parent, propertyName);
         }
         Annotation.factoryMethod = factoryMethod;
     })(Annotation = Typejector.Annotation || (Typejector.Annotation = {}));
@@ -1007,7 +1017,7 @@ var Typejector;
     var Annotation;
     (function (Annotation) {
         function config(clazz) {
-            Annotation.injection(clazz, Annotation.singleton, config);
+            Annotation.injection(clazz, config, Annotation.singleton);
         }
         Annotation.config = config;
     })(Annotation = Typejector.Annotation || (Typejector.Annotation = {}));
@@ -1036,31 +1046,6 @@ var Typejector;
                     return Bean;
                 })();
                 Support.Bean = Bean;
-            })(Support = Factory.Support || (Factory.Support = {}));
-        })(Factory = Component.Factory || (Component.Factory = {}));
-    })(Component = Typejector.Component || (Typejector.Component = {}));
-})(Typejector || (Typejector = {}));
-var Typejector;
-(function (Typejector) {
-    var Component;
-    (function (Component) {
-        var Factory;
-        (function (Factory) {
-            var Support;
-            (function (Support) {
-                var BeanNameGenerator = (function () {
-                    function BeanNameGenerator() {
-                    }
-                    BeanNameGenerator.generateBeanName = function (clazz) {
-                        return clazz['name'] ? clazz['name'] : BeanNameGenerator.extractFunctionName(clazz);
-                    };
-                    BeanNameGenerator.extractFunctionName = function (clazz) {
-                        var expression = /^function (.*?)\(\)/ig, matches = expression.exec(clazz.toString());
-                        return matches[1];
-                    };
-                    return BeanNameGenerator;
-                })();
-                Support.BeanNameGenerator = BeanNameGenerator;
             })(Support = Factory.Support || (Factory.Support = {}));
         })(Factory = Component.Factory || (Component.Factory = {}));
     })(Component = Typejector.Component || (Typejector.Component = {}));
@@ -1818,7 +1803,8 @@ var Typejector;
 ///<reference path="../Core/Event/Event.ts"/>
 ///<reference path="../Core/Exception/Assert.ts"/>
 ///<reference path="../Core/Collections/Map.ts"/>
-///<reference path="Annotation/Utils/AnnotationUtils.ts"/>
+///<reference path="Component/Factory/Support/BeanNameGenerator.ts"/>
+///<reference path="Annotation/Utils/Annotations.ts"/>
 ///<reference path="Component/Factory/Config/AnnotatedObject.ts"/>
 ///<reference path="Component/Factory/Config/TypeDescriptor.ts"/>
 ///<reference path="Component/Factory/Config/DependencyDescriptor.ts"/>
@@ -1838,7 +1824,6 @@ var Typejector;
 ///<reference path="Annotation/FactoryMethod.ts"/>
 ///<reference path="Annotation/Config.ts"/>
 ///<reference path="Component/Factory/Support/Bean.ts"/>
-///<reference path="Component/Factory/Support/BeanNameGenerator.ts"/>
 ///<reference path="Component/BeanUtils.ts"/>
 ///<reference path="Component/Factory/ObjectFactory.ts"/>
 ///<reference path="Component/Factory/Config/Scope.ts"/>

@@ -1,12 +1,9 @@
-/**
- * Created by Shadowgun on 20.12.2015.
- */
 namespace Typejector.Annotation.Utils {
     function testAnnotation() {
 
     }
 
-    describe("Annotations Test", () => {
+    describe("Annotations Utils Test", () => {
         it(`#add`, () => {
             Annotations.add(testAnnotation, {test: "hi"}, testAnnotation, "test");
         });
