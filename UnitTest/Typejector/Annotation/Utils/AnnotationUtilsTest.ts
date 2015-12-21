@@ -6,13 +6,13 @@ namespace Typejector.Annotation.Utils {
 
     }
 
-    describe("AnnotationUtils Test", () => {
+    describe("Annotations Test", () => {
         it(`#add`, () => {
-            AnnotationUtils.add(testAnnotation, {test: "hi"}, testAnnotation, "test");
+            Annotations.add(testAnnotation, {test: "hi"}, testAnnotation, "test");
         });
         it(`#get`, () => {
 
-            const result:Map<any,any> = AnnotationUtils.get(testAnnotation, "test");
+            const result:Map<any,any> = Annotations.get(testAnnotation, "test");
 
             assert(result);
 

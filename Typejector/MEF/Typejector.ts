@@ -5,7 +5,7 @@
 ///<reference path="../Core/Exception/Assert.ts"/>
 ///<reference path="../Core/Collections/Map.ts"/>
 ///<reference path="Component/Factory/Support/BeanNameGenerator.ts"/>
-///<reference path="Annotation/Utils/AnnotationUtils.ts"/>
+///<reference path="Annotation/Utils/Annotations.ts"/>
 ///<reference path="Component/Factory/Config/AnnotatedObject.ts"/>
 ///<reference path="Component/Factory/Config/TypeDescriptor.ts"/>
 ///<reference path="Component/Factory/Config/DependencyDescriptor.ts"/>

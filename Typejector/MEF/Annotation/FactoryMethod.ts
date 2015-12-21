@@ -1,20 +1,7 @@
 ﻿namespace Typejector.Annotation {
-    import MethodDependencyDescriptor = Component.Context.Config.MethodDependencyDescriptor;
-    import Class = Type.Class;
-    import TypeDescriptor = Component.Factory.Config.TypeDescriptor;
+    import Annotations = Utils.Annotations;
 
-    export function factoryMethod(returnType: Class): MethodDecorator {
-        return (parent: any, propertyName: string, propertyDescriptor: PropertyDescriptor) => {
-            const dependencyDescriptor = new MethodDependencyDescriptor(),
-                typeDescriptor = new TypeDescriptor();
-
-            typeDescriptor.clazz = returnType;
-            dependencyDescriptor.annotations.push(factoryMethod);
-            dependencyDescriptor.parent = parent.constructor;
-            dependencyDescriptor.name = propertyName;
-            dependencyDescriptor.returnType = typeDescriptor;
-
-            Typejector.getContext().register(dependencyDescriptor);
-        };
+    export function factoryMethod(parent:any, propertyName:string|symbol):MethodDecorator {
+        Annotations.add(factoryMethod, {}, parent, propertyName);
     }
 }
