@@ -6,9 +6,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
         case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
     }
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
@@ -28,8 +25,7 @@ var Example;
                 alert("Noise from " + this.stringField);
             };
             SimpleNoiser = __decorate([
-                injection, 
-                __metadata('design:paramtypes', [])
+                injection
             ], SimpleNoiser);
             return SimpleNoiser;
         })();
@@ -43,8 +39,7 @@ var Example;
             };
             NoiseMakerClass = __decorate([
                 injection,
-                __param(0, inject(SimpleNoiser)), 
-                __metadata('design:paramtypes', [Object])
+                __param(0, inject(SimpleNoiser))
             ], NoiseMakerClass);
             return NoiseMakerClass;
         })();
@@ -53,4 +48,3 @@ var Example;
         noiseMaker.doWork();
     })(ArgumentInjection = Example.ArgumentInjection || (Example.ArgumentInjection = {}));
 })(Example || (Example = {}));
-//# sourceMappingURL=app.js.map

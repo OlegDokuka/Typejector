@@ -1857,5 +1857,67 @@ var Typejector;
     }
     Typejector.getContext = getContext;
 })(Typejector || (Typejector = {}));
-///<reference path="./MEF/Typejector.ts"/> 
+var Typejector;
+(function (Typejector) {
+    var Annotation;
+    (function (Annotation) {
+        var Utils;
+        (function (Utils) {
+            function testAnnotation() {
+            }
+            describe("Annotations Utils Test", function () {
+                it("#add", function () {
+                    Utils.Annotations.add(testAnnotation, { test: "hi" }, testAnnotation, "test");
+                });
+                it("#get", function () {
+                    var result = Utils.Annotations.get(testAnnotation, "test");
+                    assert(result);
+                    if (!result.size) {
+                        throw new Error("Empty map");
+                    }
+                });
+            });
+        })(Utils = Annotation.Utils || (Annotation.Utils = {}));
+    })(Annotation = Typejector.Annotation || (Typejector.Annotation = {}));
+})(Typejector || (Typejector = {}));
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
+    switch (arguments.length) {
+        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
+        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
+        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
+    }
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var Typejector;
+(function (Typejector) {
+    var Annotation;
+    (function (Annotation) {
+        var Annotations = Annotation.Utils.Annotations;
+        describe("Annotations Integration Test", function () {
+            it("Inject Annotation Existing Test", function () {
+                var Test = (function () {
+                    function Test() {
+                    }
+                    __decorate([
+                        Annotation.inject, 
+                        __metadata('design:type', String)
+                    ], Test.prototype, "prop");
+                    return Test;
+                })();
+                var result = Annotations.get(Test, "prop");
+                if (result.size === 0 || result.get(Annotation.inject) == undefined) {
+                    throw new Error("There are no annoataion presented");
+                }
+            });
+        });
+    })(Annotation = Typejector.Annotation || (Typejector.Annotation = {}));
+})(Typejector || (Typejector = {}));
+/// <reference path="../../Typejector/MEF/Typejector.ts"/>
+/// <reference path="../../typings/mocha/mocha.d.ts"/>
+/// <reference path="Annotation/Utils/AnnotationUtilsTest.ts"/>
+/// <reference path="Annotation/AnnotationIntegrationTest.ts"/>
+/// <reference path="./Typejector/Tests.ts"/> 
 //# sourceMappingURL=typejector.js.map

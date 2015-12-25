@@ -4,12 +4,9 @@
     export class Bean implements Config.BeanDefinition {
         clazz: Class;
 
-
-        isReady: boolean = false;
-
         annotations: Function[] = [];
         name: string;
-        scopeNames: string[] = [];
+        scope: string = "";
         factoryMethodName: string;
 
         constructorArguments: Array<Config.TypeDescriptor> = [];

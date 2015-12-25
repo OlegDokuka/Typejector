@@ -1,8 +1,7 @@
 ﻿module Typejector.Component.Factory.Config {
     export interface BeanDefinition extends ResolveDefinition, AnnotatedObject {
         name: string;
-        scopeNames: string[];
+        scope: string;
         factoryMethodName: string;
-        isReady: boolean;
     }
 } 

@@ -9,8 +9,8 @@
     "noLib": false,
     "sourceMap": true,
     "listFiles": true,
-    "outDir": "",
-    "out": "Compiled/typejector.js",
+    "rootDir": "/UnitTest/",
+    "outFile": "Compiled/typejector.js",
     "experimentalDecorators": true
   },
   "files": [

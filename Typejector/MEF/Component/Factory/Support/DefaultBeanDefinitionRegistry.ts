@@ -23,9 +23,7 @@
                 this.registeredBeanDefinitions[beanPosition] = beanDefinition;
             }
 
-            if(beanDefinition.isReady) {
-                this.applyBeanDefinitionPostProcessor(beanDefinition);
-            }
+            this.applyBeanDefinitionPostProcessor(beanDefinition);
         }
 
         getBeanDefinition(beanName: string): BeanDefinition {

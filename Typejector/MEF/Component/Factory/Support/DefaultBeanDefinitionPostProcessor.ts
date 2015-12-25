@@ -3,7 +3,7 @@
 
     export class DefaultBeanDefinitionPostProcessor extends BeanDefinitionPostProcessor {
         postProcessBeanDefinition(beanDefinition: BeanDefinition): void {
-            beanDefinition.scopeNames.forEach((it, id) => it === SingletonScope.NAME || it === PrototypeScope.NAME ?
+           /* beanDefinition.scopeNames.forEach((it, id) => it === SingletonScope.NAME || it === PrototypeScope.NAME ?
                 beanDefinition.scopeNames.splice(id, 1) : void (0));
 
             if (BeanUtils.isSingleton(beanDefinition)) {
@@ -11,7 +11,7 @@
             }
             else {
                 beanDefinition.scopeNames.push(PrototypeScope.NAME);
-            }
+            }*/
         }
     }
 } 

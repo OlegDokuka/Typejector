@@ -6,14 +6,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
         case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
     }
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 ///<reference path="../../Typejector/Compiled/typejector.d.ts"/>
 var Example;
 (function (Example) {
-    var GettingStarted;
-    (function (GettingStarted) {
+    var ArgumentInjection;
+    (function (ArgumentInjection) {
         var injection = Typejector.Annotation.injection;
         var inject = Typejector.Annotation.inject;
-        var postConstructor = Typejector.Annotation.postConstructor;
         var context, noiseMaker;
         var SimpleNoiser = (function () {
             function SimpleNoiser() {
@@ -23,31 +28,29 @@ var Example;
                 alert("Noise from " + this.stringField);
             };
             SimpleNoiser = __decorate([
-                injection
+                injection, 
+                __metadata('design:paramtypes', [])
             ], SimpleNoiser);
             return SimpleNoiser;
         })();
         var NoiseMakerClass = (function () {
-            function NoiseMakerClass() {
-                this.ownNoiser = undefined;
+            function NoiseMakerClass(externalNoiser) {
+                console.assert(externalNoiser);
+                this.ownNoiser = externalNoiser;
             }
             NoiseMakerClass.prototype.doWork = function () {
                 this.ownNoiser.makeNoise();
             };
-            __decorate([
-                inject(SimpleNoiser)
-            ], NoiseMakerClass.prototype, "ownNoiser");
-            Object.defineProperty(NoiseMakerClass.prototype, "doWork",
-                __decorate([
-                    postConstructor
-                ], NoiseMakerClass.prototype, "doWork", Object.getOwnPropertyDescriptor(NoiseMakerClass.prototype, "doWork")));
             NoiseMakerClass = __decorate([
-                injection
+                injection,
+                __param(0, inject(SimpleNoiser)), 
+                __metadata('design:paramtypes', [Object])
             ], NoiseMakerClass);
             return NoiseMakerClass;
         })();
         context = Typejector.getContext();
         noiseMaker = context.getBean(NoiseMakerClass);
         noiseMaker.doWork();
-    })(GettingStarted = Example.GettingStarted || (Example.GettingStarted = {}));
+    })(ArgumentInjection = Example.ArgumentInjection || (Example.ArgumentInjection = {}));
 })(Example || (Example = {}));
+//# sourceMappingURL=app.js.map

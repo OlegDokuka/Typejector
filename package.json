@@ -2,7 +2,7 @@
   "devDependencies": {
     "gulp": "latest",
     "gulp-typescript": "latest",
-    "typescript": "1.6.2",
+    "typescript": "latest",
     "merge2": "latest",
     "gulp-clean": "latest",
     "mocha": "latest",

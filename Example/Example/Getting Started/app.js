@@ -6,6 +6,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
         case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
     }
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 ///<reference path="../../Typejector/Compiled/typejector.d.ts"/>
 var Example;
 (function (Example) {
@@ -23,7 +26,8 @@ var Example;
                 alert("Noise from " + this.stringField);
             };
             SimpleNoiser = __decorate([
-                injection
+                injection, 
+                __metadata('design:paramtypes', [])
             ], SimpleNoiser);
             return SimpleNoiser;
         })();
@@ -35,14 +39,19 @@ var Example;
                 this.ownNoiser.makeNoise();
             };
             __decorate([
-                inject(SimpleNoiser)
+                inject(SimpleNoiser), 
+                __metadata('design:type', SimpleNoiser)
             ], NoiseMakerClass.prototype, "ownNoiser");
             Object.defineProperty(NoiseMakerClass.prototype, "doWork",
                 __decorate([
-                    postConstructor
+                    postConstructor, 
+                    __metadata('design:type', Function), 
+                    __metadata('design:paramtypes', []), 
+                    __metadata('design:returntype', void 0)
                 ], NoiseMakerClass.prototype, "doWork", Object.getOwnPropertyDescriptor(NoiseMakerClass.prototype, "doWork")));
             NoiseMakerClass = __decorate([
-                injection
+                injection, 
+                __metadata('design:paramtypes', [])
             ], NoiseMakerClass);
             return NoiseMakerClass;
         })();
@@ -51,3 +60,4 @@ var Example;
         noiseMaker.doWork();
     })(GettingStarted = Example.GettingStarted || (Example.GettingStarted = {}));
 })(Example || (Example = {}));
+//# sourceMappingURL=app.js.map
