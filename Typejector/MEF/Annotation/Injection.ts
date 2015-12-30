@@ -1,6 +1,5 @@
 ﻿module Typejector.Annotation {
     import Class = Type.Class;
-    import Annotations = Utils.Annotations;
 
     export function injection(clazz: Class, ...annotations: Function[]): void {
         Class.register(clazz);

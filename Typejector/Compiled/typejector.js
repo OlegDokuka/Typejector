@@ -1,17 +1,3 @@
-/*! *****************************************************************************
-Copyright (C) Microsoft. All rights reserved.
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-this file except in compliance with the License. You may obtain a copy of the
-License at http://www.apache.org/licenses/LICENSE-2.0
-
-THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-MERCHANTABLITY OR NON-INFRINGEMENT.
-
-See the Apache Version 2.0 License for specific language governing permissions
-and limitations under the License.
-***************************************************************************** */
 "use strict";
 var Reflect;
 (function (Reflect) {
@@ -573,6 +559,29 @@ var Reflect;
 })(Reflect || (Reflect = {}));
 var Typejector;
 (function (Typejector) {
+    var Type;
+    (function (Type) {
+        var Class;
+        (function (Class) {
+            var classCache = [];
+            function register(clazz) {
+                if (classCache.indexOf(function (it) { return it === clazz; }) > -1) {
+                    return;
+                }
+                classCache.push(clazz);
+            }
+            Class.register = register;
+            function classes() {
+                var classes = [];
+                classCache.forEach(function (it) { return classes.push(it); });
+                return classes;
+            }
+            Class.classes = classes;
+        })(Class = Type.Class || (Type.Class = {}));
+    })(Type = Typejector.Type || (Typejector.Type = {}));
+})(Typejector || (Typejector = {}));
+var Typejector;
+(function (Typejector) {
     var Util;
     (function (Util) {
         var ArrayUtils = (function () {
@@ -598,7 +607,6 @@ var Typejector;
         Util.ArrayUtils = ArrayUtils;
     })(Util = Typejector.Util || (Typejector.Util = {}));
 })(Typejector || (Typejector = {}));
-/// <reference path="Interface/IEvent.ts" />
 var Typejector;
 (function (Typejector) {
     var Event;
@@ -781,35 +789,58 @@ var Typejector;
 (function (Typejector) {
     var Annotation;
     (function (Annotation) {
-        var Utils;
-        (function (Utils) {
-            var ArrayUtils = Typejector.Util.ArrayUtils;
-            var BeanNameGenerator = Typejector.Component.Factory.Support.BeanNameGenerator;
-            var Annotations = (function () {
-                function Annotations() {
+        var ArrayUtils = Typejector.Util.ArrayUtils;
+        var BeanNameGenerator = Typejector.Component.Factory.Support.BeanNameGenerator;
+        var Annotations = (function () {
+            function Annotations() {
+            }
+            Annotations.add = function (annotation, annotationData, target, targetKey) {
+                var metadataValue = Reflect.getMetadata(Annotations.ANNOTATION_KEY, target, targetKey);
+                metadataValue = metadataValue == undefined ? [] : metadataValue;
+                if (!ArrayUtils.contains(metadataValue, annotation)) {
+                    metadataValue.push(annotation);
                 }
-                Annotations.add = function (annotation, annotationData, target, targetKey) {
-                    var metadataValue = Reflect.getMetadata(Annotations.ANNOTATION_KEY, target, targetKey);
-                    metadataValue = metadataValue == undefined ? [] : metadataValue;
-                    if (!ArrayUtils.contains(metadataValue, annotation)) {
-                        metadataValue.push(annotation);
-                    }
-                    Reflect.defineMetadata(Annotations.ANNOTATION_DATA_KEY + BeanNameGenerator.generateBeanName(annotation), annotationData, target, targetKey);
-                    Reflect.defineMetadata(Annotations.ANNOTATION_KEY, metadataValue, target, targetKey);
-                    return Annotations;
-                };
-                Annotations.get = function (target, targetKey) {
-                    var result = new Map();
-                    var metadataValue = Reflect.getMetadata(Annotations.ANNOTATION_KEY, target, targetKey);
-                    metadataValue.forEach(function (annotation) { return result.set(annotation, Reflect.getMetadata(Annotations.ANNOTATION_DATA_KEY + BeanNameGenerator.generateBeanName(annotation), target, targetKey)); });
-                    return result;
-                };
-                Annotations.ANNOTATION_KEY = "design:annotation";
-                Annotations.ANNOTATION_DATA_KEY = "design:annotation:";
+                Reflect.defineMetadata(Annotations.ANNOTATION_DATA_KEY + BeanNameGenerator.generateBeanName(annotation), annotationData, target, targetKey);
+                Reflect.defineMetadata(Annotations.ANNOTATION_KEY, metadataValue, target, targetKey);
                 return Annotations;
-            })();
-            Utils.Annotations = Annotations;
-        })(Utils = Annotation.Utils || (Annotation.Utils = {}));
+            };
+            Annotations.get = function (target, targetKey) {
+                var result = new Map();
+                var metadataValue = Reflect.getMetadata(Annotations.ANNOTATION_KEY, target, targetKey);
+                metadataValue.forEach(function (annotation) { return result.set(annotation, Reflect.getMetadata(Annotations.ANNOTATION_DATA_KEY + BeanNameGenerator.generateBeanName(annotation), target, targetKey)); });
+                return result;
+            };
+            Annotations.ANNOTATION_KEY = "design:annotation";
+            Annotations.ANNOTATION_DATA_KEY = "design:annotation:";
+            return Annotations;
+        })();
+        Annotation.Annotations = Annotations;
+    })(Annotation = Typejector.Annotation || (Typejector.Annotation = {}));
+})(Typejector || (Typejector = {}));
+var Typejector;
+(function (Typejector) {
+    var Annotation;
+    (function (Annotation) {
+        var Class = Typejector.Type.Class;
+        var Bean = Typejector.Component.Factory.Support.Bean;
+        var ClassBeanDefinitionScanner = (function () {
+            function ClassBeanDefinitionScanner() {
+            }
+            ClassBeanDefinitionScanner.prototype.scan = function () {
+                var classes = Class.classes();
+                classes.map(function (it) {
+                });
+            };
+            ClassBeanDefinitionScanner.prototype.buildBeanDefinition = function (clazz) {
+                var annotations = Annotation.Annotations.get(clazz);
+                annotations.
+                ;
+                var bean = new Bean();
+                bean.clazz = clazz;
+                return bean;
+            };
+            return ClassBeanDefinitionScanner;
+        })();
     })(Annotation = Typejector.Annotation || (Typejector.Annotation = {}));
 })(Typejector || (Typejector = {}));
 var Typejector;
@@ -947,9 +978,8 @@ var Typejector;
 (function (Typejector) {
     var Annotation;
     (function (Annotation) {
-        var Annotations = Annotation.Utils.Annotations;
         function inject(target, propertyKey) {
-            Annotations.add(inject, {}, target, propertyKey);
+            Annotation.Annotations.add(inject, {}, target, propertyKey);
         }
         Annotation.inject = inject;
     })(Annotation = Typejector.Annotation || (Typejector.Annotation = {}));
@@ -958,14 +988,15 @@ var Typejector;
 (function (Typejector) {
     var Annotation;
     (function (Annotation) {
-        var Annotations = Annotation.Utils.Annotations;
+        var Class = Typejector.Type.Class;
         function injection(clazz) {
             var annotations = [];
             for (var _i = 1; _i < arguments.length; _i++) {
                 annotations[_i - 1] = arguments[_i];
             }
-            Annotations.add(injection, {}, clazz);
-            annotations.forEach(function (annotation) { return Annotations.add(annotation, {}, clazz); });
+            Class.register(clazz);
+            Annotation.Annotations.add(injection, {}, clazz);
+            annotations.forEach(function (annotation) { return Annotation.Annotations.add(annotation, {}, clazz); });
         }
         Annotation.injection = injection;
     })(Annotation = Typejector.Annotation || (Typejector.Annotation = {}));
@@ -994,9 +1025,8 @@ var Typejector;
 (function (Typejector) {
     var Annotation;
     (function (Annotation) {
-        var Annotations = Annotation.Utils.Annotations;
         function postConstructor(target, propertyKey) {
-            Annotations.add(postConstructor, {}, target, propertyKey);
+            Annotation.Annotations.add(postConstructor, {}, target, propertyKey);
         }
         Annotation.postConstructor = postConstructor;
     })(Annotation = Typejector.Annotation || (Typejector.Annotation = {}));
@@ -1005,9 +1035,8 @@ var Typejector;
 (function (Typejector) {
     var Annotation;
     (function (Annotation) {
-        var Annotations = Annotation.Utils.Annotations;
         function factoryMethod(parent, propertyName) {
-            Annotations.add(factoryMethod, {}, parent, propertyName);
+            Annotation.Annotations.add(factoryMethod, {}, parent, propertyName);
         }
         Annotation.factoryMethod = factoryMethod;
     })(Annotation = Typejector.Annotation || (Typejector.Annotation = {}));
@@ -1032,9 +1061,8 @@ var Typejector;
             (function (Support) {
                 var Bean = (function () {
                     function Bean() {
-                        this.isReady = false;
                         this.annotations = [];
-                        this.scopeNames = [];
+                        this.scope = "";
                         this.constructorArguments = [];
                         this.properties = [];
                         this.methods = [];
@@ -1231,14 +1259,6 @@ var Typejector;
                         _super.apply(this, arguments);
                     }
                     DefaultBeanDefinitionPostProcessor.prototype.postProcessBeanDefinition = function (beanDefinition) {
-                        beanDefinition.scopeNames.forEach(function (it, id) { return it === Support.SingletonScope.NAME || it === Support.PrototypeScope.NAME ?
-                            beanDefinition.scopeNames.splice(id, 1) : void (0); });
-                        if (Component.BeanUtils.isSingleton(beanDefinition)) {
-                            beanDefinition.scopeNames.push(Support.SingletonScope.NAME);
-                        }
-                        else {
-                            beanDefinition.scopeNames.push(Support.PrototypeScope.NAME);
-                        }
                     };
                     return DefaultBeanDefinitionPostProcessor;
                 })(Factory.BeanDefinitionPostProcessor);
@@ -1376,9 +1396,7 @@ var Typejector;
                             var beanPosition = this.registeredBeanDefinitions.indexOf(existedBeanDefinition);
                             this.registeredBeanDefinitions[beanPosition] = beanDefinition;
                         }
-                        if (beanDefinition.isReady) {
-                            this.applyBeanDefinitionPostProcessor(beanDefinition);
-                        }
+                        this.applyBeanDefinitionPostProcessor(beanDefinition);
                     };
                     DefaultBeanDefinitionRegistry.prototype.getBeanDefinition = function (beanName) {
                         if (!this.containsBeanDefinition(beanName)) {
@@ -1797,57 +1815,6 @@ var Typejector;
         })(Context = Component.Context || (Component.Context = {}));
     })(Component = Typejector.Component || (Typejector.Component = {}));
 })(Typejector || (Typejector = {}));
-///<reference path="../../node_modules/reflect-metadata/Reflect.ts"/>
-///<reference path="../Core/Type/Class.ts"/>
-///<reference path="../Core/Util/ArrayUtils.ts"/>
-///<reference path="../Core/Event/Event.ts"/>
-///<reference path="../Core/Exception/Assert.ts"/>
-///<reference path="../Core/Collections/Map.ts"/>
-///<reference path="Component/Factory/Support/BeanNameGenerator.ts"/>
-///<reference path="Annotation/Utils/Annotations.ts"/>
-///<reference path="Component/Factory/Config/AnnotatedObject.ts"/>
-///<reference path="Component/Factory/Config/TypeDescriptor.ts"/>
-///<reference path="Component/Factory/Config/DependencyDescriptor.ts"/>
-///<reference path="Component/Factory/Config/PropertyDescriptor.ts"/>
-///<reference path="Component/Factory/Config/MethodDescriptor.ts"/>
-///<reference path="Component/Factory/Config/ResolveDefinition.ts"/>
-///<reference path="Component/Factory/Config/BeanDefinition.ts"/>
-///<reference path="Component/Context/Config/BeanDescriptor.ts"/>
-///<reference path="Component/Context/Config/FieldDependencyDescriptor.ts"/>
-///<reference path="Component/Context/Config/ArgumentDependencyDescriptor.ts"/>
-///<reference path="Component/Context/Config/MethodDependencyDescriptor.ts"/>
-///<reference path="Annotation/Inject.ts"/>
-///<reference path="Annotation/Injection.ts"/>
-///<reference path="Annotation/Abstract.ts"/>
-///<reference path="Annotation/Singleton.ts"/>
-///<reference path="Annotation/PostConstructor.ts"/>
-///<reference path="Annotation/FactoryMethod.ts"/>
-///<reference path="Annotation/Config.ts"/>
-///<reference path="Component/Factory/Support/Bean.ts"/>
-///<reference path="Component/BeanUtils.ts"/>
-///<reference path="Component/Factory/ObjectFactory.ts"/>
-///<reference path="Component/Factory/Config/Scope.ts"/>
-///<reference path="Component/Factory/Support/PrototypeScope.ts"/>
-///<reference path="Component/Factory/Support/SingletonScope.ts"/>
-///<reference path="Component/Factory/BeanFactory.ts"/>
-///<reference path="Component/Factory/Registry/BeanDefinitionRegistry.ts"/>
-///<reference path="Component/Factory/Registry/FactoryBeanRegistry.ts"/>
-///<reference path="Component/Factory/AutowireCapableBeanFactory.ts"/>
-///<reference path="Component/Factory/ListableBeanFactory.ts"/>
-///<reference path="Component/Factory/BeanPostProcessor.ts"/>
-///<reference path="Component/Factory/BeanDefinitionPostProcessor.ts"/>
-///<reference path="Component/Factory/ConfigurableBeanFactory.ts"/>
-///<reference path="Component/Factory/ConfigurableListableBeanFactory.ts"/>
-///<reference path="Component/Factory/Support/DefaultBeanDefinitionPostProcessor.ts"/>
-///<reference path="Component/Factory/Support/MergeBeanDefinitionPostProcessor.ts"/>
-///<reference path="Component/Factory/Support/ConfigBeanDefinitionPostProcessor.ts"/>
-///<reference path="Component/Factory/Support/DefaultBeanDefinitionRegistry.ts"/>
-///<reference path="Component/Factory/Support/FactoryBeanRegistrySupport.ts"/>
-///<reference path="Component/Factory/Support/AbstractBeanFactory.ts"/>
-///<reference path="Component/Factory/Support/AbstractAutowireCapableBeanFactory.ts"/>
-///<reference path="Component/Factory/Support/DefaultListableBeanFactory.ts"/>
-///<reference path="Component/Context/Context.ts"/>
-///<reference path="Component/Context/ApplicationContext.ts"/>
 var Typejector;
 (function (Typejector) {
     var ApplicationContext = Typejector.Component.Context.ApplicationContext;
@@ -1857,67 +1824,4 @@ var Typejector;
     }
     Typejector.getContext = getContext;
 })(Typejector || (Typejector = {}));
-var Typejector;
-(function (Typejector) {
-    var Annotation;
-    (function (Annotation) {
-        var Utils;
-        (function (Utils) {
-            function testAnnotation() {
-            }
-            describe("Annotations Utils Test", function () {
-                it("#add", function () {
-                    Utils.Annotations.add(testAnnotation, { test: "hi" }, testAnnotation, "test");
-                });
-                it("#get", function () {
-                    var result = Utils.Annotations.get(testAnnotation, "test");
-                    assert(result);
-                    if (!result.size) {
-                        throw new Error("Empty map");
-                    }
-                });
-            });
-        })(Utils = Annotation.Utils || (Annotation.Utils = {}));
-    })(Annotation = Typejector.Annotation || (Typejector.Annotation = {}));
-})(Typejector || (Typejector = {}));
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var Typejector;
-(function (Typejector) {
-    var Annotation;
-    (function (Annotation) {
-        var Annotations = Annotation.Utils.Annotations;
-        describe("Annotations Integration Test", function () {
-            it("Inject Annotation Existing Test", function () {
-                var Test = (function () {
-                    function Test() {
-                    }
-                    __decorate([
-                        Annotation.inject, 
-                        __metadata('design:type', String)
-                    ], Test.prototype, "prop");
-                    return Test;
-                })();
-                var result = Annotations.get(Test, "prop");
-                if (result.size === 0 || result.get(Annotation.inject) == undefined) {
-                    throw new Error("There are no annoataion presented");
-                }
-            });
-        });
-    })(Annotation = Typejector.Annotation || (Typejector.Annotation = {}));
-})(Typejector || (Typejector = {}));
-/// <reference path="../../Typejector/MEF/Typejector.ts"/>
-/// <reference path="../../typings/mocha/mocha.d.ts"/>
-/// <reference path="Annotation/Utils/AnnotationUtilsTest.ts"/>
-/// <reference path="Annotation/AnnotationIntegrationTest.ts"/>
-/// <reference path="./Typejector/Tests.ts"/> 
 //# sourceMappingURL=typejector.js.map

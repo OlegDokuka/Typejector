@@ -1,4 +1,4 @@
-namespace Typejector.Annotation.Utils {
+namespace Typejector.Annotation {
     import ArrayUtils = Typejector.Util.ArrayUtils;
     import BeanNameGenerator = Typejector.Component.Factory.Support.BeanNameGenerator;
 
@@ -24,9 +24,9 @@ namespace Typejector.Annotation.Utils {
             return Annotations;
         }
 
-        public static get(target:Object);
-        public static get(target:Object, targetKey:string | symbol);
-        public static get(target:Object, targetKey?:string | symbol) {
+        public static get(target:Object):Map<any, any>;
+        public static get(target:Object, targetKey:string | symbol):Map<any, any>;
+        public static get(target:Object, targetKey?:string | symbol):Map<any, any> {
             const result:Map<any, any> = new Map<any, any>();
             const metadataValue:Array<any> = Reflect.getMetadata(Annotations.ANNOTATION_KEY, target, targetKey);
 

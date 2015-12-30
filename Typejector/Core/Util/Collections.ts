@@ -1,5 +1,5 @@
 ﻿namespace Typejector.Util {
-    export class ArrayUtils {
+    export class Collections {
         public static remove<T>(src: Array<T>, element: T): boolean {
             assert(src);
             assert(element);

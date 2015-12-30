@@ -1,11 +1,11 @@
 ﻿///<reference path="../../node_modules/reflect-metadata/Reflect.ts"/>
 ///<reference path="../Core/Type/Class.ts"/>
-///<reference path="../Core/Util/ArrayUtils.ts"/>
+///<reference path="../Core/Util/Collections.ts"/>
 ///<reference path="../Core/Event/Event.ts"/>
 ///<reference path="../Core/Exception/Assert.ts"/>
 ///<reference path="../Core/Collections/Map.ts"/>
 ///<reference path="Component/Factory/Support/BeanNameGenerator.ts"/>
-///<reference path="Annotation/Utils/Annotations.ts"/>
+///<reference path="Annotation/Annotations.ts"/>
 ///<reference path="Annotation/ClassBeanDefinitionScanner.ts"/>
 ///<reference path="Component/Factory/Config/AnnotatedObject.ts"/>
 ///<reference path="Component/Factory/Config/TypeDescriptor.ts"/>

@@ -1,4 +1,3 @@
-/// <reference path="../../typings/mocha/mocha.d.ts" />
 declare module Reflect {
     function decorate(decorators: ClassDecorator[], target: Function): Function;
     function decorate(decorators: (PropertyDecorator | MethodDecorator)[], target: Object, targetKey: string | symbol, descriptor?: PropertyDescriptor): PropertyDescriptor;
@@ -27,6 +26,10 @@ declare module Typejector.Type {
     type Class = {
         new (...args: any[]): any;
     };
+    namespace Class {
+        function register(clazz: Function): void;
+        function classes(): Function[];
+    }
 }
 declare namespace Typejector.Util {
     class ArrayUtils {
@@ -107,15 +110,17 @@ declare namespace Typejector.Component.Factory.Support {
         private static extractFunctionName(clazz);
     }
 }
-declare namespace Typejector.Annotation.Utils {
+declare namespace Typejector.Annotation {
     class Annotations {
         static ANNOTATION_KEY: string;
         private static ANNOTATION_DATA_KEY;
         static add(annotation: any, annotationData: any, target: Object): any;
         static add(annotation: any, annotationData: any, target: Object, targetKey: string | symbol): any;
-        static get(target: Object): any;
-        static get(target: Object, targetKey: string | symbol): any;
+        static get(target: Object): Map<any, any>;
+        static get(target: Object, targetKey: string | symbol): Map<any, any>;
     }
+}
+declare namespace Typejector.Annotation {
 }
 declare namespace Typejector.Component.Factory.Config {
     interface AnnotatedObject {
@@ -161,9 +166,8 @@ declare namespace Typejector.Component.Factory.Config {
 declare module Typejector.Component.Factory.Config {
     interface BeanDefinition extends ResolveDefinition, AnnotatedObject {
         name: string;
-        scopeNames: string[];
+        scope: string;
         factoryMethodName: string;
-        isReady: boolean;
     }
 }
 declare namespace Typejector.Component.Context.Config {
@@ -224,10 +228,9 @@ declare module Typejector.Component.Factory.Support {
     import Class = Type.Class;
     class Bean implements Config.BeanDefinition {
         clazz: Class;
-        isReady: boolean;
         annotations: Function[];
         name: string;
-        scopeNames: string[];
+        scope: string;
         factoryMethodName: string;
         constructorArguments: Array<Config.TypeDescriptor>;
         properties: Array<Config.PropertyDescriptor>;
@@ -484,10 +487,4 @@ declare namespace Typejector.Component.Context {
 declare module Typejector {
     import Context = Component.Context.Context;
     function getContext(): Context;
-}
-declare namespace Typejector.Annotation.Utils {
-}
-declare namespace Typejector.Annotation {
-}
-declare namespace Typejector {
 }
