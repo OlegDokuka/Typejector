@@ -41,7 +41,10 @@ var Typejector;
             Collections.contains = function (src, element) {
                 assert(src);
                 assert(element);
-                return src.indexOf(element) > -1;
+                var result = false;
+                src.forEach(function (it) { if (element === it)
+                    result = true; });
+                return result;
             };
             Collections.keys = function (src) {
                 var keys = [];
@@ -739,6 +742,7 @@ var Typejector;
         var Bean = Typejector.Component.Factory.Support.Bean;
         var Class = Typejector.Type.Class;
         var Collections = Typejector.Util.Collections;
+        var MethodDescriptor = Typejector.Component.;
         var ClassBeanDefinitionScanner = (function () {
             function ClassBeanDefinitionScanner() {
             }
@@ -752,12 +756,13 @@ var Typejector;
                 var bean = new Bean();
                 bean.clazz = clazz;
                 annotations.forEach(function (key, val) {
-                    bean.annotations.push(key);
+                    bean.annotations.add(key);
                 });
                 Object.keys(clazz).forEach(function (it) {
                     Collections.keys(Annotation.Annotations.get(clazz.prototype));
                     if (typeof it === "function") {
-                        bean.methods.push;
+                        var descriptor = new MethodDescriptor();
+                        bean.methods.add();
                     }
                 });
                 return bean;
@@ -825,6 +830,7 @@ var Typejector;
                     __extends(BeanDescriptor, _super);
                     function BeanDescriptor() {
                         _super.apply(this, arguments);
+                        this.annotations = new Set();
                     }
                     return BeanDescriptor;
                 })(TypeDescriptor);
@@ -846,7 +852,7 @@ var Typejector;
                     __extends(FieldDependencyDescriptor, _super);
                     function FieldDependencyDescriptor() {
                         _super.apply(this, arguments);
-                        this.annotations = [];
+                        this.annotations = new Set();
                     }
                     return FieldDependencyDescriptor;
                 })(DependencyDescriptor);
@@ -984,16 +990,13 @@ var Typejector;
             (function (Support) {
                 var Bean = (function () {
                     function Bean() {
-                        this.annotations = [];
+                        this.annotations = new Set();
                         this.scope = "";
                         this.constructorArguments = [];
-                        this.properties = [];
-                        this.methods = [];
+                        this.properties = new Set();
+                        this.methods = new Set();
                         this.postConstructors = [];
                     }
-                    Bean.prototype.hasAnnotation = function (annotation) {
-                        return this.annotations.some(function (val) { return val === annotation; });
-                    };
                     return Bean;
                 })();
                 Support.Bean = Bean;
@@ -1479,26 +1482,19 @@ var Typejector;
                     };
                     AbstractAutowireCapableBeanFactory.prototype.doCreateBean = function (beanDefinition) {
                         var _this = this;
-                        var bean, scopes, beanObjectFactory = this.getFactory(beanDefinition.name);
-                        scopes = beanDefinition.scopeNames.map(function (scopeName) { return _this.getRegisteredScope(scopeName); });
-                        for (var _i = 0; _i < scopes.length; _i++) {
-                            var scope = scopes[_i];
-                            bean = scope.get(beanDefinition.name, {
-                                getObject: function () {
-                                    var bean = beanObjectFactory.getObject();
-                                    if (bean == undefined) {
-                                        return bean;
-                                    }
-                                    bean = _this.applyBeanPostProcessorsBeforeInitialization(bean, beanDefinition);
-                                    bean = _this.initializeBean(bean, beanDefinition);
-                                    bean = _this.applyBeanPostProcessorsAfterInitialization(bean, beanDefinition);
-                                    return bean;
+                        var bean, scope = this.getRegisteredScope(beanDefinition.scope), beanObjectFactory = this.getFactory(beanDefinition.name);
+                        bean = scope.get(beanDefinition.name, {
+                            getObject: function () {
+                                var instance = beanObjectFactory.getObject();
+                                if (instance == undefined) {
+                                    return instance;
                                 }
-                            });
-                            if (bean != undefined) {
-                                break;
+                                instance = _this.applyBeanPostProcessorsBeforeInitialization(instance, beanDefinition);
+                                instance = _this.initializeBean(instance, beanDefinition);
+                                instance = _this.applyBeanPostProcessorsAfterInitialization(instance, beanDefinition);
+                                return instance;
                             }
-                        }
+                        });
                         return bean;
                     };
                     AbstractAutowireCapableBeanFactory.prototype.initializeBean = function (instance, beanDefinition) {
@@ -1718,7 +1714,6 @@ var Typejector;
                     else if (typeDescriptor instanceof BeanDescriptor) {
                         beanDefinition = Component.BeanUtils.getOrCreateBeanDefinition(this.mainBeanFactory, typeDescriptor.clazz);
                         beanDefinition.annotations = typeDescriptor.annotations;
-                        beanDefinition.isReady = true;
                     }
                     assert(beanDefinition, "no bean definition resolved from passed info");
                     this.mainBeanFactory.registerBeanDefinition(beanDefinition.name, beanDefinition);

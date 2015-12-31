@@ -1,14 +1,15 @@
 namespace Typejector.Annotation {
     import Collections = Typejector.Util.Collections;
     import BeanNameGenerator = Typejector.Component.Factory.Support.BeanNameGenerator;
-
+//ToDo: Params Annotation
     export class Annotations {
         public static ANNOTATION_KEY = "design:annotation";
         private static ANNOTATION_DATA_KEY = "design:annotation:";
 
         public static add(annotation:any, annotationData:any, target:Object);
         public static add(annotation:any, annotationData:any, target:Object, targetKey:string | symbol);
-        public static add(annotation:any, annotationData:any, target:Object, targetKey?:string | symbol) {
+        public static add(annotation:any, annotationData:any, target:Object, targetKey:string | symbol, paramIndex: number);
+        public static add(annotation:any, annotationData:any, target:Object, targetKey?:string | symbol, paramIndex?: number) {
             let metadataValue:Array<any> = Reflect.getMetadata(Annotations.ANNOTATION_KEY, target, targetKey);
 
             metadataValue = metadataValue == undefined ? [] : metadataValue;

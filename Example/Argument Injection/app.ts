@@ -20,7 +20,7 @@ module Example.ArgumentInjection {
 
         private ownNoiser:SimpleNoiser;
 
-        constructor(@inject(SimpleNoiser) externalNoiser) {
+        constructor(@inject(SimpleNoiser) externalNoiser:SimpleNoiser) {
             console.assert(externalNoiser);
 
             this.ownNoiser = externalNoiser;

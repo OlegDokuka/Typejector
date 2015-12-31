@@ -18,6 +18,10 @@ var Typejector;
                 return classes;
             }
             Class.classes = classes;
+            function isClass(val) {
+                return typeof val === "function";
+            }
+            Class.isClass = isClass;
         })(Class = Type.Class || (Type.Class = {}));
     })(Type = Typejector.Type || (Typejector.Type = {}));
 })(Typejector || (Typejector = {}));
@@ -712,7 +716,7 @@ var Typejector;
         var Annotations = (function () {
             function Annotations() {
             }
-            Annotations.add = function (annotation, annotationData, target, targetKey) {
+            Annotations.add = function (annotation, annotationData, target, targetKey, paramIndex) {
                 var metadataValue = Reflect.getMetadata(Annotations.ANNOTATION_KEY, target, targetKey);
                 metadataValue = metadataValue == undefined ? [] : metadataValue;
                 if (!Collections.contains(metadataValue, annotation)) {
@@ -742,7 +746,9 @@ var Typejector;
         var Bean = Typejector.Component.Factory.Support.Bean;
         var Class = Typejector.Type.Class;
         var Collections = Typejector.Util.Collections;
-        var MethodDescriptor = Typejector.Component.;
+        var TypeDescriptor = Typejector.Component.Factory.Config.TypeDescriptor;
+        var BeanNameGenerator = Typejector.Component.Factory.Support.BeanNameGenerator;
+        var Reflection = Typejector.Util.Reflection;
         var ClassBeanDefinitionScanner = (function () {
             function ClassBeanDefinitionScanner() {
             }
@@ -755,13 +761,18 @@ var Typejector;
                 var annotations = Annotation.Annotations.get(clazz);
                 var bean = new Bean();
                 bean.clazz = clazz;
-                annotations.forEach(function (key, val) {
+                annotations.forEach(function (val, key) {
                     bean.annotations.add(key);
                 });
                 Object.keys(clazz).forEach(function (it) {
+                    var property = clazz.prototype[it];
                     Collections.keys(Annotation.Annotations.get(clazz.prototype));
-                    if (typeof it === "function") {
-                        var descriptor = new MethodDescriptor();
+                    if (Class.isClass(property)) {
+                        var descriptor = {
+                            name: BeanNameGenerator.generateBeanName(property),
+                            arguments: Reflection.getParamTypes(clazz.prototype, it).map(),
+                            returnType: new TypeDescriptor()
+                        };
                         bean.methods.add();
                     }
                 });

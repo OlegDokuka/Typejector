@@ -41,7 +41,7 @@ var Example;
             NoiseMakerClass = __decorate([
                 injection,
                 __param(0, inject(SimpleNoiser)), 
-                __metadata('design:paramtypes', [Object])
+                __metadata('design:paramtypes', [SimpleNoiser])
             ], NoiseMakerClass);
             return NoiseMakerClass;
         })();

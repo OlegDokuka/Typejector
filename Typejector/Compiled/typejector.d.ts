@@ -1,10 +1,12 @@
 declare module Typejector.Type {
     type Class = {
         new (...args: any[]): any;
+        prototype: any;
     };
     namespace Class {
         function register(clazz: Function): void;
         function classes(): Function[];
+        function isClass(val: any): val is Class;
     }
 }
 declare namespace Typejector.Util {
@@ -143,6 +145,7 @@ declare namespace Typejector.Annotation {
         private static ANNOTATION_DATA_KEY;
         static add(annotation: any, annotationData: any, target: Object): any;
         static add(annotation: any, annotationData: any, target: Object, targetKey: string | symbol): any;
+        static add(annotation: any, annotationData: any, target: Object, targetKey: string | symbol, paramIndex: number): any;
         static get(target: Object): Map<any, any>;
         static get(target: Object, targetKey: string | symbol): Map<any, any>;
     }

@@ -3,7 +3,6 @@
 declare module Typejector.Type {
     type Class = {
         new (...args: any[]): any;
-        new <T>(...args: any[]): T;
     };
     namespace Class {
         function register(clazz: Function): void;
@@ -13,7 +12,9 @@ declare module Typejector.Type {
 declare namespace Typejector.Util {
     class Collections {
         static remove<T>(src: Array<T>, element: T): boolean;
-        static contains<T>(src: Array<T>, element: T): boolean;
+        static contains<T>(src: {
+            forEach(func: (...args: any[]) => void);
+        }, element: T): boolean;
         static keys<T>(src: Map<T, any>): T[];
     }
 }
@@ -152,7 +153,7 @@ declare namespace Typejector.Annotation {
 }
 declare namespace Typejector.Component.Factory.Config {
     interface AnnotatedObject {
-        annotations: Array<Function>;
+        annotations: Set<Function>;
     }
 }
 declare module Typejector.Component.Factory.Config {
@@ -187,8 +188,8 @@ declare namespace Typejector.Component.Factory.Config {
     interface ResolveDefinition {
         clazz: Class;
         constructorArguments: Array<TypeDescriptor>;
-        properties: Array<PropertyDescriptor>;
-        methods: Array<MethodDescriptor>;
+        properties: Set<PropertyDescriptor>;
+        methods: Set<MethodDescriptor>;
     }
 }
 declare module Typejector.Component.Factory.Config {
@@ -202,7 +203,7 @@ declare namespace Typejector.Component.Context.Config {
     import TypeDescriptor = Factory.Config.TypeDescriptor;
     import AnnotatedObject = Component.Factory.Config.AnnotatedObject;
     class BeanDescriptor extends TypeDescriptor implements AnnotatedObject {
-        annotations: Function[];
+        annotations: Set<Function>;
     }
 }
 declare namespace Typejector.Component.Context.Config {
@@ -210,7 +211,7 @@ declare namespace Typejector.Component.Context.Config {
     import AnnotatedObject = Component.Factory.Config.AnnotatedObject;
     class FieldDependencyDescriptor extends DependencyDescriptor implements AnnotatedObject {
         name: string;
-        annotations: Function[];
+        annotations: Set<Function>;
     }
 }
 declare namespace Typejector.Component.Context.Config {
@@ -256,15 +257,14 @@ declare module Typejector.Component.Factory.Support {
     import Class = Type.Class;
     class Bean implements Config.BeanDefinition {
         clazz: Class;
-        annotations: Function[];
+        annotations: Set<Function>;
         name: string;
         scope: string;
         factoryMethodName: string;
         constructorArguments: Array<Config.TypeDescriptor>;
-        properties: Array<Config.PropertyDescriptor>;
-        methods: Array<Config.MethodDescriptor>;
+        properties: Set<Config.PropertyDescriptor>;
+        methods: Set<Config.MethodDescriptor>;
         postConstructors: Array<Config.MethodDescriptor>;
-        hasAnnotation(annotation: Function): boolean;
     }
 }
 declare namespace Typejector.Component {
@@ -274,11 +274,11 @@ declare namespace Typejector.Component {
     import ConfigurableListableBeanFactory = Factory.ConfigurableListableBeanFactory;
     class BeanUtils {
         static isAssignable(clazz: Class, classFrom: Class): boolean;
-        static isAbstract(beanDefinition: BeanDefinition): boolean;
-        static isConfig(beanDefinition: BeanDefinition): boolean;
-        static isSingleton(beanDefinition: BeanDefinition): boolean;
-        static getMethodDescriptor(beanDefinition: BeanDefinition, methodName: string): MethodDescriptor;
-        static getOrCreateMethodDescriptor(beanDefinition: BeanDefinition, methodName: string): MethodDescriptor;
+        static isAbstract(beanDefinition: BeanDefinition): any;
+        static isConfig(beanDefinition: BeanDefinition): any;
+        static isSingleton(beanDefinition: BeanDefinition): any;
+        static getMethodDescriptor(beanDefinition: BeanDefinition, methodName: string): any;
+        static getOrCreateMethodDescriptor(beanDefinition: BeanDefinition, methodName: string): any;
         static getOrCreateBeanDefinition(beanFactory: ConfigurableListableBeanFactory, clazz: Class): BeanDefinition;
         static newInstance(clazz: Class, ...args: any[]): any;
         static createObjectFactoryFrom<T>(methodDescriptor: MethodDescriptor, parent: Class, beanFactory: ConfigurableListableBeanFactory): Factory.ObjectFactory<T>;
