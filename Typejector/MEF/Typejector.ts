@@ -1,9 +1,12 @@
-﻿///<reference path="../../node_modules/reflect-metadata/Reflect.ts"/>
-///<reference path="../Core/Type/Class.ts"/>
+﻿///<reference path="../Core/Type/Class.ts"/>
 ///<reference path="../Core/Util/Collections.ts"/>
 ///<reference path="../Core/Event/Event.ts"/>
 ///<reference path="../Core/Exception/Assert.ts"/>
 ///<reference path="../Core/Collections/Map.ts"/>
+///<reference path="../Core/Collections/Set.ts"/>
+///<reference path="../Core/Collections/WeakMap.ts"/>
+///<reference path="../Core/Collections/WeakSet.ts"/>
+///<reference path="../../node_modules/reflect-metadata/Reflect.ts"/>
 ///<reference path="Component/Factory/Support/BeanNameGenerator.ts"/>
 ///<reference path="Annotation/Annotations.ts"/>
 ///<reference path="Annotation/ClassBeanDefinitionScanner.ts"/>

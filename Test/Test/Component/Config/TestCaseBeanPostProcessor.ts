@@ -1,7 +1,7 @@
 ﻿namespace Typejector.Test.Component.Config {
     import singleton = Typejector.Annotation.singleton;
     import BeanPostProcessor = Typejector.Component.Factory.BeanPostProcessor;
-    import ArrayUtils = Util.ArrayUtils;
+    import Collections = Util.Collections;
     import testCase = Test.Annotation.testCase;
     import testMethod = Test.Annotation.testMethod;
     import inject = Typejector.Annotation.inject;
@@ -9,11 +9,11 @@
 
     @singleton
     export class TestCaseBeanPostProcessor extends BeanPostProcessor {
-        @inject(ApplicationContext) context: ApplicationContext;
+        @inject context: ApplicationContext;
 
         postProcessAfterInitialization<T>(bean: T, beanDefinition: Typejector.Component.Factory.Config.BeanDefinition): T {
-            if (ArrayUtils.contains(beanDefinition.annotations, testCase)) {
-                beanDefinition.methods.filter(it=> ArrayUtils.contains(it.annotations, testMethod)).forEach(it => {
+            if (Collections.contains(beanDefinition.annotations, testCase)) {
+                beanDefinition.methods.filter(it=> Collections.contains(it.annotations, testMethod)).forEach(it => {
                     const resolvedArguments = it.arguments.map(arg => this.context.getBeanFactory().resolveDependency(arg));
 
                     bean[it.name].call(bean, ...resolvedArguments);

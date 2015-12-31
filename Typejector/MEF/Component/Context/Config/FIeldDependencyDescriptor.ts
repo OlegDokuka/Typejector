@@ -4,6 +4,6 @@
 
     export class FieldDependencyDescriptor extends DependencyDescriptor implements AnnotatedObject {
         name: string;
-        annotations: Function[] = [];
+        annotations: Set<Function> = new Set();
     }
 }

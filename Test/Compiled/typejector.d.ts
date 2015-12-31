@@ -1,32 +1,9 @@
 /// <reference path="../../typings/mocha/mocha.d.ts" />
 /// <reference path="../../typings/expect.js/expect.js.d.ts" />
-declare module Reflect {
-    function decorate(decorators: ClassDecorator[], target: Function): Function;
-    function decorate(decorators: (PropertyDecorator | MethodDecorator)[], target: Object, targetKey: string | symbol, descriptor?: PropertyDescriptor): PropertyDescriptor;
-    function metadata(metadataKey: any, metadataValue: any): {
-        (target: Function): void;
-        (target: Object, targetKey: string | symbol): void;
-    };
-    function defineMetadata(metadataKey: any, metadataValue: any, target: Object): void;
-    function defineMetadata(metadataKey: any, metadataValue: any, target: Object, targetKey: string | symbol): void;
-    function hasMetadata(metadataKey: any, target: Object): boolean;
-    function hasMetadata(metadataKey: any, target: Object, targetKey: string | symbol): boolean;
-    function hasOwnMetadata(metadataKey: any, target: Object): boolean;
-    function hasOwnMetadata(metadataKey: any, target: Object, targetKey: string | symbol): boolean;
-    function getMetadata(metadataKey: any, target: Object): any;
-    function getMetadata(metadataKey: any, target: Object, targetKey: string | symbol): any;
-    function getOwnMetadata(metadataKey: any, target: Object): any;
-    function getOwnMetadata(metadataKey: any, target: Object, targetKey: string | symbol): any;
-    function getMetadataKeys(target: Object): any[];
-    function getMetadataKeys(target: Object, targetKey: string | symbol): any[];
-    function getOwnMetadataKeys(target: Object): any[];
-    function getOwnMetadataKeys(target: Object, targetKey: string | symbol): any[];
-    function deleteMetadata(metadataKey: any, target: Object): boolean;
-    function deleteMetadata(metadataKey: any, target: Object, targetKey: string | symbol): boolean;
-}
 declare module Typejector.Type {
     type Class = {
         new (...args: any[]): any;
+        new <T>(...args: any[]): T;
     };
     namespace Class {
         function register(clazz: Function): void;
@@ -34,9 +11,10 @@ declare module Typejector.Type {
     }
 }
 declare namespace Typejector.Util {
-    class ArrayUtils {
+    class Collections {
         static remove<T>(src: Array<T>, element: T): boolean;
         static contains<T>(src: Array<T>, element: T): boolean;
+        static keys<T>(src: Map<T, any>): T[];
     }
 }
 declare module Typejector.Event.Interface {
@@ -75,21 +53,6 @@ declare namespace Typejector.Exception {
     function assert(object: any, message?: string): void;
 }
 declare function assert(object: any, message?: string): void;
-declare namespace Typejector.Collections {
-    class Map<K, V> {
-        private keys;
-        private values;
-        private cache;
-        size: number;
-        has(key: K): boolean;
-        get(key: K): any;
-        set(key: K, value: V): Map<K, V>;
-        delete(key: K): boolean;
-        clear(): void;
-        forEach(callback: (value: V, key: K, map: Map<K, V>) => void, thisArg?: any): void;
-        private find(key);
-    }
-}
 interface Map<K, V> {
     clear(): void;
     delete(key: K): boolean;
@@ -105,6 +68,69 @@ interface MapConstructor {
     prototype: Map<any, any>;
 }
 declare var Map: MapConstructor;
+interface Set<T> {
+    add(value: T): Set<T>;
+    clear(): void;
+    delete(value: T): boolean;
+    forEach(callbackfn: (value: T, index: T, set: Set<T>) => void, thisArg?: any): void;
+    has(value: T): boolean;
+    size: number;
+}
+interface SetConstructor {
+    new (): Set<any>;
+    new <T>(): Set<T>;
+    prototype: Set<any>;
+}
+declare var Set: SetConstructor;
+interface WeakMap<K, V> {
+    clear(): void;
+    delete(key: K): boolean;
+    get(key: K): V;
+    has(key: K): boolean;
+    set(key: K, value?: V): WeakMap<K, V>;
+}
+interface WeakMapConstructor {
+    new (): WeakMap<any, any>;
+    new <K, V>(): WeakMap<K, V>;
+    prototype: WeakMap<any, any>;
+}
+declare var WeakMap: WeakMapConstructor;
+interface WeakSet<T> {
+    add(value: T): WeakSet<T>;
+    clear(): void;
+    delete(value: T): boolean;
+    has(value: T): boolean;
+}
+interface WeakSetConstructor {
+    new (): WeakSet<any>;
+    new <T>(): WeakSet<T>;
+    prototype: WeakSet<any>;
+}
+declare var WeakSet: WeakSetConstructor;
+declare module Reflect {
+    function decorate(decorators: ClassDecorator[], target: Function): Function;
+    function decorate(decorators: (PropertyDecorator | MethodDecorator)[], target: Object, targetKey: string | symbol, descriptor?: PropertyDescriptor): PropertyDescriptor;
+    function metadata(metadataKey: any, metadataValue: any): {
+        (target: Function): void;
+        (target: Object, targetKey: string | symbol): void;
+    };
+    function defineMetadata(metadataKey: any, metadataValue: any, target: Object): void;
+    function defineMetadata(metadataKey: any, metadataValue: any, target: Object, targetKey: string | symbol): void;
+    function hasMetadata(metadataKey: any, target: Object): boolean;
+    function hasMetadata(metadataKey: any, target: Object, targetKey: string | symbol): boolean;
+    function hasOwnMetadata(metadataKey: any, target: Object): boolean;
+    function hasOwnMetadata(metadataKey: any, target: Object, targetKey: string | symbol): boolean;
+    function getMetadata(metadataKey: any, target: Object): any;
+    function getMetadata(metadataKey: any, target: Object, targetKey: string | symbol): any;
+    function getOwnMetadata(metadataKey: any, target: Object): any;
+    function getOwnMetadata(metadataKey: any, target: Object, targetKey: string | symbol): any;
+    function getMetadataKeys(target: Object): any[];
+    function getMetadataKeys(target: Object, targetKey: string | symbol): any[];
+    function getOwnMetadataKeys(target: Object): any[];
+    function getOwnMetadataKeys(target: Object, targetKey: string | symbol): any[];
+    function deleteMetadata(metadataKey: any, target: Object): boolean;
+    function deleteMetadata(metadataKey: any, target: Object, targetKey: string | symbol): boolean;
+}
 declare namespace Typejector.Component.Factory.Support {
     import Class = Type.Class;
     class BeanNameGenerator {
@@ -112,14 +138,14 @@ declare namespace Typejector.Component.Factory.Support {
         private static extractFunctionName(clazz);
     }
 }
-declare namespace Typejector.Annotation.Utils {
+declare namespace Typejector.Annotation {
     class Annotations {
         static ANNOTATION_KEY: string;
         private static ANNOTATION_DATA_KEY;
         static add(annotation: any, annotationData: any, target: Object): any;
         static add(annotation: any, annotationData: any, target: Object, targetKey: string | symbol): any;
-        static get(target: Object): any;
-        static get(target: Object, targetKey: string | symbol): any;
+        static get(target: Object): Map<any, any>;
+        static get(target: Object, targetKey: string | symbol): Map<any, any>;
     }
 }
 declare namespace Typejector.Annotation {
@@ -220,7 +246,7 @@ declare namespace Typejector.Annotation {
     function postConstructor(target: Object, propertyKey: string): void;
 }
 declare namespace Typejector.Annotation {
-    function factoryMethod(parent: any, propertyName: string | symbol): MethodDecorator;
+    function factoryMethod(parent: any, propertyName: string | symbol): void;
 }
 declare module Typejector.Annotation {
     import Class = Type.Class;

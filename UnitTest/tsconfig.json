@@ -8,8 +8,6 @@
     "emitDecoratorMetadata": true,
     "noLib": false,
     "sourceMap": true,
-    "listFiles": true,
-    "rootDir": "/UnitTest/",
     "outFile": "Compiled/typejector.js",
     "experimentalDecorators": true
   },

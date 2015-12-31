@@ -13,13 +13,26 @@
 
             return false;
         }
-        
 
-        public static contains<T>(src: Array<T>, element: T): boolean{
+
+        public static contains<T>(src: { forEach(func: (...args: any[]) => void) }, element: T): boolean {
             assert(src);
             assert(element);
 
-            return src.indexOf(element) > -1;
+            let result = false;
+
+            src.forEach(it=> { if (element === it) result = true; })
+
+            return result;
+        }
+
+
+        public static keys<T>(src: Map<T, any>): T[] {
+            const keys: T[] = [];
+
+            src.forEach((val, key) => keys.push(key));
+
+            return keys;
         }
     }
 } 

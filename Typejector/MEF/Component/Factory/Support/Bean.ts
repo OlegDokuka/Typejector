@@ -4,18 +4,14 @@
     export class Bean implements Config.BeanDefinition {
         clazz: Class;
 
-        annotations: Function[] = [];
+        annotations: Set<Function> = new Set();
         name: string;
         scope: string = "";
         factoryMethodName: string;
 
         constructorArguments: Array<Config.TypeDescriptor> = [];
-        properties: Array<Config.PropertyDescriptor> = [];
-        methods: Array<Config.MethodDescriptor> = [];
+        properties: Set<Config.PropertyDescriptor> = new Set();
+        methods: Set<Config.MethodDescriptor> = new Set();
         postConstructors: Array<Config.MethodDescriptor> = [];
-
-        public hasAnnotation(annotation: Function): boolean {
-            return this.annotations.some((val) => val === annotation);
-        }
     }
 } 

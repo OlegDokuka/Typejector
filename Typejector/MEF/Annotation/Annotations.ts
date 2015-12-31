@@ -1,5 +1,5 @@
 namespace Typejector.Annotation {
-    import ArrayUtils = Typejector.Util.ArrayUtils;
+    import Collections = Typejector.Util.Collections;
     import BeanNameGenerator = Typejector.Component.Factory.Support.BeanNameGenerator;
 
     export class Annotations {
@@ -13,7 +13,7 @@ namespace Typejector.Annotation {
 
             metadataValue = metadataValue == undefined ? [] : metadataValue;
 
-            if (!ArrayUtils.contains(metadataValue, annotation)) {
+            if (!Collections.contains(metadataValue, annotation)) {
                 metadataValue.push(annotation);
             }
 

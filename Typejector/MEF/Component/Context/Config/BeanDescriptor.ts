@@ -3,6 +3,6 @@
     import AnnotatedObject = Component.Factory.Config.AnnotatedObject;
 
     export class BeanDescriptor extends TypeDescriptor implements AnnotatedObject {
-        annotations: Function[];
+        annotations: Set<Function> = new Set();
     }
 }

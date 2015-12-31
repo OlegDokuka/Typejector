@@ -1,6 +1,6 @@
 ﻿namespace Typejector.Test.Component.Config {
     import singleton = Typejector.Annotation.singleton;
-    import ArrayUtils = Util.ArrayUtils;
+    import Collections = Util.Collections;
     import testCase = Test.Annotation.testCase;
     import testMethod = Test.Annotation.testMethod;
     import inject = Typejector.Annotation.inject;
@@ -9,11 +9,11 @@
 
     @singleton
     export class TestCaseBeanDefinitionPostProcessor extends BeanDefinitionPostProcessor {
-        @inject(ApplicationContext)
+        @inject
         private context: ApplicationContext;
 
         postProcessBeanDefinition(beanDefinition: Typejector.Component.Factory.Config.BeanDefinition): void {
-            if (ArrayUtils.contains(beanDefinition.annotations, testCase)) {
+            if (Collections.contains(beanDefinition.annotations, testCase)) {
                 assert(this.context.getBean(beanDefinition.clazz), "TestCase instantiation failed");
             }
         }

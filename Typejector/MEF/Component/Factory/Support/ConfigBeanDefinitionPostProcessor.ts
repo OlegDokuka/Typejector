@@ -1,7 +1,7 @@
 ﻿namespace Typejector.Component.Factory.Support {
     import Class = Type.Class;
     import BeanDefinition = Config.BeanDefinition;
-    import ArrayUtils = Util.ArrayUtils;
+    import Collections = Util.Collections;
     import factoryMethod = Annotation.factoryMethod;
 
     export class ConfigBeanDefinitionPostProcessor extends BeanDefinitionPostProcessor {
@@ -41,7 +41,7 @@
         private processConfigurationBeanDefinitionDefinition(beanDefinition:BeanDefinition) {
             const targetObject = this.configurableListableBeanFactory.getBean(beanDefinition.clazz);
 
-            beanDefinition.methods.filter((it) => ArrayUtils.contains(it.annotations, factoryMethod)).forEach((it) => {
+            beanDefinition.methods.filter((it) => Collections.contains(it.annotations, factoryMethod)).forEach((it) => {
                 const beanNameForFactoryMethod = BeanNameGenerator.generateBeanName(it.returnType.clazz),
                     objectGetter = () => {
                         const resolvedArguments = it.arguments.map((arg) => this.configurableListableBeanFactory.resolveDependency(arg));

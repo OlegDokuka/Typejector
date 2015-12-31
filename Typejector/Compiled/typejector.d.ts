@@ -1,27 +1,3 @@
-declare module Reflect {
-    function decorate(decorators: ClassDecorator[], target: Function): Function;
-    function decorate(decorators: (PropertyDecorator | MethodDecorator)[], target: Object, targetKey: string | symbol, descriptor?: PropertyDescriptor): PropertyDescriptor;
-    function metadata(metadataKey: any, metadataValue: any): {
-        (target: Function): void;
-        (target: Object, targetKey: string | symbol): void;
-    };
-    function defineMetadata(metadataKey: any, metadataValue: any, target: Object): void;
-    function defineMetadata(metadataKey: any, metadataValue: any, target: Object, targetKey: string | symbol): void;
-    function hasMetadata(metadataKey: any, target: Object): boolean;
-    function hasMetadata(metadataKey: any, target: Object, targetKey: string | symbol): boolean;
-    function hasOwnMetadata(metadataKey: any, target: Object): boolean;
-    function hasOwnMetadata(metadataKey: any, target: Object, targetKey: string | symbol): boolean;
-    function getMetadata(metadataKey: any, target: Object): any;
-    function getMetadata(metadataKey: any, target: Object, targetKey: string | symbol): any;
-    function getOwnMetadata(metadataKey: any, target: Object): any;
-    function getOwnMetadata(metadataKey: any, target: Object, targetKey: string | symbol): any;
-    function getMetadataKeys(target: Object): any[];
-    function getMetadataKeys(target: Object, targetKey: string | symbol): any[];
-    function getOwnMetadataKeys(target: Object): any[];
-    function getOwnMetadataKeys(target: Object, targetKey: string | symbol): any[];
-    function deleteMetadata(metadataKey: any, target: Object): boolean;
-    function deleteMetadata(metadataKey: any, target: Object, targetKey: string | symbol): boolean;
-}
 declare module Typejector.Type {
     type Class = {
         new (...args: any[]): any;
@@ -32,9 +8,12 @@ declare module Typejector.Type {
     }
 }
 declare namespace Typejector.Util {
-    class ArrayUtils {
+    class Collections {
         static remove<T>(src: Array<T>, element: T): boolean;
-        static contains<T>(src: Array<T>, element: T): boolean;
+        static contains<T>(src: {
+            forEach(func: (...args: any[]) => void);
+        }, element: T): boolean;
+        static keys<T>(src: Map<T, any>): T[];
     }
 }
 declare module Typejector.Event.Interface {
@@ -73,21 +52,6 @@ declare namespace Typejector.Exception {
     function assert(object: any, message?: string): void;
 }
 declare function assert(object: any, message?: string): void;
-declare namespace Typejector.Collections {
-    class Map<K, V> {
-        private keys;
-        private values;
-        private cache;
-        size: number;
-        has(key: K): boolean;
-        get(key: K): any;
-        set(key: K, value: V): Map<K, V>;
-        delete(key: K): boolean;
-        clear(): void;
-        forEach(callback: (value: V, key: K, map: Map<K, V>) => void, thisArg?: any): void;
-        private find(key);
-    }
-}
 interface Map<K, V> {
     clear(): void;
     delete(key: K): boolean;
@@ -103,6 +67,69 @@ interface MapConstructor {
     prototype: Map<any, any>;
 }
 declare var Map: MapConstructor;
+interface Set<T> {
+    add(value: T): Set<T>;
+    clear(): void;
+    delete(value: T): boolean;
+    forEach(callbackfn: (value: T, index: T, set: Set<T>) => void, thisArg?: any): void;
+    has(value: T): boolean;
+    size: number;
+}
+interface SetConstructor {
+    new (): Set<any>;
+    new <T>(): Set<T>;
+    prototype: Set<any>;
+}
+declare var Set: SetConstructor;
+interface WeakMap<K, V> {
+    clear(): void;
+    delete(key: K): boolean;
+    get(key: K): V;
+    has(key: K): boolean;
+    set(key: K, value?: V): WeakMap<K, V>;
+}
+interface WeakMapConstructor {
+    new (): WeakMap<any, any>;
+    new <K, V>(): WeakMap<K, V>;
+    prototype: WeakMap<any, any>;
+}
+declare var WeakMap: WeakMapConstructor;
+interface WeakSet<T> {
+    add(value: T): WeakSet<T>;
+    clear(): void;
+    delete(value: T): boolean;
+    has(value: T): boolean;
+}
+interface WeakSetConstructor {
+    new (): WeakSet<any>;
+    new <T>(): WeakSet<T>;
+    prototype: WeakSet<any>;
+}
+declare var WeakSet: WeakSetConstructor;
+declare module Reflect {
+    function decorate(decorators: ClassDecorator[], target: Function): Function;
+    function decorate(decorators: (PropertyDecorator | MethodDecorator)[], target: Object, targetKey: string | symbol, descriptor?: PropertyDescriptor): PropertyDescriptor;
+    function metadata(metadataKey: any, metadataValue: any): {
+        (target: Function): void;
+        (target: Object, targetKey: string | symbol): void;
+    };
+    function defineMetadata(metadataKey: any, metadataValue: any, target: Object): void;
+    function defineMetadata(metadataKey: any, metadataValue: any, target: Object, targetKey: string | symbol): void;
+    function hasMetadata(metadataKey: any, target: Object): boolean;
+    function hasMetadata(metadataKey: any, target: Object, targetKey: string | symbol): boolean;
+    function hasOwnMetadata(metadataKey: any, target: Object): boolean;
+    function hasOwnMetadata(metadataKey: any, target: Object, targetKey: string | symbol): boolean;
+    function getMetadata(metadataKey: any, target: Object): any;
+    function getMetadata(metadataKey: any, target: Object, targetKey: string | symbol): any;
+    function getOwnMetadata(metadataKey: any, target: Object): any;
+    function getOwnMetadata(metadataKey: any, target: Object, targetKey: string | symbol): any;
+    function getMetadataKeys(target: Object): any[];
+    function getMetadataKeys(target: Object, targetKey: string | symbol): any[];
+    function getOwnMetadataKeys(target: Object): any[];
+    function getOwnMetadataKeys(target: Object, targetKey: string | symbol): any[];
+    function deleteMetadata(metadataKey: any, target: Object): boolean;
+    function deleteMetadata(metadataKey: any, target: Object, targetKey: string | symbol): boolean;
+}
 declare namespace Typejector.Component.Factory.Support {
     import Class = Type.Class;
     class BeanNameGenerator {
@@ -124,7 +151,7 @@ declare namespace Typejector.Annotation {
 }
 declare namespace Typejector.Component.Factory.Config {
     interface AnnotatedObject {
-        annotations: Array<Function>;
+        annotations: Set<Function>;
     }
 }
 declare module Typejector.Component.Factory.Config {
@@ -159,8 +186,8 @@ declare namespace Typejector.Component.Factory.Config {
     interface ResolveDefinition {
         clazz: Class;
         constructorArguments: Array<TypeDescriptor>;
-        properties: Array<PropertyDescriptor>;
-        methods: Array<MethodDescriptor>;
+        properties: Set<PropertyDescriptor>;
+        methods: Set<MethodDescriptor>;
     }
 }
 declare module Typejector.Component.Factory.Config {
@@ -174,7 +201,7 @@ declare namespace Typejector.Component.Context.Config {
     import TypeDescriptor = Factory.Config.TypeDescriptor;
     import AnnotatedObject = Component.Factory.Config.AnnotatedObject;
     class BeanDescriptor extends TypeDescriptor implements AnnotatedObject {
-        annotations: Function[];
+        annotations: Set<Function>;
     }
 }
 declare namespace Typejector.Component.Context.Config {
@@ -182,7 +209,7 @@ declare namespace Typejector.Component.Context.Config {
     import AnnotatedObject = Component.Factory.Config.AnnotatedObject;
     class FieldDependencyDescriptor extends DependencyDescriptor implements AnnotatedObject {
         name: string;
-        annotations: Function[];
+        annotations: Set<Function>;
     }
 }
 declare namespace Typejector.Component.Context.Config {
@@ -218,7 +245,7 @@ declare namespace Typejector.Annotation {
     function postConstructor(target: Object, propertyKey: string): void;
 }
 declare namespace Typejector.Annotation {
-    function factoryMethod(parent: any, propertyName: string | symbol): MethodDecorator;
+    function factoryMethod(parent: any, propertyName: string | symbol): void;
 }
 declare module Typejector.Annotation {
     import Class = Type.Class;
@@ -228,15 +255,14 @@ declare module Typejector.Component.Factory.Support {
     import Class = Type.Class;
     class Bean implements Config.BeanDefinition {
         clazz: Class;
-        annotations: Function[];
+        annotations: Set<Function>;
         name: string;
         scope: string;
         factoryMethodName: string;
         constructorArguments: Array<Config.TypeDescriptor>;
-        properties: Array<Config.PropertyDescriptor>;
-        methods: Array<Config.MethodDescriptor>;
+        properties: Set<Config.PropertyDescriptor>;
+        methods: Set<Config.MethodDescriptor>;
         postConstructors: Array<Config.MethodDescriptor>;
-        hasAnnotation(annotation: Function): boolean;
     }
 }
 declare namespace Typejector.Component {
@@ -246,11 +272,11 @@ declare namespace Typejector.Component {
     import ConfigurableListableBeanFactory = Factory.ConfigurableListableBeanFactory;
     class BeanUtils {
         static isAssignable(clazz: Class, classFrom: Class): boolean;
-        static isAbstract(beanDefinition: BeanDefinition): boolean;
-        static isConfig(beanDefinition: BeanDefinition): boolean;
-        static isSingleton(beanDefinition: BeanDefinition): boolean;
-        static getMethodDescriptor(beanDefinition: BeanDefinition, methodName: string): MethodDescriptor;
-        static getOrCreateMethodDescriptor(beanDefinition: BeanDefinition, methodName: string): MethodDescriptor;
+        static isAbstract(beanDefinition: BeanDefinition): any;
+        static isConfig(beanDefinition: BeanDefinition): any;
+        static isSingleton(beanDefinition: BeanDefinition): any;
+        static getMethodDescriptor(beanDefinition: BeanDefinition, methodName: string): any;
+        static getOrCreateMethodDescriptor(beanDefinition: BeanDefinition, methodName: string): any;
         static getOrCreateBeanDefinition(beanFactory: ConfigurableListableBeanFactory, clazz: Class): BeanDefinition;
         static newInstance(clazz: Class, ...args: any[]): any;
         static createObjectFactoryFrom<T>(methodDescriptor: MethodDescriptor, parent: Class, beanFactory: ConfigurableListableBeanFactory): Factory.ObjectFactory<T>;

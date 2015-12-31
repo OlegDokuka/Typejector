@@ -1,3 +1,124 @@
+var Typejector;
+(function (Typejector) {
+    var Type;
+    (function (Type) {
+        var Class;
+        (function (Class) {
+            var classCache = [];
+            function register(clazz) {
+                if (classCache.indexOf(function (it) { return it === clazz; }) > -1) {
+                    return;
+                }
+                classCache.push(clazz);
+            }
+            Class.register = register;
+            function classes() {
+                var classes = [];
+                classCache.forEach(function (it) { return classes.push(it); });
+                return classes;
+            }
+            Class.classes = classes;
+        })(Class = Type.Class || (Type.Class = {}));
+    })(Type = Typejector.Type || (Typejector.Type = {}));
+})(Typejector || (Typejector = {}));
+var Typejector;
+(function (Typejector) {
+    var Util;
+    (function (Util) {
+        var Collections = (function () {
+            function Collections() {
+            }
+            Collections.remove = function (src, element) {
+                assert(src);
+                assert(element);
+                var index = src.indexOf(element);
+                if (index > -1) {
+                    src.splice(index, 1);
+                    return true;
+                }
+                return false;
+            };
+            Collections.contains = function (src, element) {
+                assert(src);
+                assert(element);
+                var result = false;
+                src.forEach(function (it) { if (element === it)
+                    result = true; });
+                return result;
+            };
+            Collections.keys = function (src) {
+                var keys = [];
+                src.forEach(function (val, key) { return keys.push(key); });
+                return keys;
+            };
+            return Collections;
+        })();
+        Util.Collections = Collections;
+    })(Util = Typejector.Util || (Typejector.Util = {}));
+})(Typejector || (Typejector = {}));
+var Typejector;
+(function (Typejector) {
+    var Event;
+    (function (Event_1) {
+        var Event = (function () {
+            function Event() {
+                this.Callbacks = [];
+                this.Trigger = function (arg, context) {
+                    var callbacks = this.Callbacks, callback;
+                    for (var i = 0; i < callbacks.length; i++) {
+                        callback = callbacks[i];
+                        callback.Callback.apply(callback.Subscriber, [arg, context]);
+                    }
+                };
+            }
+            Event.prototype.Subscribe = function (callback, subscriber) {
+                var that = this, res = {
+                    Callback: callback,
+                    Event: that,
+                    Unsubscribe: function () { that.Unsubscribe(callback); }
+                };
+                this.Callbacks.push({ Callback: callback, Subscriber: subscriber });
+                return res;
+            };
+            Event.prototype.Unsubscribe = function (callback) {
+                var filteredList = [];
+                for (var i = 0; i < this.Callbacks.length; i++) {
+                    if (this.Callbacks[i].Callback !== callback) {
+                        filteredList.push(this.Callbacks[i]);
+                    }
+                }
+                this.Callbacks = filteredList;
+            };
+            return Event;
+        })();
+        Event_1.Event = Event;
+    })(Event = Typejector.Event || (Typejector.Event = {}));
+})(Typejector || (Typejector = {}));
+var Typejector;
+(function (Typejector) {
+    var Exception;
+    (function (Exception) {
+        var IllegalArgumentException = (function () {
+            function IllegalArgumentException(message) {
+                this.name = "IllegalArgumentException";
+                this.message = "Argument cannot be null";
+                this.prototype = new Error;
+                this.message = message ? message : this.message;
+            }
+            return IllegalArgumentException;
+        })();
+        Exception.IllegalArgumentException = IllegalArgumentException;
+        function assert(object, message) {
+            if (object == undefined) {
+                throw new IllegalArgumentException(message);
+            }
+        }
+        Exception.assert = assert;
+    })(Exception = Typejector.Exception || (Typejector.Exception = {}));
+})(Typejector || (Typejector = {}));
+function assert(object, message) {
+    Typejector.Exception.assert(object, message);
+}
 "use strict";
 var Reflect;
 (function (Reflect) {
@@ -559,209 +680,6 @@ var Reflect;
 })(Reflect || (Reflect = {}));
 var Typejector;
 (function (Typejector) {
-    var Type;
-    (function (Type) {
-        var Class;
-        (function (Class) {
-            var classCache = [];
-            function register(clazz) {
-                if (classCache.indexOf(function (it) { return it === clazz; }) > -1) {
-                    return;
-                }
-                classCache.push(clazz);
-            }
-            Class.register = register;
-            function classes() {
-                var classes = [];
-                classCache.forEach(function (it) { return classes.push(it); });
-                return classes;
-            }
-            Class.classes = classes;
-        })(Class = Type.Class || (Type.Class = {}));
-    })(Type = Typejector.Type || (Typejector.Type = {}));
-})(Typejector || (Typejector = {}));
-var Typejector;
-(function (Typejector) {
-    var Util;
-    (function (Util) {
-        var ArrayUtils = (function () {
-            function ArrayUtils() {
-            }
-            ArrayUtils.remove = function (src, element) {
-                assert(src);
-                assert(element);
-                var index = src.indexOf(element);
-                if (index > -1) {
-                    src.splice(index, 1);
-                    return true;
-                }
-                return false;
-            };
-            ArrayUtils.contains = function (src, element) {
-                assert(src);
-                assert(element);
-                return src.indexOf(element) > -1;
-            };
-            return ArrayUtils;
-        })();
-        Util.ArrayUtils = ArrayUtils;
-    })(Util = Typejector.Util || (Typejector.Util = {}));
-})(Typejector || (Typejector = {}));
-var Typejector;
-(function (Typejector) {
-    var Event;
-    (function (Event_1) {
-        var Event = (function () {
-            function Event() {
-                this.Callbacks = [];
-                this.Trigger = function (arg, context) {
-                    var callbacks = this.Callbacks, callback;
-                    for (var i = 0; i < callbacks.length; i++) {
-                        callback = callbacks[i];
-                        callback.Callback.apply(callback.Subscriber, [arg, context]);
-                    }
-                };
-            }
-            Event.prototype.Subscribe = function (callback, subscriber) {
-                var that = this, res = {
-                    Callback: callback,
-                    Event: that,
-                    Unsubscribe: function () { that.Unsubscribe(callback); }
-                };
-                this.Callbacks.push({ Callback: callback, Subscriber: subscriber });
-                return res;
-            };
-            Event.prototype.Unsubscribe = function (callback) {
-                var filteredList = [];
-                for (var i = 0; i < this.Callbacks.length; i++) {
-                    if (this.Callbacks[i].Callback !== callback) {
-                        filteredList.push(this.Callbacks[i]);
-                    }
-                }
-                this.Callbacks = filteredList;
-            };
-            return Event;
-        })();
-        Event_1.Event = Event;
-    })(Event = Typejector.Event || (Typejector.Event = {}));
-})(Typejector || (Typejector = {}));
-var Typejector;
-(function (Typejector) {
-    var Exception;
-    (function (Exception) {
-        var IllegalArgumentException = (function () {
-            function IllegalArgumentException(message) {
-                this.name = "IllegalArgumentException";
-                this.message = "Argument cannot be null";
-                this.prototype = new Error;
-                this.message = message ? message : this.message;
-            }
-            return IllegalArgumentException;
-        })();
-        Exception.IllegalArgumentException = IllegalArgumentException;
-        function assert(object, message) {
-            if (object == undefined) {
-                throw new IllegalArgumentException(message);
-            }
-        }
-        Exception.assert = assert;
-    })(Exception = Typejector.Exception || (Typejector.Exception = {}));
-})(Typejector || (Typejector = {}));
-function assert(object, message) {
-    Typejector.Exception.assert(object, message);
-}
-var Typejector;
-(function (Typejector) {
-    var Collections;
-    (function (Collections) {
-        var cacheSentinel = {};
-        var Map = (function () {
-            function Map() {
-                this.keys = [];
-                this.values = [];
-                this.cache = cacheSentinel;
-            }
-            Object.defineProperty(Map.prototype, "size", {
-                get: function () {
-                    return this.keys.length;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            ;
-            Map.prototype.has = function (key) {
-                if (key === this.cache) {
-                    return true;
-                }
-                if (this.find(key) >= 0) {
-                    this.cache = key;
-                    return true;
-                }
-                return false;
-            };
-            ;
-            Map.prototype.get = function (key) {
-                var index = this.find(key);
-                if (index >= 0) {
-                    this.cache = key;
-                    return this.values[index];
-                }
-                return undefined;
-            };
-            ;
-            Map.prototype.set = function (key, value) {
-                this.delete(key);
-                this.keys.push(key);
-                this.values.push(value);
-                this.cache = key;
-                return this;
-            };
-            ;
-            Map.prototype.delete = function (key) {
-                var index = this.find(key);
-                if (index >= 0) {
-                    this.keys.splice(index, 1);
-                    this.values.splice(index, 1);
-                    this.cache = cacheSentinel;
-                    return true;
-                }
-                return false;
-            };
-            ;
-            Map.prototype.clear = function () {
-                this.keys.length = 0;
-                this.values.length = 0;
-                this.cache = cacheSentinel;
-            };
-            ;
-            Map.prototype.forEach = function (callback, thisArg) {
-                var size = this.size;
-                for (var i = 0; i < size; ++i) {
-                    var key = this.keys[i];
-                    var value = this.values[i];
-                    this.cache = key;
-                    callback.call(this, value, key, this);
-                }
-            };
-            ;
-            Map.prototype.find = function (key) {
-                var keys = this.keys;
-                var size = keys.length;
-                for (var i = 0; i < size; ++i) {
-                    if (keys[i] === key) {
-                        return i;
-                    }
-                }
-                return -1;
-            };
-            return Map;
-        })();
-        Collections.Map = Map;
-    })(Collections = Typejector.Collections || (Typejector.Collections = {}));
-})(Typejector || (Typejector = {}));
-Map = Map == undefined ? Typejector.Collections.Map : Map;
-var Typejector;
-(function (Typejector) {
     var Component;
     (function (Component) {
         var Factory;
@@ -789,7 +707,7 @@ var Typejector;
 (function (Typejector) {
     var Annotation;
     (function (Annotation) {
-        var ArrayUtils = Typejector.Util.ArrayUtils;
+        var Collections = Typejector.Util.Collections;
         var BeanNameGenerator = Typejector.Component.Factory.Support.BeanNameGenerator;
         var Annotations = (function () {
             function Annotations() {
@@ -797,7 +715,7 @@ var Typejector;
             Annotations.add = function (annotation, annotationData, target, targetKey) {
                 var metadataValue = Reflect.getMetadata(Annotations.ANNOTATION_KEY, target, targetKey);
                 metadataValue = metadataValue == undefined ? [] : metadataValue;
-                if (!ArrayUtils.contains(metadataValue, annotation)) {
+                if (!Collections.contains(metadataValue, annotation)) {
                     metadataValue.push(annotation);
                 }
                 Reflect.defineMetadata(Annotations.ANNOTATION_DATA_KEY + BeanNameGenerator.generateBeanName(annotation), annotationData, target, targetKey);
@@ -821,8 +739,10 @@ var Typejector;
 (function (Typejector) {
     var Annotation;
     (function (Annotation) {
-        var Class = Typejector.Type.Class;
         var Bean = Typejector.Component.Factory.Support.Bean;
+        var Class = Typejector.Type.Class;
+        var Collections = Typejector.Util.Collections;
+        var MethodDescriptor = Typejector.Component.;
         var ClassBeanDefinitionScanner = (function () {
             function ClassBeanDefinitionScanner() {
             }
@@ -833,10 +753,18 @@ var Typejector;
             };
             ClassBeanDefinitionScanner.prototype.buildBeanDefinition = function (clazz) {
                 var annotations = Annotation.Annotations.get(clazz);
-                annotations.
-                ;
                 var bean = new Bean();
                 bean.clazz = clazz;
+                annotations.forEach(function (key, val) {
+                    bean.annotations.add(key);
+                });
+                Object.keys(clazz).forEach(function (it) {
+                    Collections.keys(Annotation.Annotations.get(clazz.prototype));
+                    if (typeof it === "function") {
+                        var descriptor = new MethodDescriptor();
+                        bean.methods.add();
+                    }
+                });
                 return bean;
             };
             return ClassBeanDefinitionScanner;
@@ -902,6 +830,7 @@ var Typejector;
                     __extends(BeanDescriptor, _super);
                     function BeanDescriptor() {
                         _super.apply(this, arguments);
+                        this.annotations = new Set();
                     }
                     return BeanDescriptor;
                 })(TypeDescriptor);
@@ -923,7 +852,7 @@ var Typejector;
                     __extends(FieldDependencyDescriptor, _super);
                     function FieldDependencyDescriptor() {
                         _super.apply(this, arguments);
-                        this.annotations = [];
+                        this.annotations = new Set();
                     }
                     return FieldDependencyDescriptor;
                 })(DependencyDescriptor);
@@ -1061,16 +990,13 @@ var Typejector;
             (function (Support) {
                 var Bean = (function () {
                     function Bean() {
-                        this.annotations = [];
+                        this.annotations = new Set();
                         this.scope = "";
                         this.constructorArguments = [];
-                        this.properties = [];
-                        this.methods = [];
+                        this.properties = new Set();
+                        this.methods = new Set();
                         this.postConstructors = [];
                     }
-                    Bean.prototype.hasAnnotation = function (annotation) {
-                        return this.annotations.some(function (val) { return val === annotation; });
-                    };
                     return Bean;
                 })();
                 Support.Bean = Bean;
@@ -1320,7 +1246,7 @@ var Typejector;
         (function (Factory) {
             var Support;
             (function (Support) {
-                var ArrayUtils = Typejector.Util.ArrayUtils;
+                var Collections = Typejector.Util.Collections;
                 var factoryMethod = Typejector.Annotation.factoryMethod;
                 var ConfigBeanDefinitionPostProcessor = (function (_super) {
                     __extends(ConfigBeanDefinitionPostProcessor, _super);
@@ -1352,7 +1278,7 @@ var Typejector;
                     ConfigBeanDefinitionPostProcessor.prototype.processConfigurationBeanDefinitionDefinition = function (beanDefinition) {
                         var _this = this;
                         var targetObject = this.configurableListableBeanFactory.getBean(beanDefinition.clazz);
-                        beanDefinition.methods.filter(function (it) { return ArrayUtils.contains(it.annotations, factoryMethod); }).forEach(function (it) {
+                        beanDefinition.methods.filter(function (it) { return Collections.contains(it.annotations, factoryMethod); }).forEach(function (it) {
                             var beanNameForFactoryMethod = Support.BeanNameGenerator.generateBeanName(it.returnType.clazz), objectGetter = function () {
                                 var resolvedArguments = it.arguments.map(function (arg) { return _this.configurableListableBeanFactory.resolveDependency(arg); });
                                 return (_a = targetObject[it.name]).call.apply(_a, [targetObject].concat(resolvedArguments));
@@ -1541,7 +1467,7 @@ var Typejector;
         (function (Factory) {
             var Support;
             (function (Support) {
-                var ArrayUtils = Typejector.Util.ArrayUtils;
+                var Collections = Typejector.Util.Collections;
                 var inject = Typejector.Annotation.inject;
                 var postConstructor = Typejector.Annotation.postConstructor;
                 var AbstractAutowireCapableBeanFactory = (function (_super) {
@@ -1556,26 +1482,19 @@ var Typejector;
                     };
                     AbstractAutowireCapableBeanFactory.prototype.doCreateBean = function (beanDefinition) {
                         var _this = this;
-                        var bean, scopes, beanObjectFactory = this.getFactory(beanDefinition.name);
-                        scopes = beanDefinition.scopeNames.map(function (scopeName) { return _this.getRegisteredScope(scopeName); });
-                        for (var _i = 0; _i < scopes.length; _i++) {
-                            var scope = scopes[_i];
-                            bean = scope.get(beanDefinition.name, {
-                                getObject: function () {
-                                    var bean = beanObjectFactory.getObject();
-                                    if (bean == undefined) {
-                                        return bean;
-                                    }
-                                    bean = _this.applyBeanPostProcessorsBeforeInitialization(bean, beanDefinition);
-                                    bean = _this.initializeBean(bean, beanDefinition);
-                                    bean = _this.applyBeanPostProcessorsAfterInitialization(bean, beanDefinition);
-                                    return bean;
+                        var bean, scope = this.getRegisteredScope(beanDefinition.scope), beanObjectFactory = this.getFactory(beanDefinition.name);
+                        bean = scope.get(beanDefinition.name, {
+                            getObject: function () {
+                                var instance = beanObjectFactory.getObject();
+                                if (instance == undefined) {
+                                    return instance;
                                 }
-                            });
-                            if (bean != undefined) {
-                                break;
+                                instance = _this.applyBeanPostProcessorsBeforeInitialization(instance, beanDefinition);
+                                instance = _this.initializeBean(instance, beanDefinition);
+                                instance = _this.applyBeanPostProcessorsAfterInitialization(instance, beanDefinition);
+                                return instance;
                             }
-                        }
+                        });
                         return bean;
                     };
                     AbstractAutowireCapableBeanFactory.prototype.initializeBean = function (instance, beanDefinition) {
@@ -1586,7 +1505,7 @@ var Typejector;
                             var property = _a[_i];
                             instance[property.name] = this.resolveDependency(property.clazz);
                         }
-                        beanDefinition.methods.filter(function (it) { return ArrayUtils.contains(it.annotations, inject); }).forEach(function (method) {
+                        beanDefinition.methods.filter(function (it) { return Collections.contains(it.annotations, inject); }).forEach(function (method) {
                             var args = [];
                             for (var _i = 0, _a = method.arguments; _i < _a.length; _i++) {
                                 var argType = _a[_i];
@@ -1621,7 +1540,7 @@ var Typejector;
                                 return instance;
                             }
                         }
-                        beanDefinititon.methods.filter(function (it) { return ArrayUtils.contains(it.annotations, postConstructor); }).forEach(function (method) {
+                        beanDefinititon.methods.filter(function (it) { return Collections.contains(it.annotations, postConstructor); }).forEach(function (method) {
                             var args = [];
                             for (var _i = 0, _a = method.arguments; _i < _a.length; _i++) {
                                 var argType = _a[_i];
@@ -1759,7 +1678,6 @@ var Typejector;
                     applicationContextBeanDefinition.clazz = ApplicationContext;
                     applicationContextBeanDefinition.factoryMethodName = applicationContextBeanDefinition.name;
                     applicationContextBeanDefinition.annotations.push(singleton);
-                    applicationContextBeanDefinition.isReady = true;
                     this.mainBeanFactory.registerFactory(applicationContextBeanDefinition.factoryMethodName, {
                         getObject: function () { return _this; }
                     });
@@ -1796,7 +1714,6 @@ var Typejector;
                     else if (typeDescriptor instanceof BeanDescriptor) {
                         beanDefinition = Component.BeanUtils.getOrCreateBeanDefinition(this.mainBeanFactory, typeDescriptor.clazz);
                         beanDefinition.annotations = typeDescriptor.annotations;
-                        beanDefinition.isReady = true;
                     }
                     assert(beanDefinition, "no bean definition resolved from passed info");
                     this.mainBeanFactory.registerBeanDefinition(beanDefinition.name, beanDefinition);

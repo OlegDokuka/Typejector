@@ -4,7 +4,7 @@
     export interface ResolveDefinition {
         clazz: Class;
         constructorArguments: Array<TypeDescriptor>;
-        properties: Array<PropertyDescriptor>;
-        methods: Array<MethodDescriptor>;
+        properties: Set<PropertyDescriptor>;
+        methods: Set<MethodDescriptor>;
     }
 } 

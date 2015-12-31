@@ -34,7 +34,6 @@
             applicationContextBeanDefinition.clazz = ApplicationContext;
             applicationContextBeanDefinition.factoryMethodName = applicationContextBeanDefinition.name;
             applicationContextBeanDefinition.annotations.push(singleton);
-            applicationContextBeanDefinition.isReady = true;
 
             this.mainBeanFactory.registerFactory(applicationContextBeanDefinition.factoryMethodName, {
                 getObject: () => this
@@ -75,7 +74,6 @@
                 beanDefinition = BeanUtils.getOrCreateBeanDefinition(this.mainBeanFactory, typeDescriptor.clazz);
 
                 beanDefinition.annotations = typeDescriptor.annotations;
-                beanDefinition.isReady = true;
             }
 
             assert(beanDefinition, "no bean definition resolved from passed info");
