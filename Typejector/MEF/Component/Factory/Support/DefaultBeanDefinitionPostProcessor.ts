@@ -1,17 +1,112 @@
 ﻿namespace Typejector.Component.Factory.Support {
-    import BeanDefinition = Config.BeanDefinition;
+    import BeanDefinitionRegistry = Registry.BeanDefinitionRegistry;
+    import Class = Typejector.Type.Class;
+    import Collections = Typejector.Util.Collections;
+    import MethodDescriptor = Typejector.Component.Factory.Config.MethodDescriptor;
+    import PropertyDescriptor = Typejector.Component.Factory.Config.PropertyDescriptor;
+    import TypeDescriptor = Typejector.Component.Factory.Config.TypeDescriptor;
+    import BeanNameGenerator = Typejector.Component.Factory.Support.BeanNameGenerator;
+    import Reflection = Typejector.Util.Reflection;
+    import Annotations = Typejector.Annotation.Annotations;
+    import generic = Typejector.Annotation.generic;
+    import BeanDefinition = Typejector.Component.Factory.Config.BeanDefinition;
+    import postConstructor = Typejector.Annotation.postConstructor;
+    import singleton = Typejector.Annotation.singleton;
+    import primary = Typejector.Annotation.primary;
+    import abstract = Typejector.Annotation.abstract;
+    import inject = Typejector.Annotation.inject;
 
     export class DefaultBeanDefinitionPostProcessor extends BeanDefinitionPostProcessor {
-        postProcessBeanDefinition(beanDefinition: BeanDefinition): void {
-           /* beanDefinition.scopeNames.forEach((it, id) => it === SingletonScope.NAME || it === PrototypeScope.NAME ?
-                beanDefinition.scopeNames.splice(id, 1) : void (0));
+        postProcessBeanDefinition(beanDefinitionRegistry:BeanDefinitionRegistry):void {
+            beanDefinitionRegistry
+                .getBeanDefinitionNames()
+                .map(name=> beanDefinitionRegistry.getBeanDefinition(name))
+                .forEach(bean=> {
+                    const clazz = bean.clazz;
 
-            if (BeanUtils.isSingleton(beanDefinition)) {
-                beanDefinition.scopeNames.push(SingletonScope.NAME);
+                    this.processClassAnnotations(bean)
+
+                    Object.keys(clazz).forEach(it=> {
+                        const property = clazz.prototype[it];
+
+                        if (property === Function) {
+                            this.processMethods(bean, it);
+                        }
+                        else {
+                            this.processProperties(bean, it);
+                        }
+                    });
+                });
+        }
+
+        private processClassAnnotations(bean:BeanDefinition) {
+            const clazz = bean.clazz;
+            const annotations = Annotations.get(clazz);
+
+            annotations.forEach((val, key) => {
+                bean.annotations.add(key);
+                if (key == singleton) {
+                    bean.scope = "singleton";
+                } else if (key == primary) {
+                    bean.isPrimary = true;
+                } else if (key == abstract) {
+                    bean.isAbstract = true;
+                }
+            });
+        }
+
+        private processPropertiesAnnotations(bean:BeanDefinition, propertyName:string) {
+            const clazz:Class = bean.clazz;
+            const annotations = Annotations.get(clazz.prototype, propertyName);
+
+            annotations.forEach((val, key) => {
+                bean.annotations.add(key);
+                if (key == singleton) {
+                    bean.scope = "singleton";
+                } else if (key == primary) {
+                    bean.isPrimary = true;
+                } else if (key == abstract) {
+                    bean.isAbstract = true;
+                }
+            });
+        }
+
+        private processMethods(bean:BeanDefinition, propKey:string) {
+            const clazz = bean.clazz;
+            const descriptor:MethodDescriptor = {
+                name: propKey,
+                arguments: Reflection.getParamTypes(clazz.prototype, propKey).map((type, index) => this.buildTypeDescriptor(clazz, type, propKey, index)),
+                returnType: this.buildTypeDescriptor(clazz, Reflection.getReturnType(clazz.prototype, propKey), propKey),
+                annotations: Collections.map(Annotations.get(clazz.prototype, propKey), () => new Set(), (value, key) => key, (set, item) => set.add(item))
+            };
+
+            bean.methods.add(descriptor);
+        }
+
+        private processProperties(bean:BeanDefinition, propKey:string) {
+            const clazz = bean.clazz;
+            const annotations = Collections.map(Annotations.get(clazz, propKey), () => new Set(), (value, key) => key, (set, item) => set.add(item));
+
+            if (Collections.contains(annotations, inject)) {
+                const descriptor:PropertyDescriptor = {
+                    name: propKey,
+                    clazz: this.buildTypeDescriptor(clazz, Reflection.getType(clazz, propKey), propKey),
+                    annotations: annotations
+                };
+
+                bean.properties.add(descriptor);
             }
-            else {
-                beanDefinition.scopeNames.push(PrototypeScope.NAME);
-            }*/
+        }
+
+        private buildTypeDescriptor(src:Class, propType:Class, propKey:string | symbol, index?:number) {
+            const paramDescriptor = new TypeDescriptor();
+
+            paramDescriptor.clazz = propType;
+            if (Collections.isCollection(propType)) {
+                paramDescriptor.genericTypes = Annotations.get(src.prototype, propKey, index).get(generic)
+            }
+
+            return paramDescriptor;
         }
     }
 } 

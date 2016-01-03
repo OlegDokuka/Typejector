@@ -3,9 +3,5 @@
     export class TypeDescriptor {
         clazz: Class;
         genericTypes: Array<Class>;
-
-        public isArray(): boolean {
-            return Array === this.clazz || Array.prototype.isPrototypeOf(this.clazz.prototype);
-        }
     }
 } 

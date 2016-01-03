@@ -3,5 +3,8 @@
         name: string;
         scope: string;
         factoryMethodName: string;
+        initMethodName: string;
+        isPrimary: boolean;
+        isAbstract: boolean;
     }
 } 

@@ -1,7 +1,7 @@
 ﻿namespace Typejector.Component.Factory {
-    import BeanDefinition = Config.BeanDefinition;
+    import BeanDefinitionRegistry = Registry.BeanDefinitionRegistry;
 
     export abstract class BeanDefinitionPostProcessor {
-        abstract postProcessBeanDefinition(beanDefinition: BeanDefinition): void;
+        abstract postProcessBeanDefinition(beanDefinitionRegistry: BeanDefinitionRegistry): void;
     }
 } 

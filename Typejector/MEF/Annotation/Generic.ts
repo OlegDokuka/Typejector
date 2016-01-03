@@ -1,6 +1,8 @@
-module Typejector.Annotation {
+namespace Typejector.Annotation {
+    import Class = Typejector.Type.Class;
 
-    export function generic(target:Object, propertyKey:string | symbol) {
-        Annotations.add(generic, {}, target, propertyKey);
+    export function generic(...classes: Class[]) {
+        return (target: Object, propertyKey: string | symbol, paramIndex?: any) =>
+            Annotations.add(generic, classes, target, propertyKey, paramIndex instanceof Number ? paramIndex : undefined);
     }
 }

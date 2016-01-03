@@ -13,9 +13,17 @@ declare namespace Typejector.Util {
     class Collections {
         static remove<T>(src: Array<T>, element: T): boolean;
         static contains<T>(src: {
-            forEach(func: (...args: any[]) => void);
+            forEach(callbackfn: (value: T, index: T, collection: any) => void, thisArg?: any);
         }, element: T): boolean;
+        static add<T, U>(src: any, key: T, value: U): void;
+        static map<T, U, K>(src: {
+            forEach(callbackfn: (value: T, index: T, collection: any) => void, thisArg?: any);
+        }, supplier: () => K, transformer: (value: T, index: any) => U, accumulator: (collection: K, item: U) => void): K;
+        static filter<T>(src: {
+            forEach(callbackfn: (value: T, index: T, collection: any) => void, thisArg?: any);
+        }, filter: (val: T, key: any) => boolean): any;
         static keys<T>(src: Map<T, any>): T[];
+        static isCollection(obj: any): boolean;
     }
 }
 declare module Typejector.Event.Interface {
@@ -132,6 +140,18 @@ declare module Reflect {
     function deleteMetadata(metadataKey: any, target: Object): boolean;
     function deleteMetadata(metadataKey: any, target: Object, targetKey: string | symbol): boolean;
 }
+declare namespace Typejector.Util {
+    import Class = Typejector.Type.Class;
+    class Reflection {
+        private static RETURN_TYPE_KEY;
+        private static PARAM_TYPES_KEY;
+        private static TYPE_KEY;
+        static getReturnType(prototype: any, targetKey: string | symbol): Class;
+        static getParamTypes(clazz: Class): Class[];
+        static getParamTypes(prototype: any, targetKey: string | symbol): Class[];
+        static getType(target: any, targetKey: string | symbol): Class;
+    }
+}
 declare namespace Typejector.Component.Factory.Support {
     import Class = Type.Class;
     class BeanNameGenerator {
@@ -148,9 +168,8 @@ declare namespace Typejector.Annotation {
         static add(annotation: any, annotationData: any, target: Object, targetKey: string | symbol, paramIndex: number): any;
         static get(target: Object): Map<any, any>;
         static get(target: Object, targetKey: string | symbol): Map<any, any>;
+        static get(target: Object, targetKey: string | symbol, paramIndex: number): Map<any, any>;
     }
-}
-declare namespace Typejector.Annotation {
 }
 declare namespace Typejector.Component.Factory.Config {
     interface AnnotatedObject {
@@ -162,7 +181,6 @@ declare module Typejector.Component.Factory.Config {
     class TypeDescriptor {
         clazz: Class;
         genericTypes: Array<Class>;
-        isArray(): boolean;
     }
 }
 declare module Typejector.Component.Factory.Config {
@@ -198,6 +216,9 @@ declare module Typejector.Component.Factory.Config {
         name: string;
         scope: string;
         factoryMethodName: string;
+        initMethodName: string;
+        isPrimary: boolean;
+        isAbstract: boolean;
     }
 }
 declare namespace Typejector.Component.Context.Config {
@@ -233,6 +254,13 @@ declare namespace Typejector.Component.Context.Config {
 declare module Typejector.Annotation {
     function inject(target: Object, propertyKey: string | symbol): void;
 }
+declare namespace Typejector.Annotation {
+    import Class = Typejector.Type.Class;
+    function generic(...classes: Class[]): (target: Object, propertyKey: string | symbol, paramIndex?: any) => any;
+}
+declare namespace Typejector.Annotation {
+    function primary(target: Object): void;
+}
 declare module Typejector.Annotation {
     import Class = Type.Class;
     function injection(clazz: Class, ...annotations: Function[]): void;
@@ -262,10 +290,20 @@ declare module Typejector.Component.Factory.Support {
         name: string;
         scope: string;
         factoryMethodName: string;
+        initMethodName: string;
+        isPrimary: boolean;
+        isAbstract: boolean;
         constructorArguments: Array<Config.TypeDescriptor>;
         properties: Set<Config.PropertyDescriptor>;
         methods: Set<Config.MethodDescriptor>;
-        postConstructors: Array<Config.MethodDescriptor>;
+    }
+}
+declare namespace Typejector.Annotation {
+    import BeanDefinition = Typejector.Component.Factory.Config.BeanDefinition;
+    class ClassBeanDefinitionScanner {
+        scan(): BeanDefinition[];
+        private buildBeanDefinition(clazz);
+        private deepScaning(clazz);
     }
 }
 declare namespace Typejector.Component {
@@ -368,9 +406,9 @@ declare namespace Typejector.Component.Factory {
     }
 }
 declare namespace Typejector.Component.Factory {
-    import BeanDefinition = Config.BeanDefinition;
+    import BeanDefinitionRegistry = Registry.BeanDefinitionRegistry;
     abstract class BeanDefinitionPostProcessor {
-        abstract postProcessBeanDefinition(beanDefinition: BeanDefinition): void;
+        abstract postProcessBeanDefinition(beanDefinitionRegistry: BeanDefinitionRegistry): void;
     }
 }
 declare namespace Typejector.Component.Factory {
@@ -386,9 +424,14 @@ declare namespace Typejector.Component.Factory {
     }
 }
 declare namespace Typejector.Component.Factory.Support {
-    import BeanDefinition = Config.BeanDefinition;
+    import BeanDefinitionRegistry = Registry.BeanDefinitionRegistry;
     class DefaultBeanDefinitionPostProcessor extends BeanDefinitionPostProcessor {
-        postProcessBeanDefinition(beanDefinition: BeanDefinition): void;
+        postProcessBeanDefinition(beanDefinitionRegistry: BeanDefinitionRegistry): void;
+        private processClassAnnotations(bean);
+        private processPropertiesAnnotations(bean, propertyName);
+        private processMethods(bean, propKey);
+        private processProperties(bean, propKey);
+        private buildTypeDescriptor(src, propType, propKey, index?);
     }
 }
 declare namespace Typejector.Component.Factory.Support {

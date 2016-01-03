@@ -7,9 +7,9 @@
 ///<reference path="../Core/Collections/WeakMap.ts"/>
 ///<reference path="../Core/Collections/WeakSet.ts"/>
 ///<reference path="../../node_modules/reflect-metadata/Reflect.ts"/>
+///<reference path="../Core/Util/Reflection.ts"/>
 ///<reference path="Component/Factory/Support/BeanNameGenerator.ts"/>
 ///<reference path="Annotation/Annotations.ts"/>
-///<reference path="Annotation/ClassBeanDefinitionScanner.ts"/>
 ///<reference path="Component/Factory/Config/AnnotatedObject.ts"/>
 ///<reference path="Component/Factory/Config/TypeDescriptor.ts"/>
 ///<reference path="Component/Factory/Config/DependencyDescriptor.ts"/>
@@ -22,6 +22,8 @@
 ///<reference path="Component/Context/Config/ArgumentDependencyDescriptor.ts"/>
 ///<reference path="Component/Context/Config/MethodDependencyDescriptor.ts"/>
 ///<reference path="Annotation/Inject.ts"/>
+///<reference path="Annotation/Generic.ts"/>
+///<reference path="Annotation/Primary.ts"/>
 ///<reference path="Annotation/Injection.ts"/>
 ///<reference path="Annotation/Abstract.ts"/>
 ///<reference path="Annotation/Singleton.ts"/>
@@ -29,6 +31,7 @@
 ///<reference path="Annotation/FactoryMethod.ts"/>
 ///<reference path="Annotation/Config.ts"/>
 ///<reference path="Component/Factory/Support/Bean.ts"/>
+///<reference path="Annotation/ClassBeanDefinitionScanner.ts"/>
 ///<reference path="Component/BeanUtils.ts"/>
 ///<reference path="Component/Factory/ObjectFactory.ts"/>
 ///<reference path="Component/Factory/Config/Scope.ts"/>

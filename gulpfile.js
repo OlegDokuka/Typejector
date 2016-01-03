@@ -9,6 +9,7 @@ const
 
 var mainProject = ts.createProject('Typejector/tsconfig.json', {typescript: require('typescript')});
 var testProject = ts.createProject('Test/tsconfig.json', {typescript: require('typescript')});
+var unitTestsProject = ts.createProject('UnitTest/tsconfig.json', {typescript: require('typescript')});
 
 function getFolders(dir) {
     return fs.readdirSync(dir)
@@ -48,12 +49,25 @@ gulp.task('compileTests', function () {
     return compileResult.js.pipe(gulp.dest(''));
 });
 
+gulp.task('compileUnitTests', function () {
+    var compileResult = unitTestsProject.src()
+        .pipe(ts(unitTestsProject));
+
+    return compileResult.js.pipe(gulp.dest(''));
+});
+
 gulp.task('test', function () {
     return gulp.src('Test/Compiled/typejector.js', {read: false})
         // gulp-mocha needs filepaths so you can't have any plugins before it
         .pipe(function(){
             global.expect = require('expect');
         })
+        .pipe(mocha({reporter: 'nyan'}));
+});
+
+gulp.task('runUnitTests', function () {
+    return gulp.src('UnitTest/Compiled/typejector.js', {read: false})
+        // gulp-mocha needs filepaths so you can't have any plugins before it
         .pipe(mocha({reporter: 'nyan'}));
 });
 

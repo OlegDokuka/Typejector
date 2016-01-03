@@ -1,4 +1,4 @@
-namespace Typejector.Annotation.Utils {
+namespace Typejector.Annotation {
     function testAnnotation() {
 
     }
