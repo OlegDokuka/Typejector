@@ -5,18 +5,18 @@
     };
 
     export namespace Class {
-        const classCache: Function[] = [];
+        const classCache: Class[] = [];
 
-        export function register(clazz: Function) {
-            if (classCache.indexOf(it=> it === clazz) > -1) {
+        export function register(clazz: Class) {
+            if (classCache.indexOf(clazz) > -1) {
                 return;
             }
 
             classCache.push(clazz);
         }
 
-        export function classes(): Function[] {
-            let classes: Function[] = [];
+        export function classes(): Class[] {
+            let classes: Class[] = [];
 
             classCache.forEach(it=> classes.push(it));
 
@@ -25,6 +25,10 @@
 
         export function isClass(val: any): val is Class {
             return typeof val === "function";
+        }
+
+        export function getParentOf(src: Class): Class {
+            return Object.getPrototypeOf(src.prototype).constructor;
         }
     }
 }

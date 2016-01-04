@@ -22,6 +22,9 @@ var Typejector;
                 return typeof val === "function";
             }
             Class.isClass = isClass;
+            function getParentClassOf() {
+            }
+            Class.getParentClassOf = getParentClassOf;
         })(Class = Type.Class || (Type.Class = {}));
     })(Type = Typejector.Type || (Typejector.Type = {}));
 })(Typejector || (Typejector = {}));
@@ -1047,9 +1050,11 @@ var Typejector;
                         this.scope = "prototype";
                         this.isPrimary = false;
                         this.isAbstract = false;
+                        this.isLazyInit = false;
                         this.constructorArguments = [];
                         this.properties = new Set();
                         this.methods = new Set();
+                        this.dependsOn = new Set();
                     }
                     return Bean;
                 })();
@@ -1275,6 +1280,7 @@ var Typejector;
                 var Reflection = Typejector.Util.Reflection;
                 var Annotations = Typejector.Annotation.Annotations;
                 var generic = Typejector.Annotation.generic;
+                var postConstructor = Typejector.Annotation.postConstructor;
                 var singleton = Typejector.Annotation.singleton;
                 var primary = Typejector.Annotation.primary;
                 var abstract = Typejector.Annotation.abstract;
@@ -1319,32 +1325,23 @@ var Typejector;
                             }
                         });
                     };
-                    DefaultBeanDefinitionPostProcessor.prototype.processPropertiesAnnotations = function (bean, propertyName) {
-                        var clazz = bean.clazz;
-                        var annotations = Annotations.get(clazz.prototype, propertyName);
-                        annotations.forEach(function (val, key) {
-                            bean.annotations.add(key);
-                            if (key == singleton) {
-                                bean.scope = "singleton";
-                            }
-                            else if (key == primary) {
-                                bean.isPrimary = true;
-                            }
-                            else if (key == abstract) {
-                                bean.isAbstract = true;
-                            }
-                        });
-                    };
                     DefaultBeanDefinitionPostProcessor.prototype.processMethods = function (bean, propKey) {
                         var _this = this;
                         var clazz = bean.clazz;
-                        var descriptor = {
-                            name: propKey,
-                            arguments: Reflection.getParamTypes(clazz.prototype, propKey).map(function (type, index) { return _this.buildTypeDescriptor(clazz, type, propKey, index); }),
-                            returnType: this.buildTypeDescriptor(clazz, Reflection.getReturnType(clazz.prototype, propKey), propKey),
-                            annotations: Collections.map(Annotations.get(clazz.prototype, propKey), function () { return new Set(); }, function (value, key) { return key; }, function (set, item) { return set.add(item); })
-                        };
-                        bean.methods.add(descriptor);
+                        var annotations = Collections.map(Annotations.get(clazz, propKey), function () { return new Set(); }, function (value, key) { return key; }, function (set, item) { return set.add(item); });
+                        var containsPostContructorAnnotation = Collections.contains(annotations, postConstructor);
+                        if (Collections.contains(annotations, inject) || containsPostContructorAnnotation) {
+                            var descriptor = {
+                                name: propKey,
+                                arguments: Reflection.getParamTypes(clazz.prototype, propKey).map(function (type, index) { return _this.buildTypeDescriptor(clazz, type, propKey, index); }),
+                                returnType: this.buildTypeDescriptor(clazz, Reflection.getReturnType(clazz.prototype, propKey), propKey),
+                                annotations: annotations
+                            };
+                            if (containsPostContructorAnnotation) {
+                                bean.initMethodName = propKey;
+                            }
+                            bean.methods.add(descriptor);
+                        }
                     };
                     DefaultBeanDefinitionPostProcessor.prototype.processProperties = function (bean, propKey) {
                         var clazz = bean.clazz;
@@ -1383,14 +1380,13 @@ var Typejector;
             (function (Support) {
                 var MergeBeanDefinitionPostProcessor = (function (_super) {
                     __extends(MergeBeanDefinitionPostProcessor, _super);
-                    function MergeBeanDefinitionPostProcessor(beanDefinitionRegistry) {
-                        _super.call(this);
-                        this.beanDefinitionRegistry = beanDefinitionRegistry;
+                    function MergeBeanDefinitionPostProcessor() {
+                        _super.apply(this, arguments);
                     }
-                    MergeBeanDefinitionPostProcessor.prototype.postProcessBeanDefinition = function (beanDefinition) {
+                    MergeBeanDefinitionPostProcessor.prototype.postProcessBeanDefinition = function (beanDefinitionRegistry) {
                         var _this = this;
-                        this.beanDefinitionRegistry.getBeanDefinitionNames()
-                            .map(function (it) { return _this.beanDefinitionRegistry.getBeanDefinition(it); })
+                        beanDefinitionRegistry.getBeanDefinitionNames()
+                            .map(function (it) { return beanDefinitionRegistry.getBeanDefinition(it); })
                             .filter(function (it) { return it.clazz !== beanDefinition.clazz && Component.BeanUtils.isAssignable(it.clazz, beanDefinition.clazz); })
                             .forEach(function (it) { return _this.merge(beanDefinition, it); });
                     };

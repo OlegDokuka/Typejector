@@ -3,6 +3,7 @@
 
     export class Bean implements Config.BeanDefinition {
         clazz: Class;
+        parent: string;
 
         annotations: Set<Function> = new Set();
 
@@ -13,9 +14,12 @@
 
         isPrimary: boolean = false;
         isAbstract: boolean = false;
+        isLazyInit: boolean = false;
 
         constructorArguments: Array<Config.TypeDescriptor> = [];
         properties: Set<Config.PropertyDescriptor> = new Set();
         methods: Set<Config.MethodDescriptor> = new Set();
+
+        dependsOn: Set<string> = new Set();
     }
 } 

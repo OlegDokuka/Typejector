@@ -4,9 +4,10 @@ declare module Typejector.Type {
         prototype: any;
     };
     namespace Class {
-        function register(clazz: Function): void;
-        function classes(): Function[];
+        function register(clazz: Class): void;
+        function classes(): Class[];
         function isClass(val: any): val is Class;
+        function getParentClassOf(): void;
     }
 }
 declare namespace Typejector.Util {
@@ -214,11 +215,14 @@ declare namespace Typejector.Component.Factory.Config {
 declare module Typejector.Component.Factory.Config {
     interface BeanDefinition extends ResolveDefinition, AnnotatedObject {
         name: string;
+        parent: string;
         scope: string;
         factoryMethodName: string;
         initMethodName: string;
         isPrimary: boolean;
         isAbstract: boolean;
+        isLazyInit: boolean;
+        dependsOn: Set<string>;
     }
 }
 declare namespace Typejector.Component.Context.Config {
@@ -286,6 +290,7 @@ declare module Typejector.Component.Factory.Support {
     import Class = Type.Class;
     class Bean implements Config.BeanDefinition {
         clazz: Class;
+        parent: string;
         annotations: Set<Function>;
         name: string;
         scope: string;
@@ -293,9 +298,11 @@ declare module Typejector.Component.Factory.Support {
         initMethodName: string;
         isPrimary: boolean;
         isAbstract: boolean;
+        isLazyInit: boolean;
         constructorArguments: Array<Config.TypeDescriptor>;
         properties: Set<Config.PropertyDescriptor>;
         methods: Set<Config.MethodDescriptor>;
+        dependsOn: Set<string>;
     }
 }
 declare namespace Typejector.Annotation {
@@ -428,19 +435,15 @@ declare namespace Typejector.Component.Factory.Support {
     class DefaultBeanDefinitionPostProcessor extends BeanDefinitionPostProcessor {
         postProcessBeanDefinition(beanDefinitionRegistry: BeanDefinitionRegistry): void;
         private processClassAnnotations(bean);
-        private processPropertiesAnnotations(bean, propertyName);
         private processMethods(bean, propKey);
         private processProperties(bean, propKey);
         private buildTypeDescriptor(src, propType, propKey, index?);
     }
 }
 declare namespace Typejector.Component.Factory.Support {
-    import BeanDefinition = Config.BeanDefinition;
     import BeanDefinitionRegistry = Registry.BeanDefinitionRegistry;
     class MergeBeanDefinitionPostProcessor extends BeanDefinitionPostProcessor {
-        private beanDefinitionRegistry;
-        constructor(beanDefinitionRegistry: BeanDefinitionRegistry);
-        postProcessBeanDefinition(beanDefinition: BeanDefinition): void;
+        postProcessBeanDefinition(beanDefinitionRegistry: BeanDefinitionRegistry): void;
         private merge(beanDefinition, superBeanDefinition);
     }
 }

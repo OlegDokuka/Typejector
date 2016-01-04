@@ -5,10 +5,10 @@ namespace Typejector.Annotation {
     import Collections = Typejector.Util.Collections;
 
     export class ClassBeanDefinitionScanner {
-        scan():BeanDefinition[] {
+        scan(): BeanDefinition[] {
             const classes = new Set<Class>();
 
-            Class.classes().forEach((val:Class) => {
+            Class.classes().forEach((val: Class) => {
                 classes.add(val);
                 this.deepScaning(val).forEach((val) => classes.add(val))
             });
@@ -16,19 +16,19 @@ namespace Typejector.Annotation {
             return Collections.map(classes, () => [], it=> this.buildBeanDefinition(it), (collection, it) => collection.push(it));
         }
 
-        private buildBeanDefinition(clazz:Class):BeanDefinition {
+        private buildBeanDefinition(clazz: Class): BeanDefinition {
             const bean = new Bean();
-
+            
             bean.clazz = clazz;
 
             return bean;
         }
 
-        private deepScaning(clazz:Class):Class[] {
-            const classes:Class[] = [];
+        private deepScaning(clazz: Class): Class[] {
+            const classes: Class[] = [];
             let nextClass = clazz;
 
-            while ((nextClass = Object.getPrototypeOf(nextClass.prototype).constructor) != Function && nextClass != Object) {
+            while ((nextClass = Class.getParentOf(nextClass)) != Function && nextClass != Object) {
                 classes.push(nextClass);
             }
 

@@ -3,17 +3,9 @@
     import BeanDefinitionRegistry = Registry.BeanDefinitionRegistry;
 
     export class MergeBeanDefinitionPostProcessor extends  BeanDefinitionPostProcessor {
-        private beanDefinitionRegistry: BeanDefinitionRegistry;
-
-        constructor(beanDefinitionRegistry: BeanDefinitionRegistry) {
-            super();
-
-            this.beanDefinitionRegistry = beanDefinitionRegistry;
-        }
-
-        postProcessBeanDefinition(beanDefinition: BeanDefinition): void {
-            this.beanDefinitionRegistry.getBeanDefinitionNames()
-                .map(it=> this.beanDefinitionRegistry.getBeanDefinition(it))
+        postProcessBeanDefinition(beanDefinitionRegistry: BeanDefinitionRegistry): void {
+            beanDefinitionRegistry.getBeanDefinitionNames()
+                .map(it=> beanDefinitionRegistry.getBeanDefinition(it))
                 .filter(it=> it.clazz !== beanDefinition.clazz && BeanUtils.isAssignable(it.clazz, beanDefinition.clazz))
                 .forEach(it=> this.merge(beanDefinition, it));
         }
