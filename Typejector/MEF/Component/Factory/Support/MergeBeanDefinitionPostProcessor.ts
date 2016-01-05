@@ -1,13 +1,27 @@
 ﻿namespace Typejector.Component.Factory.Support {
     import BeanDefinition = Config.BeanDefinition;
     import BeanDefinitionRegistry = Registry.BeanDefinitionRegistry;
+    import Collections = Typejector.Util.Collections;
+    import Class = Typejector.Type.Class;
 
-    export class MergeBeanDefinitionPostProcessor extends  BeanDefinitionPostProcessor {
+    export class MergeBeanDefinitionPostProcessor extends BeanDefinitionPostProcessor {
         postProcessBeanDefinition(beanDefinitionRegistry: BeanDefinitionRegistry): void {
-            beanDefinitionRegistry.getBeanDefinitionNames()
-                .map(it=> beanDefinitionRegistry.getBeanDefinition(it))
-                .filter(it=> it.clazz !== beanDefinition.clazz && BeanUtils.isAssignable(it.clazz, beanDefinition.clazz))
-                .forEach(it=> this.merge(beanDefinition, it));
+            const beanDefinitions = beanDefinitionRegistry.getBeanDefinitionNames()
+                .map(it=> beanDefinitionRegistry.getBeanDefinition(it));
+            const groupedBeanDefinitions = Collections.groupBy(beanDefinitions, (val, index) => {
+                let parentsCount = 0;
+                let parentClass = val.clazz;
+
+                while ((parentClass = Class.getParentOf(parentClass))) {
+                    parentsCount++;
+                }
+
+                return parentsCount;
+            });
+
+            for (let i = 1; i < groupedBeanDefinitions.size; i++) {
+                groupedBeanDefinitions.get(i).forEach(val=> this.merge(val, beanDefinitionRegistry.getBeanDefinition(val.parent)));
+            }
         }
 
         private merge(beanDefinition: BeanDefinition, superBeanDefinition: BeanDefinition) {

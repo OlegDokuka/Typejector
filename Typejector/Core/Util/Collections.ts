@@ -17,7 +17,7 @@
         }
 
 
-        public static contains<T>(src: { forEach(callbackfn: (value: T, index: T, collection: any) => void, thisArg?: any) },
+        public static contains<T>(src: { forEach(callbackfn: (value: T, index: any, collection: any) => void, thisArg?: any) },
             element: T): boolean {
             assert(src);
             assert(element);
@@ -47,7 +47,7 @@
         }
 
 
-        public static map<T, U, K>(src: { forEach(callbackfn: (value: T, index: T, collection: any) => void, thisArg?: any) },
+        public static map<T, U, K>(src: { forEach(callbackfn: (value: T, index: any, collection: any) => void, thisArg?: any) },
             supplier: () => K, transformer: (value: T, index: any) => U, accumulator: (collection: K, item: U) => void): K {
             const collection = supplier();
 
@@ -59,13 +59,43 @@
         }
 
 
-        public static filter<T>(src: { forEach(callbackfn: (value: T, index: T, collection: any) => void, thisArg?: any) },
+        public static filter<T>(src: { forEach(callbackfn: (value: T, index: any, collection: any) => void, thisArg?: any) },
             filter: (val: T, key: any) => boolean) {
             const collection = Object.create(Object.getPrototypeOf(src));
 
             src.forEach((val, key) => filter(val, key) ? Collections.add(collection, key, val) : void 0);
 
             return collection;
+        }
+
+
+        public static groupBy<T, U>(src: { forEach(callbackfn: (value: T, index: any, collection: any) => void) },
+            classifier: (value: T, index: any) => U): Map<U, Array<T>>;
+
+
+        public static groupBy<T, U, K>(src: { forEach(callbackfn: (value: T, index: any, collection: any) => void) },
+            classifier: (value: T, index: any) => U, transformer: (value: T, index: any) => K): Map<U, Array<K>>;
+
+
+        public static groupBy<T, U, K>(src: { forEach(callbackfn: (value: T, index: any, collection: any) => void) },
+            classifier: (value: T, index: any) => U, transformer?: (value: T, index: any) => any): Map<U, Array<any>> {
+            const result: Map<U, Array<any>> = new Map();
+
+            transformer = transformer ? transformer : (val: T, index) => val;
+
+            src.forEach((val, key) => {
+                const classKey = classifier(val, key);
+                let group = result.get(classKey);
+
+                if (!group) {
+                    group = [];
+                    result.set(classKey, group);
+                }
+
+                group.push(transformer(val, key));
+            })
+
+            return result;
         }
 
 
