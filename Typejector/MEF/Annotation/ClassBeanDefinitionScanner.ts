@@ -10,7 +10,7 @@ namespace Typejector.Annotation {
 
             Class.classes().forEach((val: Class) => {
                 classes.add(val);
-                this.deepScaning(val).forEach((val) => classes.add(val))
+                this.deepScanning(val).forEach((val) => classes.add(val))
             });
 
             return Collections.map(classes, () => [], it=> this.buildBeanDefinition(it), (collection, it) => collection.push(it));
@@ -18,17 +18,17 @@ namespace Typejector.Annotation {
 
         private buildBeanDefinition(clazz: Class): BeanDefinition {
             const bean = new Bean();
-            
+
             bean.clazz = clazz;
 
             return bean;
         }
 
-        private deepScaning(clazz: Class): Class[] {
+        private deepScanning(clazz: Class): Class[] {
             const classes: Class[] = [];
             let nextClass = clazz;
 
-            while ((nextClass = Class.getParentOf(nextClass)) != Function && nextClass != Object) {
+            while ((nextClass = Class.getParentOf(nextClass))) {
                 classes.push(nextClass);
             }
 

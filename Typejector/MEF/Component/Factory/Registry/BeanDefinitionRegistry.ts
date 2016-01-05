@@ -5,7 +5,6 @@
         containsBeanDefinition(beanName: string): boolean;
         registerBeanDefinition(beanName: string, beanDefinition: BeanDefinition): void;
         getBeanDefinition(beanName: string): BeanDefinition;
-        addBeanDefinitionPostProcessor(beanDefinitionPostProcessor: BeanDefinitionPostProcessor): void;
         getBeanDefinitionNames(): string[];
     }
 } 

@@ -5,9 +5,11 @@ declare module Typejector.Type {
         prototype: any;
     };
     namespace Class {
-        function register(clazz: Function): void;
-        function classes(): Function[];
+        function register(clazz: Class): void;
+        function classes(): Class[];
         function isClass(val: any): val is Class;
+        function getParentOf(src: any): Class;
+        function isAssignable(clazz: Class, classFrom: Class): boolean;
     }
 }
 declare namespace Typejector.Util {
@@ -215,10 +217,14 @@ declare namespace Typejector.Component.Factory.Config {
 declare module Typejector.Component.Factory.Config {
     interface BeanDefinition extends ResolveDefinition, AnnotatedObject {
         name: string;
+        parent: string;
         scope: string;
         factoryMethodName: string;
         initMethodName: string;
         isPrimary: boolean;
+        isAbstract: boolean;
+        isLazyInit: boolean;
+        dependsOn: Set<string>;
     }
 }
 declare namespace Typejector.Component.Context.Config {
@@ -254,6 +260,9 @@ declare namespace Typejector.Component.Context.Config {
 declare module Typejector.Annotation {
     function inject(target: Object, propertyKey: string | symbol): void;
 }
+declare module Typejector.Annotation {
+    function lazy(target: Object, propertyKey?: string | symbol): void;
+}
 declare namespace Typejector.Annotation {
     import Class = Typejector.Type.Class;
     function generic(...classes: Class[]): (target: Object, propertyKey: string | symbol, paramIndex?: any) => any;
@@ -286,15 +295,19 @@ declare module Typejector.Component.Factory.Support {
     import Class = Type.Class;
     class Bean implements Config.BeanDefinition {
         clazz: Class;
+        parent: string;
         annotations: Set<Function>;
         name: string;
         scope: string;
         factoryMethodName: string;
         initMethodName: string;
         isPrimary: boolean;
+        isAbstract: boolean;
+        isLazyInit: boolean;
         constructorArguments: Array<Config.TypeDescriptor>;
         properties: Set<Config.PropertyDescriptor>;
         methods: Set<Config.MethodDescriptor>;
+        dependsOn: Set<string>;
     }
 }
 declare namespace Typejector.Annotation {
@@ -302,7 +315,43 @@ declare namespace Typejector.Annotation {
     class ClassBeanDefinitionScanner {
         scan(): BeanDefinition[];
         private buildBeanDefinition(clazz);
-        private deepScaning(clazz);
+        private deepScanning(clazz);
+    }
+}
+declare namespace Typejector.Component.Factory {
+    import BeanDefinitionRegistry = Registry.BeanDefinitionRegistry;
+    abstract class BeanDefinitionPostProcessor {
+        abstract postProcessBeanDefinition(beanDefinitionRegistry: BeanDefinitionRegistry): void;
+    }
+}
+declare module Typejector.Component.Factory.Registry {
+    import BeanDefinition = Config.BeanDefinition;
+    interface BeanDefinitionRegistry {
+        containsBeanDefinition(beanName: string): boolean;
+        registerBeanDefinition(beanName: string, beanDefinition: BeanDefinition): void;
+        getBeanDefinition(beanName: string): BeanDefinition;
+        getBeanDefinitionNames(): string[];
+    }
+}
+declare namespace Typejector.Component.Factory.Support {
+    import BeanDefinition = Config.BeanDefinition;
+    class DefaultBeanDefinitionRegistry implements Registry.BeanDefinitionRegistry {
+        private registeredBeanDefinitions;
+        containsBeanDefinition(beanName: string): boolean;
+        registerBeanDefinition(beanName: string, beanDefinition: BeanDefinition): void;
+        getBeanDefinition(beanName: string): BeanDefinition;
+        protected getRegisteredBeanDefinitions(): BeanDefinition[];
+        getBeanDefinitionNames(): string[];
+    }
+}
+declare namespace Typejector.Component.Factory.Support {
+    import BeanDefinitionRegistry = Registry.BeanDefinitionRegistry;
+    class DefaultBeanDefinitionPostProcessor extends BeanDefinitionPostProcessor {
+        postProcessBeanDefinition(beanDefinitionRegistry: BeanDefinitionRegistry): void;
+        private processClassAnnotations(bean);
+        private processMethods(bean, propKey);
+        private processProperties(bean, propKey);
+        private buildTypeDescriptor(src, propType, propKey, index?);
     }
 }
 declare namespace Typejector.Annotation {
@@ -312,6 +361,10 @@ declare namespace Typejector.Annotation {
 declare namespace Typejector.Annotation {
 }
 declare namespace Typejector.Util {
+}
+declare namespace Typejector.Type {
+}
+declare namespace Typejector.Component.Factory.Support {
 }
 declare namespace Typejector {
 }

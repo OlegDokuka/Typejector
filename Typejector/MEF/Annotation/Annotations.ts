@@ -40,9 +40,11 @@ namespace Typejector.Annotation {
                 targetKey = paramIndex == undefined ? targetKey : `${targetKey}$${paramIndex}`
             );
 
-            metadataValue.forEach(annotation => result.set(annotation, Reflect.getMetadata(
-                Annotations.ANNOTATION_DATA_KEY + BeanNameGenerator.generateBeanName(annotation), target, targetKey))
-            );
+            if (metadataValue) {
+                metadataValue.forEach(annotation => result.set(annotation, Reflect.getMetadata(
+                    Annotations.ANNOTATION_DATA_KEY + BeanNameGenerator.generateBeanName(annotation), target, targetKey))
+                );
+            }
 
             return result;
         }

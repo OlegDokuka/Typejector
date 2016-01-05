@@ -3,7 +3,6 @@
 
     export class DefaultBeanDefinitionRegistry implements Registry.BeanDefinitionRegistry {
         private registeredBeanDefinitions: Array<BeanDefinition> = [];
-        private beanDefinitionPostProcessors: Array<BeanDefinitionPostProcessor> = [];
 
         containsBeanDefinition(beanName: string): boolean {
             return this.registeredBeanDefinitions.some(it=> it.name === beanName);
@@ -22,8 +21,6 @@
 
                 this.registeredBeanDefinitions[beanPosition] = beanDefinition;
             }
-
-            this.applyBeanDefinitionPostProcessor(beanDefinition);
         }
 
         getBeanDefinition(beanName: string): BeanDefinition {
@@ -34,18 +31,8 @@
             return this.registeredBeanDefinitions.filter(it=> it.name === beanName)[0];
         }
 
-        addBeanDefinitionPostProcessor(beanDefinitionPostProcessor: BeanDefinitionPostProcessor): void {
-            this.beanDefinitionPostProcessors.push(beanDefinitionPostProcessor);
-        }
-
         protected getRegisteredBeanDefinitions() {
             return this.registeredBeanDefinitions;
-        }
-
-        private applyBeanDefinitionPostProcessor(beanDefinition: BeanDefinition) {
-            for (let processor of this.beanDefinitionPostProcessors) {
-                processor.postProcessBeanDefinition(beanDefinition);
-            }
         }
 
         getBeanDefinitionNames(): string[] {

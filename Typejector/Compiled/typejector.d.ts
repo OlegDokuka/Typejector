@@ -7,7 +7,8 @@ declare module Typejector.Type {
         function register(clazz: Class): void;
         function classes(): Class[];
         function isClass(val: any): val is Class;
-        function getParentClassOf(): void;
+        function getParentOf(src: any): Class;
+        function isAssignable(clazz: Class, classFrom: Class): boolean;
     }
 }
 declare namespace Typejector.Util {
@@ -258,6 +259,9 @@ declare namespace Typejector.Component.Context.Config {
 declare module Typejector.Annotation {
     function inject(target: Object, propertyKey: string | symbol): void;
 }
+declare module Typejector.Annotation {
+    function lazy(target: Object, propertyKey?: string | symbol): void;
+}
 declare namespace Typejector.Annotation {
     import Class = Typejector.Type.Class;
     function generic(...classes: Class[]): (target: Object, propertyKey: string | symbol, paramIndex?: any) => any;
@@ -310,7 +314,7 @@ declare namespace Typejector.Annotation {
     class ClassBeanDefinitionScanner {
         scan(): BeanDefinition[];
         private buildBeanDefinition(clazz);
-        private deepScaning(clazz);
+        private deepScanning(clazz);
     }
 }
 declare namespace Typejector.Component {
@@ -319,13 +323,9 @@ declare namespace Typejector.Component {
     import MethodDescriptor = Factory.Config.MethodDescriptor;
     import ConfigurableListableBeanFactory = Factory.ConfigurableListableBeanFactory;
     class BeanUtils {
-        static isAssignable(clazz: Class, classFrom: Class): boolean;
-        static isAbstract(beanDefinition: BeanDefinition): any;
-        static isConfig(beanDefinition: BeanDefinition): any;
-        static isSingleton(beanDefinition: BeanDefinition): any;
-        static getMethodDescriptor(beanDefinition: BeanDefinition, methodName: string): any;
-        static getOrCreateMethodDescriptor(beanDefinition: BeanDefinition, methodName: string): any;
-        static getOrCreateBeanDefinition(beanFactory: ConfigurableListableBeanFactory, clazz: Class): BeanDefinition;
+        static isAbstract(beanDefinition: BeanDefinition): boolean;
+        static isConfig(beanDefinition: BeanDefinition): boolean;
+        static isSingleton(beanDefinition: BeanDefinition): boolean;
         static newInstance(clazz: Class, ...args: any[]): any;
         static createObjectFactoryFrom<T>(methodDescriptor: MethodDescriptor, parent: Class, beanFactory: ConfigurableListableBeanFactory): Factory.ObjectFactory<T>;
     }
@@ -376,7 +376,6 @@ declare module Typejector.Component.Factory.Registry {
         containsBeanDefinition(beanName: string): boolean;
         registerBeanDefinition(beanName: string, beanDefinition: BeanDefinition): void;
         getBeanDefinition(beanName: string): BeanDefinition;
-        addBeanDefinitionPostProcessor(beanDefinitionPostProcessor: BeanDefinitionPostProcessor): void;
         getBeanDefinitionNames(): string[];
     }
 }
@@ -462,13 +461,10 @@ declare namespace Typejector.Component.Factory.Support {
     import BeanDefinition = Config.BeanDefinition;
     class DefaultBeanDefinitionRegistry implements Registry.BeanDefinitionRegistry {
         private registeredBeanDefinitions;
-        private beanDefinitionPostProcessors;
         containsBeanDefinition(beanName: string): boolean;
         registerBeanDefinition(beanName: string, beanDefinition: BeanDefinition): void;
         getBeanDefinition(beanName: string): BeanDefinition;
-        addBeanDefinitionPostProcessor(beanDefinitionPostProcessor: BeanDefinitionPostProcessor): void;
         protected getRegisteredBeanDefinitions(): BeanDefinition[];
-        private applyBeanDefinitionPostProcessor(beanDefinition);
         getBeanDefinitionNames(): string[];
     }
 }

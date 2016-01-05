@@ -25,6 +25,7 @@
 ///<reference path="../../Typejector/MEF/Component/Context/Config/ArgumentDependencyDescriptor.ts"/>
 ///<reference path="../../Typejector/MEF/Component/Context/Config/MethodDependencyDescriptor.ts"/>
 ///<reference path="../../Typejector/MEF/Annotation/Inject.ts"/>
+///<reference path="../../Typejector/MEF/Annotation/Lazy.ts"/>
 ///<reference path="../../Typejector/MEF/Annotation/Generic.ts"/>
 ///<reference path="../../Typejector/MEF/Annotation/Primary.ts"/>
 ///<reference path="../../Typejector/MEF/Annotation/Injection.ts"/>
@@ -35,11 +36,17 @@
 ///<reference path="../../Typejector/MEF/Annotation/Config.ts"/>
 ///<reference path="../../Typejector/MEF/Component/Factory/Support/Bean.ts"/>
 ///<reference path="../../Typejector/MEF/Annotation/ClassBeanDefinitionScanner.ts"/>
+///<reference path="../../Typejector/MEF/Component/Factory/BeanDefinitionPostProcessor.ts"/>
+///<reference path="../../Typejector/MEF/Component/Factory/Registry/BeanDefinitionRegistry.ts"/>
+///<reference path="../../Typejector/MEF/Component/Factory/Support/DefaultBeanDefinitionRegistry.ts"/>
+///<reference path="../../Typejector/MEF/Component/Factory/Support/DefaultBeanDefinitionPostProcessor.ts"/>
 /// <reference path="../../typings/mocha/mocha.d.ts"/>
 /// <reference path="Annotation/AnnotationUtilsTest.ts"/>
 /// <reference path="Annotation/AnnotationIntegrationTest.ts"/>
 /// <reference path="Annotation/ClassBeanDefinitionScannerTest.ts"/>
 /// <reference path="Core/Util/CollectionsTest.ts"/>
+/// <reference path="Core/Type/ClassTest.ts"/>
+/// <reference path="Component/Factory/Support/DefaultBeanDefinitionPostProcessorTest.ts"/>
 namespace Typejector{
 
 }

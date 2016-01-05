@@ -22,6 +22,7 @@
 ///<reference path="Component/Context/Config/ArgumentDependencyDescriptor.ts"/>
 ///<reference path="Component/Context/Config/MethodDependencyDescriptor.ts"/>
 ///<reference path="Annotation/Inject.ts"/>
+///<reference path="Annotation/Lazy.ts"/>
 ///<reference path="Annotation/Generic.ts"/>
 ///<reference path="Annotation/Primary.ts"/>
 ///<reference path="Annotation/Injection.ts"/>
