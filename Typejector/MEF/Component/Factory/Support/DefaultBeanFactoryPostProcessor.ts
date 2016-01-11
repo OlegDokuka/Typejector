@@ -18,34 +18,36 @@
     import factoryMethod = Typejector.Annotation.factoryMethod;
 
     //todo: provide dependencOn seeking
-    export class DefaultBeanDefinitionPostProcessor extends BeanDefinitionPostProcessor {
-        postProcessBeanDefinition(beanDefinitionRegistry: ConfigurableListableBeanFactory): void {
-            beanDefinitionRegistry
+    export class DefaultBeanFactoryPostProcessor extends BeanFactoryPostProcessor {
+        postProcessBeanFactory(configurableListableBeanFactory: ConfigurableListableBeanFactory): void {
+            configurableListableBeanFactory
                 .getBeanDefinitionNames()
-                .map(name=> beanDefinitionRegistry.getBeanDefinition(name))
-                .forEach(bean=> {
-                    const clazz = bean.clazz;
-                    const parentClass = Class.getParentOf(clazz);
+                .map(name=> configurableListableBeanFactory.getBeanDefinition(name))
+                .forEach(beanDefinition=> this.processBeanDefinition(beanDefinition, configurableListableBeanFactory));
+        }
 
-                    if (parentClass) {
-                        bean.parent = BeanNameGenerator.generateBeanName(parentClass);
-                    }
+        protected processBeanDefinition(beanDefinition: BeanDefinition, configurableListableBeanFactory: ConfigurableListableBeanFactory) {
+            const clazz = beanDefinition.clazz;
+            const parentClass = Class.getParentOf(clazz);
 
-                    this.processClassAnnotations(bean);
+            if (parentClass) {
+                beanDefinition.parent = BeanNameGenerator.generateBeanName(parentClass);
+            }
 
-                    Object.keys(clazz.prototype).forEach(it=> {
-                        const property = clazz.prototype[it];
+            this.processClassAnnotations(beanDefinition);
 
-                        if (property != undefined && Class.getParentOf(property) === undefined) {
-                            this.processMethods(bean, it);
-                        }
-                        else {
-                            this.processProperties(bean, it);
-                        }
-                    });
+            Object.keys(clazz.prototype).forEach(it=> {
+                const property = clazz.prototype[it];
 
-                    this.processDependencies(bean, beanDefinitionRegistry);
-                });
+                if (property != undefined && Class.getParentOf(property) === undefined) {
+                    this.processMethods(beanDefinition, it);
+                }
+                else {
+                    this.processProperties(beanDefinition, it);
+                }
+            });
+
+            this.processDependencies(beanDefinition, configurableListableBeanFactory);
         }
 
         private processClassAnnotations(bean: BeanDefinition) {

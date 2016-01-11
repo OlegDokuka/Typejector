@@ -3,7 +3,7 @@
     import Collections = Typejector.Util.Collections;
     import Class = Typejector.Type.Class;
 
-    export class MergeBeanDefinitionPostProcessor extends BeanDefinitionPostProcessor {
+    export class MergeBeanFactoryPostProcessor extends BeanFactoryPostProcessor {
 
         public postProcessBeanDefinition(beanDefinitionRegistry: ConfigurableListableBeanFactory): void {
             const beanDefinitions = beanDefinitionRegistry.getBeanDefinitionNames()

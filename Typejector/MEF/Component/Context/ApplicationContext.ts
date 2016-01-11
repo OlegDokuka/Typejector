@@ -9,9 +9,9 @@
     import BeanDefinition = Component.Factory.Config.BeanDefinition;
     import BeanNameGenerator = Component.Factory.Support.BeanNameGenerator;
     import Bean = Component.Factory.Support.Bean;
-    import DefaultBeanDefinitionPostProcessor = Component.Factory.Support.DefaultBeanDefinitionPostProcessor;
-    import MergeBeanDefinitionPostProcessor = Component.Factory.Support.MergeBeanDefinitionPostProcessor;
-    import ConfigBeanDefinitionPostProcessor = Component.Factory.Support.ConfigBeanDefinitionPostProcessor;
+    // import DefaultBeanDefinitionPostProcessor = Component.Factory.Support.DefaultBeanDefinitionPostProcessor;
+    // import MergeBeanDefinitionPostProcessor = Component.Factory.Support.MergeBeanDefinitionPostProcessor;
+    // import ConfigBeanDefinitionPostProcessor = Component.Factory.Support.ConfigBeanDefinitionPostProcessor;
     import MethodDependencyDescriptor = Config.MethodDependencyDescriptor;
     import singleton = Annotation.singleton;
 

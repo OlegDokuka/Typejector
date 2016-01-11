@@ -75,6 +75,28 @@
         }
 
 
+        public static firstOrDefault<T>(src: { forEach(callbackfn: (value: T, index: any, collection: any) => void, thisArg?: any) }): T;
+
+
+        public static firstOrDefault<T>(src: { forEach(callbackfn: (value: T, index: any, collection: any) => void, thisArg?: any) }, defaultVal: T): T;
+
+
+        public static firstOrDefault<T>(src: { forEach(callbackfn: (value: T, index: any, collection: any) => void, thisArg?: any) }, lazyGetter: () => T): T;
+
+
+        public static firstOrDefault<T>(src: { forEach(callbackfn: (value: T, index: any, collection: any) => void, thisArg?: any) }, val?: any): T {
+            let result: T = undefined;
+
+            if (src instanceof Array) {
+                result = src[0];
+            } else {
+                src.forEach(val=> result == undefined ? void 0 : result = val);
+            }
+
+            return result == undefined ? (val instanceof Function ? ((result = val()) ? result : val) : val) : result;
+        }
+
+
         public static filter<T>(src: { forEach(callbackfn: (value: T, index: any, collection: any) => void, thisArg?: any) },
             filter: (val: T, key: any) => boolean) {
             const collection: typeof src = Object.create(Object.getPrototypeOf(src));
