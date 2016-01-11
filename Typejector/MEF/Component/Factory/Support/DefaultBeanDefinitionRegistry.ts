@@ -1,43 +1,36 @@
 ﻿namespace Typejector.Component.Factory.Support {
-    import BeanDefinition = Config.BeanDefinition;
+    import BeanDefinition = Typejector.Component.Factory.Config.BeanDefinition;
+    import Collections = Typejector.Util.Collections;
 
     export class DefaultBeanDefinitionRegistry implements Registry.BeanDefinitionRegistry {
-        private registeredBeanDefinitions: Array<BeanDefinition> = [];
+        private registeredBeanDefinitions: Map<string, BeanDefinition> = new Map();
 
         containsBeanDefinition(beanName: string): boolean {
-            return this.registeredBeanDefinitions.some(it=> it.name === beanName);
+            return this.registeredBeanDefinitions.has(beanName);
         }
 
         registerBeanDefinition(beanName: string, beanDefinition: BeanDefinition): void {
             assert(beanDefinition, "BeanDefinition must be presented");
 
-            const existedBeanDefinition = this.registeredBeanDefinitions.filter(it => it.name === beanName)[0];
+            beanDefinition.name = beanName;
 
-            if (existedBeanDefinition == undefined) {
-                this.registeredBeanDefinitions.push(beanDefinition);
-            }
-            else {
-                const beanPosition = this.registeredBeanDefinitions.indexOf(existedBeanDefinition);
-
-                this.registeredBeanDefinitions[beanPosition] = beanDefinition;
-            }
+            this.registeredBeanDefinitions.set(beanName, beanDefinition);
         }
 
         getBeanDefinition(beanName: string): BeanDefinition {
             if (!this.containsBeanDefinition(beanName)) {
                 throw new Error(`No such bean definitions found for name '${beanName}'`);
             }
-            //todo: find primary bean or
-            return this.registeredBeanDefinitions.filter(it=> it.name === beanName)[0];
+
+            return this.registeredBeanDefinitions.get(beanName);
         }
 
         protected getRegisteredBeanDefinitions() {
-            return this.registeredBeanDefinitions;
+            return Collections.map(this.registeredBeanDefinitions, () => [], (beanDefinition, name) => beanDefinition, (coll, beanDef) => coll.push(beanDef));
         }
 
         getBeanDefinitionNames(): string[] {
-            return this.registeredBeanDefinitions.map(it=> it.name);
+            return Collections.map(this.registeredBeanDefinitions, () => [], (val, key) => key, (collection, val) => collection.push(val));
         }
-
     }
 }

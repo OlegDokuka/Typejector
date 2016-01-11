@@ -16,15 +16,27 @@ declare namespace Typejector.Util {
     class Collections {
         static remove<T>(src: Array<T>, element: T): boolean;
         static contains<T>(src: {
-            forEach(callbackfn: (value: T, index: T, collection: any) => void, thisArg?: any);
+            forEach(callbackfn: (value: T, index: any, collection: any) => void, thisArg?: any);
         }, element: T): boolean;
         static add<T, U>(src: any, key: T, value: U): void;
         static map<T, U, K>(src: {
-            forEach(callbackfn: (value: T, index: T, collection: any) => void, thisArg?: any);
+            forEach(callbackfn: (value: T, index: any, collection: any) => void, thisArg?: any);
         }, supplier: () => K, transformer: (value: T, index: any) => U, accumulator: (collection: K, item: U) => void): K;
+        static flatMap<T, U, K>(src: {
+            forEach(callbackfn: (value: T, index: any, collection: any) => void, thisArg?: any);
+        }, supplier: () => K, transformer: (value: T, index: any) => U[], accumulator: (collection: K, item: U) => void): K;
         static filter<T>(src: {
-            forEach(callbackfn: (value: T, index: T, collection: any) => void, thisArg?: any);
+            forEach(callbackfn: (value: T, index: any, collection: any) => void, thisArg?: any);
         }, filter: (val: T, key: any) => boolean): any;
+        static groupBy<T, U>(src: {
+            forEach(callbackfn: (value: T, index: any, collection: any) => void);
+        }, classifier: (value: T, index: any) => U): Map<U, Array<T>>;
+        static groupBy<T, U, K>(src: {
+            forEach(callbackfn: (value: T, index: any, collection: any) => void);
+        }, classifier: (value: T, index: any) => U, transformer: (value: T, index: any) => K): Map<U, Array<K>>;
+        static some<T>(src: {
+            forEach(callbackfn: (value: T, index: any, collection: any) => void);
+        }, predicate: (val: T, index) => boolean): boolean;
         static keys<T>(src: Map<T, any>): T[];
         static isCollection(obj: any): boolean;
     }
@@ -119,7 +131,7 @@ interface WeakSetConstructor {
     prototype: WeakSet<any>;
 }
 declare var WeakSet: WeakSetConstructor;
-declare module Reflect {
+declare namespace Reflect {
     function decorate(decorators: ClassDecorator[], target: Function): Function;
     function decorate(decorators: (PropertyDecorator | MethodDecorator)[], target: Object, targetKey: string | symbol, descriptor?: PropertyDescriptor): PropertyDescriptor;
     function metadata(metadataKey: any, metadataValue: any): {
@@ -260,8 +272,8 @@ declare namespace Typejector.Component.Context.Config {
 declare module Typejector.Annotation {
     function inject(target: Object, propertyKey: string | symbol): void;
 }
-declare module Typejector.Annotation {
-    function lazy(target: Object, propertyKey?: string | symbol): void;
+declare namespace Typejector.Annotation {
+    function lazy(target: Object, propertyKey: string | symbol): void;
 }
 declare namespace Typejector.Annotation {
     import Class = Typejector.Type.Class;
@@ -291,6 +303,46 @@ declare module Typejector.Annotation {
     import Class = Type.Class;
     function config(clazz: Class): void;
 }
+declare namespace Typejector.Component.Factory {
+    interface ObjectFactory<T> {
+        getObject(): T;
+    }
+}
+declare namespace Typejector.Component.Factory.Config {
+    interface Scope {
+        get<T>(name: string, objectFactory: ObjectFactory<T>): T;
+        remove(name: string): void;
+    }
+}
+declare namespace Typejector.Component.Factory.Support {
+    import Scope = Config.Scope;
+    class PrototypeScope implements Scope {
+        get<T>(name: string, objectFactory: ObjectFactory<T>): T;
+        remove(name: string): void;
+    }
+    namespace PrototypeScope {
+        const NAME: string;
+    }
+}
+declare namespace Typejector.Component.Factory.Support {
+    class SingletonScope extends PrototypeScope {
+        private objectCache;
+        get<T>(name: string, objectFactory: ObjectFactory<T>): T;
+        remove(name: string): void;
+    }
+    namespace SingletonScope {
+        const NAME: string;
+    }
+}
+declare namespace Typejector.Component.Factory {
+    import Class = Type.Class;
+    interface BeanFactory {
+        containsBean(beanName: string): boolean;
+        containsBean(clazz: Class): boolean;
+        getBean<T>(beanName: string): T;
+        getBean<T>(clazz: Class): T;
+    }
+}
 declare module Typejector.Component.Factory.Support {
     import Class = Type.Class;
     class Bean implements Config.BeanDefinition {
@@ -318,10 +370,22 @@ declare namespace Typejector.Annotation {
         private deepScanning(clazz);
     }
 }
+declare namespace Typejector.Component {
+    import Class = Type.Class;
+    import BeanDefinition = Factory.Config.BeanDefinition;
+    import MethodDescriptor = Factory.Config.MethodDescriptor;
+    import ConfigurableListableBeanFactory = Factory.ConfigurableListableBeanFactory;
+    class BeanUtils {
+        static isAbstract(beanDefinition: BeanDefinition): boolean;
+        static isConfig(beanDefinition: BeanDefinition): boolean;
+        static isSingleton(beanDefinition: BeanDefinition): boolean;
+        static newInstance(clazz: Class, ...args: any[]): any;
+        static createObjectFactoryFrom<T>(methodDescriptor: MethodDescriptor, parent: Class, beanFactory: ConfigurableListableBeanFactory): Factory.ObjectFactory<T>;
+    }
+}
 declare namespace Typejector.Component.Factory {
-    import BeanDefinitionRegistry = Registry.BeanDefinitionRegistry;
     abstract class BeanDefinitionPostProcessor {
-        abstract postProcessBeanDefinition(beanDefinitionRegistry: BeanDefinitionRegistry): void;
+        abstract postProcessBeanDefinition(beanFactory: ConfigurableListableBeanFactory): void;
     }
 }
 declare module Typejector.Component.Factory.Registry {
@@ -333,25 +397,138 @@ declare module Typejector.Component.Factory.Registry {
         getBeanDefinitionNames(): string[];
     }
 }
-declare namespace Typejector.Component.Factory.Support {
+declare namespace Typejector.Component.Factory.Registry {
+    interface FactoryBeanRegistry {
+        registerFactory<T>(beanName: string, factory: ObjectFactory<T>): void;
+        getFactory<T>(beanName: string): ObjectFactory<T>;
+    }
+}
+declare namespace Typejector.Component.Factory {
+    import Class = Type.Class;
     import BeanDefinition = Config.BeanDefinition;
+    import TypeDescriptor = Config.TypeDescriptor;
+    interface AutowireCapableBeanFactory extends BeanFactory {
+        createBean<T>(clazz: Class): T;
+        initializeBean<T>(instance: T, beanDefinititon: BeanDefinition): T;
+        applyBeanPostProcessorsBeforeInitialization<T>(existingBean: T, beanDefinititon: BeanDefinition): T;
+        applyBeanPostProcessorsAfterInitialization<T>(existingBean: T, beanDefinititon: BeanDefinition): T;
+        resolveDependency(typeDescriptor: TypeDescriptor): any;
+    }
+}
+declare namespace Typejector.Component.Factory {
+    import Class = Type.Class;
+    interface ListableBeanFactory extends BeanFactory {
+        getBeansOfType<T>(clazz: Class): Array<T>;
+        getBeanNamesOfType(clazz: Class): Array<string>;
+    }
+}
+declare namespace Typejector.Component.Factory {
+    import BeanDefinition = Config.BeanDefinition;
+    abstract class BeanPostProcessor {
+        abstract postProcessAfterInitialization<T extends Object>(bean: T, beanDefinition: BeanDefinition): T;
+        abstract postProcessBeforeInitialization<T extends Object>(bean: T, beanDefinition: BeanDefinition): T;
+    }
+}
+declare namespace Typejector.Component.Factory {
+    import Scope = Config.Scope;
+    interface ConfigurableBeanFactory extends BeanFactory {
+        addBeanPostProcessor(beanPostProcessor: BeanPostProcessor): void;
+        registerScope(scopeName: string, scope: Scope): void;
+        getRegisteredScope(scopeName: string): Scope;
+    }
+}
+declare namespace Typejector.Component.Factory {
+    interface ConfigurableListableBeanFactory extends ListableBeanFactory, AutowireCapableBeanFactory, ConfigurableBeanFactory, Registry.BeanDefinitionRegistry, Registry.FactoryBeanRegistry {
+    }
+}
+declare namespace Typejector.Component.Factory.Support {
+    import BeanDefinition = Typejector.Component.Factory.Config.BeanDefinition;
     class DefaultBeanDefinitionRegistry implements Registry.BeanDefinitionRegistry {
         private registeredBeanDefinitions;
         containsBeanDefinition(beanName: string): boolean;
         registerBeanDefinition(beanName: string, beanDefinition: BeanDefinition): void;
         getBeanDefinition(beanName: string): BeanDefinition;
-        protected getRegisteredBeanDefinitions(): BeanDefinition[];
+        protected getRegisteredBeanDefinitions(): any[];
         getBeanDefinitionNames(): string[];
     }
 }
 declare namespace Typejector.Component.Factory.Support {
-    import BeanDefinitionRegistry = Registry.BeanDefinitionRegistry;
+    import Class = Type.Class;
+    import BeanDefinition = Config.BeanDefinition;
+    abstract class FactoryBeanRegistrySupport extends DefaultBeanDefinitionRegistry implements Registry.FactoryBeanRegistry {
+        private registeredFactoriesBeans;
+        registerFactory<T>(beanName: string, factory: ObjectFactory<T>): void;
+        registerFactory<T>(clazz: Class, factory: ObjectFactory<T>): void;
+        getFactory<T>(beanName: string): ObjectFactory<T>;
+        getFactory<T>(clazz: Class): ObjectFactory<T>;
+        protected abstract doGetFactory<T>(beanDefinition: BeanDefinition): ObjectFactory<T>;
+    }
+}
+declare module Typejector.Component.Factory.Support {
+    import Class = Type.Class;
+    import BeanDefinition = Config.BeanDefinition;
+    import Scope = Config.Scope;
+    abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport implements ConfigurableBeanFactory {
+        private prototypeScope;
+        private singletonScope;
+        private registeredScopes;
+        private beanPostProcessors;
+        addBeanPostProcessor(beanPostProcessor: BeanPostProcessor): void;
+        getBeanPostProcessors(): Array<BeanPostProcessor>;
+        containsBean(beanName: string): boolean;
+        containsBean(clazz: Class): boolean;
+        getBean<T>(beanName: string): T;
+        getBean<T>(clazz: Class): T;
+        protected abstract doGetBean(beanDifinition: BeanDefinition): any;
+        registerScope(scopeName: string, scope: Scope): void;
+        getRegisteredScope(scopeName: string): Scope;
+    }
+}
+declare module Typejector.Component.Factory.Support {
+    import Class = Typejector.Type.Class;
+    import BeanDefinition = Config.BeanDefinition;
+    import TypeDescriptor = Config.TypeDescriptor;
+    import ObjectFactory = Factory.ObjectFactory;
+    abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
+        createBean<T>(clazz: Class): T;
+        protected doCreateBean(beanDefinition: BeanDefinition): any;
+        initializeBean<T>(instance: T, beanDefinition: BeanDefinition): T;
+        applyBeanPostProcessorsBeforeInitialization<T>(existingBean: T, beanDefinititon: BeanDefinition): T;
+        applyBeanPostProcessorsAfterInitialization<T>(existingBean: T, beanDefinititon: BeanDefinition): T;
+        protected doGetFactory<T>(beanDefinition: BeanDefinition): ObjectFactory<T>;
+        resolveDependency(typeDescriptor: TypeDescriptor): any;
+        protected abstract doResolveDependency(typeDescriptor: TypeDescriptor): any;
+    }
+}
+declare module Typejector.Component.Factory.Support {
+    import Class = Type.Class;
+    import BeanDefinition = Config.BeanDefinition;
+    import TypeDescriptor = Config.TypeDescriptor;
+    class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory implements ListableBeanFactory {
+        getBeansOfType<T>(clazz: Class): Array<T>;
+        getBeanNamesOfType(clazz: Class): Array<string>;
+        protected doGetBeanNamesOfType(clazz: Class): string[];
+        protected doGetBeansOfType(clazz: Class): any[];
+        protected doGetBeanDefinitionsOfType(clazz: Class, useAbstract?: boolean): any[];
+        protected doGetBean(beanDefinition: BeanDefinition): any;
+        protected doResolveDependency(typeDescriptor: TypeDescriptor): any;
+    }
+}
+declare namespace Typejector.Component.Factory.Support {
     class DefaultBeanDefinitionPostProcessor extends BeanDefinitionPostProcessor {
-        postProcessBeanDefinition(beanDefinitionRegistry: BeanDefinitionRegistry): void;
+        postProcessBeanDefinition(beanDefinitionRegistry: ConfigurableListableBeanFactory): void;
         private processClassAnnotations(bean);
         private processMethods(bean, propKey);
         private processProperties(bean, propKey);
+        private processDependencies(bean, beanFactory);
         private buildTypeDescriptor(src, propType, propKey, index?);
+    }
+}
+declare namespace Typejector.Component.Factory.Support {
+    class MergeBeanDefinitionPostProcessor extends BeanDefinitionPostProcessor {
+        postProcessBeanDefinition(beanDefinitionRegistry: ConfigurableListableBeanFactory): void;
+        private groupBeanDefinition(beanDefinitions);
+        private merge(beanDefinition, superBeanDefinition);
     }
 }
 declare namespace Typejector.Annotation {
@@ -363,6 +540,8 @@ declare namespace Typejector.Annotation {
 declare namespace Typejector.Util {
 }
 declare namespace Typejector.Type {
+}
+declare namespace Typejector.Component.Factory.Support {
 }
 declare namespace Typejector.Component.Factory.Support {
 }

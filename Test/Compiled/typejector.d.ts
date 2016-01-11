@@ -1,3 +1,5 @@
+/// <reference path="../../typings/mocha/mocha.d.ts" />
+/// <reference path="../../typings/expect.js/expect.js.d.ts" />
 declare module Typejector.Type {
     type Class = {
         new (...args: any[]): any;
@@ -429,10 +431,6 @@ declare namespace Typejector.Component.Factory {
     }
 }
 declare namespace Typejector.Component.Factory {
-    abstract class MergedBeanDefinitionPostProcessor extends BeanDefinitionPostProcessor {
-    }
-}
-declare namespace Typejector.Component.Factory {
     import Scope = Config.Scope;
     interface ConfigurableBeanFactory extends BeanFactory {
         addBeanPostProcessor(beanPostProcessor: BeanPostProcessor): void;
@@ -477,7 +475,7 @@ declare namespace Typejector.Component.Factory.Support {
         containsBeanDefinition(beanName: string): boolean;
         registerBeanDefinition(beanName: string, beanDefinition: BeanDefinition): void;
         getBeanDefinition(beanName: string): BeanDefinition;
-        protected getRegisteredBeanDefinitions(): any[];
+        protected getRegisteredBeanDefinitions(): Map<string, BeanDefinition>;
         getBeanDefinitionNames(): string[];
     }
 }
@@ -514,7 +512,7 @@ declare module Typejector.Component.Factory.Support {
     }
 }
 declare module Typejector.Component.Factory.Support {
-    import Class = Typejector.Type.Class;
+    import Class = Type.Class;
     import BeanDefinition = Config.BeanDefinition;
     import TypeDescriptor = Config.TypeDescriptor;
     import ObjectFactory = Factory.ObjectFactory;
@@ -538,7 +536,7 @@ declare module Typejector.Component.Factory.Support {
         getBeanNamesOfType(clazz: Class): Array<string>;
         protected doGetBeanNamesOfType(clazz: Class): string[];
         protected doGetBeansOfType(clazz: Class): any[];
-        protected doGetBeanDefinitionsOfType(clazz: Class, useAbstract?: boolean): any[];
+        protected doGetBeanDefinitionsOfType(clazz: Class, useAbstract?: boolean): Map<string, BeanDefinition>;
         protected doGetBean(beanDefinition: BeanDefinition): any;
         protected doResolveDependency(typeDescriptor: TypeDescriptor): any;
     }
@@ -571,4 +569,46 @@ declare namespace Typejector.Component.Context {
 declare module Typejector {
     import Context = Component.Context.Context;
     function getContext(): Context;
+}
+declare namespace Typejector.Test.Component.Engine {
+    import Class = Type.Class;
+    abstract class TestEngine {
+        abstract generateTest(owner: Class, mathodName: string, method: Function): Function;
+    }
+}
+declare namespace Typejector.Test.Component.Engine {
+    import Class = Type.Class;
+    class MochaTestEngine extends TestEngine {
+        generateTest(owner: Class, methodName: string, method: Function): Function;
+    }
+}
+declare namespace Typejector.Test.Annotation {
+    import Class = Type.Class;
+    function testCase(clazz: Class): void;
+}
+declare namespace Typejector.Test.Annotation {
+    function testMethod(parent: any, propertyName: string, propertyDescriptor: PropertyDescriptor): void;
+}
+declare namespace Typejector.Test.Component.Config {
+    class TestCaseConfig {
+        private init();
+    }
+}
+declare namespace Typejector.Test.Component.Config {
+    import BeanPostProcessor = Typejector.Component.Factory.BeanPostProcessor;
+    import ApplicationContext = Typejector.Component.Context.ApplicationContext;
+    class TestCaseBeanPostProcessor extends BeanPostProcessor {
+        context: ApplicationContext;
+        postProcessAfterInitialization<T>(bean: T, beanDefinition: Typejector.Component.Factory.Config.BeanDefinition): T;
+        postProcessBeforeInitialization<T>(bean: T, beanDefinition: Typejector.Component.Factory.Config.BeanDefinition): T;
+    }
+}
+declare namespace Typejector.Test.Component.Config {
+    import BeanDefinitionPostProcessor = Typejector.Component.Factory.BeanDefinitionPostProcessor;
+    class TestCaseBeanDefinitionPostProcessor extends BeanDefinitionPostProcessor {
+        private context;
+        postProcessBeanDefinition(beanDefinition: Typejector.Component.Factory.Config.BeanDefinition): void;
+    }
+}
+declare module Typejector.Test {
 }

@@ -24,7 +24,11 @@
 
             let result = false;
 
-            src.forEach(it=> { if (element === it) result = true; });
+            if (src instanceof Array) {
+                result = src.indexOf(element) > -1;
+            } else if (src instanceof Map || src instanceof Set || src instanceof WeakMap || src instanceof WeakSet) {
+                result = (<any>src).has(element);
+            }
 
             return result;
         }
@@ -59,9 +63,25 @@
         }
 
 
+        public static flatMap<T, U, K>(src: { forEach(callbackfn: (value: T, index: any, collection: any) => void, thisArg?: any) },
+            supplier: () => K, transformer: (value: T, index: any) => U[], accumulator: (collection: K, item: U) => void): K {
+            const collection = supplier();
+
+            src.forEach((value, key) => {
+                transformer(value, key).forEach(val=> accumulator(collection, val));
+            });
+
+            return collection;
+        }
+
+
         public static filter<T>(src: { forEach(callbackfn: (value: T, index: any, collection: any) => void, thisArg?: any) },
             filter: (val: T, key: any) => boolean) {
-            const collection = Object.create(Object.getPrototypeOf(src));
+            const collection: typeof src = Object.create(Object.getPrototypeOf(src));
+
+            if (src instanceof Array) {
+                return src.filter(filter);
+            }
 
             src.forEach((val, key) => filter(val, key) ? Collections.add(collection, key, val) : void 0);
 
@@ -94,6 +114,19 @@
 
                 group.push(transformer(val, key));
             })
+
+            return result;
+        }
+
+
+        public static some<T>(src: { forEach(callbackfn: (value: T, index: any, collection: any) => void) }, predicate: (val: T, index) => boolean): boolean {
+            let result = false;
+
+            if (src instanceof Array) {
+                result = src.some(predicate)
+            } else {
+                src.forEach((val, key) => { if (predicate(val, key)) { result = true; } });
+            }
 
             return result;
         }

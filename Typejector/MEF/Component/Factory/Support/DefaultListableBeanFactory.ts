@@ -3,6 +3,7 @@
     import BeanDefinition = Config.BeanDefinition;
     import TypeDescriptor = Config.TypeDescriptor;
     import Scope = Config.Scope;
+    import Collections = Typejector.Util.Collections;
 
     export class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory implements ListableBeanFactory {
         getBeansOfType<T>(clazz: Class): Array<T> {
@@ -44,7 +45,7 @@
         protected doGetBeanDefinitionsOfType(clazz: Class, useAbstract?: boolean) {
             let beanDefinitions = this.getRegisteredBeanDefinitions();
 
-            beanDefinitions = beanDefinitions.filter(val => BeanUtils.isAssignable(clazz, val.clazz)
+            beanDefinitions = beanDefinitions.filter(val => Class.isAssignable(clazz, val.clazz)
                 && (useAbstract || !BeanUtils.isAbstract(val)));
 
             return beanDefinitions;
@@ -72,7 +73,7 @@
         protected doResolveDependency(typeDescriptor: TypeDescriptor): any {
             let result;
 
-            if (typeDescriptor.isArray()) {
+            if (Collections.isCollection(typeDescriptor.clazz)) {
                 result = this.getBeansOfType(typeDescriptor.genericTypes[0]);
             }
             else {

@@ -45,6 +45,7 @@
 ///<reference path="Component/Factory/ListableBeanFactory.ts"/>
 ///<reference path="Component/Factory/BeanPostProcessor.ts"/>
 ///<reference path="Component/Factory/BeanDefinitionPostProcessor.ts"/>
+///<reference path="Component/Factory/MergedBeanDefinitionPostProcessor.ts"/>
 ///<reference path="Component/Factory/ConfigurableBeanFactory.ts"/>
 ///<reference path="Component/Factory/ConfigurableListableBeanFactory.ts"/>
 ///<reference path="Component/Factory/Support/DefaultBeanDefinitionPostProcessor.ts"/>

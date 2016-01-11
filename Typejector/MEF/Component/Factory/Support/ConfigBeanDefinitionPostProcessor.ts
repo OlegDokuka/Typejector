@@ -1,63 +1,64 @@
 ﻿namespace Typejector.Component.Factory.Support {
     import Class = Type.Class;
-    import BeanDefinition = Config.BeanDefinition;
+    import BeanDefinition = Typejector.Component.Factory.Config.BeanDefinition;
     import Collections = Util.Collections;
     import factoryMethod = Annotation.factoryMethod;
 
     export class ConfigBeanDefinitionPostProcessor extends BeanDefinitionPostProcessor {
-        private configurableListableBeanFactory:ConfigurableListableBeanFactory;
+        //private configurableListableBeanFactory: ConfigurableListableBeanFactory;
 
-        constructor(beanDefinitionRegistry:ConfigurableListableBeanFactory) {
-            super();
-            this.configurableListableBeanFactory = beanDefinitionRegistry;
+        postProcessBeanDefinition(configurableListableBeanFactory: ConfigurableListableBeanFactory): void {
+            // if (BeanUtils.isConfig(beanDefinition)) {
+            //     this.processConfigurationBeanDefinitionDefinition(beanDefinition);
+            // } else if (Class.isAssignable(<Class>BeanPostProcessor, beanDefinition.clazz)) {
+            //     this.processBeanPostProcessorsDefinition(beanDefinition);
+            // } else if (Class.isAssignable(<Class>BeanDefinitionPostProcessor, beanDefinition.clazz)) {
+            //     this.processBeanDefinitionPostProcessorsDefinition(beanDefinition);
+            // }
+            configurableListableBeanFactory.getBeanDefinitionNames()
+                .map(name=> configurableListableBeanFactory.getBeanDefinition(name))
+                .filter(beanDefinition=> BeanUtils.isConfig(beanDefinition))
         }
 
-        postProcessBeanDefinition(beanDefinition:BeanDefinition):void {
-            if (BeanUtils.isConfig(beanDefinition)) {
-                this.processConfigurationBeanDefinitionDefinition(beanDefinition);
-            } else if (BeanUtils.isAssignable(<Class>BeanPostProcessor, beanDefinition.clazz)) {
-                this.processBeanPostProcessorsDefinition(beanDefinition);
-            } else if (BeanUtils.isAssignable(<Class>BeanDefinitionPostProcessor, beanDefinition.clazz)) {
-                this.processBeanDefinitionPostProcessorsDefinition(beanDefinition);
-            }
+        private processFactoryMethods(beanDefinition: BeanDefinition, configurableListableBeanFactory: ConfigurableListableBeanFactory) {
+            Collections.map(
+                Collections.filter(beanDefinition.methods, methodDesc=> Collections.contains(methodDesc.annotations, factoryMethod)),
+                () => new Set(),
+                methodDesc=> configurableListableBeanFactory
+                    .getBeanNamesOfType(methodDesc.returnType.clazz)
+                    .map(beanName=> configurableListableBeanFactory.getBeanDefinition(beanName))
+                    .filter(bd=>bd.clazz == methodDesc.returnType.clazz),
+                
         }
 
-        private processBeanDefinitionPostProcessorsDefinition(beanDefinition:BeanDefinition) {
-            const processor = this.configurableListableBeanFactory.getBean<BeanDefinitionPostProcessor>(beanDefinition.name);
+        // private processBeanPostProcessorsDefinition(beanDefinition: BeanDefinition) {
+        //     const processor = this.configurableListableBeanFactory.getBean<BeanPostProcessor>(beanDefinition.name);
 
-            assert(processor, "BeanDefinitionPostProcessor initialization failed");
+        //     assert(processor, "BeanPostProcessor initialization failed");
 
-            this.configurableListableBeanFactory.addBeanDefinitionPostProcessor(processor);
-        }
+        //     this.configurableListableBeanFactory.addBeanPostProcessor(processor);
+        // }
 
-        private processBeanPostProcessorsDefinition(beanDefinition:BeanDefinition) {
-            const processor = this.configurableListableBeanFactory.getBean<BeanPostProcessor>(beanDefinition.name);
+        private processConfigurationBeanDefinitionDefinition(beanDefinition: BeanDefinition) {
+            // const targetObject = this.configurableListableBeanFactory.getBean(beanDefinition.clazz);
 
-            assert(processor, "BeanPostProcessor initialization failed");
-
-            this.configurableListableBeanFactory.addBeanPostProcessor(processor);
-        }
-
-        private processConfigurationBeanDefinitionDefinition(beanDefinition:BeanDefinition) {
-            const targetObject = this.configurableListableBeanFactory.getBean(beanDefinition.clazz);
-
-            beanDefinition.methods.filter((it) => Collections.contains(it.annotations, factoryMethod)).forEach((it) => {
-                const beanNameForFactoryMethod = BeanNameGenerator.generateBeanName(it.returnType.clazz),
-                    objectGetter = () => {
-                        const resolvedArguments = it.arguments.map((arg) => this.configurableListableBeanFactory.resolveDependency(arg));
+            // Collections.filter(beanDefinition.methods, (it) => Collections.contains(it.annotations, factoryMethod)).forEach((it) => {
+            //     const beanNameForFactoryMethod = BeanNameGenerator.generateBeanName(it.returnType.clazz),
+            //         objectGetter = () => {
+            //             const resolvedArguments = it.arguments.map((arg) => this.configurableListableBeanFactory.resolveDependency(arg));
 
 
-                        return targetObject[it.name].call(targetObject, ...resolvedArguments);
-                    },
-                    providedBeanDefinition = BeanUtils.getOrCreateBeanDefinition(this.configurableListableBeanFactory, it.returnType.clazz);
+            //             return targetObject[it.name].call(targetObject, ...resolvedArguments);
+            //         },
+            //         providedBeanDefinition = BeanUtils.getOrCreateBeanDefinition(this.configurableListableBeanFactory, it.returnType.clazz);
 
 
-                this.configurableListableBeanFactory.registerFactory(beanNameForFactoryMethod, {getObject: objectGetter});
+            //     this.configurableListableBeanFactory.registerFactory(beanNameForFactoryMethod, { getObject: objectGetter });
 
-                providedBeanDefinition.factoryMethodName = beanNameForFactoryMethod;
+            //     providedBeanDefinition.factoryMethodName = beanNameForFactoryMethod;
 
-                this.configurableListableBeanFactory.registerBeanDefinition(providedBeanDefinition.name, providedBeanDefinition);
-            });
+            //     this.configurableListableBeanFactory.registerBeanDefinition(providedBeanDefinition.name, providedBeanDefinition);
+            // });
         }
     }
 } 

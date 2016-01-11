@@ -1,8 +1,8 @@
 ﻿module Typejector.Component.Factory.Support {
-    import Class = Type.Class;
+    import Class = Typejector.Type.Class;
     import BeanDefinition = Config.BeanDefinition;
     import TypeDescriptor = Config.TypeDescriptor;
-    import Collections = Util.Collections;
+    import Collections = Typejector.Util.Collections;
     import inject = Annotation.inject;
     import postConstructor = Annotation.postConstructor;
     import ObjectFactory = Factory.ObjectFactory;
@@ -47,11 +47,10 @@
             assert(instance);
             assert(beanDefinition);
 
-            for (let property of beanDefinition.properties) {
-                instance[property.name] = this.resolveDependency(property.clazz);
-            }
+            beanDefinition.properties.forEach(property=> instance[property.name] = this.resolveDependency(property.clazz));
 
-            beanDefinition.methods.filter((it) => Collections.contains(it.annotations, inject)).forEach((method) => {
+
+            Collections.filter(beanDefinition.methods, (it) => Collections.contains(it.annotations, inject)).forEach((method) => {
                 const args = [];
 
                 for (let argType of method.arguments) {
@@ -100,7 +99,7 @@
             }
 
 
-            beanDefinititon.methods.filter((it) => Collections.contains(it.annotations, postConstructor)).forEach((method) => {
+            Collections.filter(beanDefinititon.methods, (it) => Collections.contains(it.annotations, postConstructor)).forEach((method) => {
                 const args = [];
 
                 for (let argType of method.arguments) {

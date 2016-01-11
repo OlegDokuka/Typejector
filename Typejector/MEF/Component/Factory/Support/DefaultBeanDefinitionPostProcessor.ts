@@ -1,5 +1,4 @@
 ﻿namespace Typejector.Component.Factory.Support {
-    import BeanDefinitionRegistry = Registry.BeanDefinitionRegistry;
     import Class = Typejector.Type.Class;
     import Collections = Typejector.Util.Collections;
     import MethodDescriptor = Typejector.Component.Factory.Config.MethodDescriptor;
@@ -17,18 +16,16 @@
     import inject = Typejector.Annotation.inject;
     import lazy = Typejector.Annotation.lazy;
     import factoryMethod = Typejector.Annotation.factoryMethod;
-    
+
     //todo: provide dependencOn seeking
     export class DefaultBeanDefinitionPostProcessor extends BeanDefinitionPostProcessor {
-        postProcessBeanDefinition(beanDefinitionRegistry: BeanDefinitionRegistry): void {
+        postProcessBeanDefinition(beanDefinitionRegistry: ConfigurableListableBeanFactory): void {
             beanDefinitionRegistry
                 .getBeanDefinitionNames()
                 .map(name=> beanDefinitionRegistry.getBeanDefinition(name))
                 .forEach(bean=> {
                     const clazz = bean.clazz;
                     const parentClass = Class.getParentOf(clazz);
-
-                    bean.name = BeanNameGenerator.generateBeanName(clazz);
 
                     if (parentClass) {
                         bean.parent = BeanNameGenerator.generateBeanName(parentClass);
@@ -46,6 +43,8 @@
                             this.processProperties(bean, it);
                         }
                     });
+
+                    this.processDependencies(bean, beanDefinitionRegistry);
                 });
         }
 
@@ -95,12 +94,32 @@
             if (Collections.contains(annotations, inject)) {
                 const descriptor: PropertyDescriptor = {
                     name: propKey,
-                    clazz: this.buildTypeDescriptor(clazz, Reflection.getType(clazz, propKey), propKey),
+                    clazz: this.buildTypeDescriptor(clazz, Reflection.getType(clazz.prototype, propKey), propKey),
                     annotations: annotations
                 };
 
                 bean.properties.add(descriptor);
             }
+        }
+
+        private processDependencies(bean: BeanDefinition, beanFactory: ConfigurableListableBeanFactory) {
+            const dependencies = new Set();
+            const addToDependencies = (typeDescriptor: TypeDescriptor) => Collections.isCollection(typeDescriptor.clazz) ?
+                typeDescriptor.genericTypes.forEach(type=> dependencies.add(type)) :
+                dependencies.add(typeDescriptor.clazz);
+
+            bean.constructorArguments.forEach(addToDependencies);
+
+            bean.methods.forEach(methodDesc=> methodDesc.arguments.forEach(addToDependencies));
+
+            bean.properties.forEach(propertyDesc=> addToDependencies(propertyDesc.clazz));
+
+            bean.dependsOn = Collections.flatMap(
+                dependencies,
+                () => new Set(),
+                val=> beanFactory.getBeanNamesOfType(val),
+                (collections, item) => collections.add(item)
+            );
         }
 
         private buildTypeDescriptor(src: Class, propType: Class, propKey: string | symbol, index?: number) {

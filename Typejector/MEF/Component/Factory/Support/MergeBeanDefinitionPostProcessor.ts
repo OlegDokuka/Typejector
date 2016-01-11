@@ -1,14 +1,23 @@
 ﻿namespace Typejector.Component.Factory.Support {
-    import BeanDefinition = Config.BeanDefinition;
-    import BeanDefinitionRegistry = Registry.BeanDefinitionRegistry;
+    import BeanDefinition = Typejector.Component.Factory.Config.BeanDefinition;
     import Collections = Typejector.Util.Collections;
     import Class = Typejector.Type.Class;
 
     export class MergeBeanDefinitionPostProcessor extends BeanDefinitionPostProcessor {
-        postProcessBeanDefinition(beanDefinitionRegistry: BeanDefinitionRegistry): void {
+
+        public postProcessBeanDefinition(beanDefinitionRegistry: ConfigurableListableBeanFactory): void {
             const beanDefinitions = beanDefinitionRegistry.getBeanDefinitionNames()
                 .map(it=> beanDefinitionRegistry.getBeanDefinition(it));
-            const groupedBeanDefinitions = Collections.groupBy(beanDefinitions, (val, index) => {
+            const groupedBeanDefinitions = this.groupBeanDefinition(beanDefinitions);
+            
+            //skip first group whith empty parent
+            for (let i = 1; i < groupedBeanDefinitions.size; i++) {
+                groupedBeanDefinitions.get(i).forEach(val=> this.merge(val, beanDefinitionRegistry.getBeanDefinition(val.parent)));
+            }
+        }
+
+        private groupBeanDefinition(beanDefinitions: BeanDefinition[]) {
+            return Collections.groupBy(beanDefinitions, (val, index) => {
                 let parentsCount = 0;
                 let parentClass = val.clazz;
 
@@ -18,30 +27,22 @@
 
                 return parentsCount;
             });
-
-            for (let i = 1; i < groupedBeanDefinitions.size; i++) {
-                groupedBeanDefinitions.get(i).forEach(val=> this.merge(val, beanDefinitionRegistry.getBeanDefinition(val.parent)));
-            }
         }
 
         private merge(beanDefinition: BeanDefinition, superBeanDefinition: BeanDefinition) {
-            if (superBeanDefinition.constructorArguments.length > beanDefinition.constructorArguments.length) {
-                for (let i = beanDefinition.constructorArguments.length; i < superBeanDefinition.constructorArguments.length; i++) {
-                    beanDefinition.constructorArguments[i] = superBeanDefinition.constructorArguments[i];
-                }
-            }
-
             superBeanDefinition.methods.forEach(it=> {
-                if (!beanDefinition.methods.some(val=> val.name === it.name)) {
-                    beanDefinition.methods.push(it);
+                if (!Collections.some(beanDefinition.methods, (val=> val.name === it.name))) {
+                    beanDefinition.methods.add(it);
                 }
             });
 
             superBeanDefinition.properties.forEach(it=> {
-                if (!beanDefinition.properties.some(val=> val.name === it.name)) {
-                    beanDefinition.properties.push(it);
+                if (!Collections.some(beanDefinition.properties, (val=> val.name === it.name))) {
+                    beanDefinition.properties.add(it);
                 }
             });
+
+            superBeanDefinition.dependsOn.forEach(dependency=>beanDefinition.dependsOn.add(dependency));
         }
     }
 } 

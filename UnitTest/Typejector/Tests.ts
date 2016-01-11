@@ -1,6 +1,3 @@
-/**
- * Created by Shadowgun on 20.12.2015.
- */
 ///<reference path="../../Typejector/Core/Type/Class.ts"/>
 ///<reference path="../../Typejector/Core/Util/Collections.ts"/>
 ///<reference path="../../Typejector/Core/Event/Event.ts"/>
@@ -34,12 +31,30 @@
 ///<reference path="../../Typejector/MEF/Annotation/PostConstructor.ts"/>
 ///<reference path="../../Typejector/MEF/Annotation/FactoryMethod.ts"/>
 ///<reference path="../../Typejector/MEF/Annotation/Config.ts"/>
+///<reference path="../../Typejector/MEF/Component/Factory/ObjectFactory.ts"/>
+///<reference path="../../Typejector/MEF/Component/Factory/Config/Scope.ts"/>
+///<reference path="../../Typejector/MEF/Component/Factory/Support/PrototypeScope.ts"/>
+///<reference path="../../Typejector/MEF/Component/Factory/Support/SingletonScope.ts"/>
+///<reference path="../../Typejector/MEF/Component/Factory/BeanFactory.ts"/>
 ///<reference path="../../Typejector/MEF/Component/Factory/Support/Bean.ts"/>
 ///<reference path="../../Typejector/MEF/Annotation/ClassBeanDefinitionScanner.ts"/>
+///<reference path="../../Typejector/MEF/Component/BeanUtils.ts"/>
 ///<reference path="../../Typejector/MEF/Component/Factory/BeanDefinitionPostProcessor.ts"/>
 ///<reference path="../../Typejector/MEF/Component/Factory/Registry/BeanDefinitionRegistry.ts"/>
+///<reference path="../../Typejector/MEF/Component/Factory/Registry/FactoryBeanRegistry.ts"/>
+///<reference path="../../Typejector/MEF/Component/Factory/AutowireCapableBeanFactory.ts"/>
+///<reference path="../../Typejector/MEF/Component/Factory/ListableBeanFactory.ts"/>
+///<reference path="../../Typejector/MEF/Component/Factory/BeanPostProcessor.ts"/>
+///<reference path="../../Typejector/MEF/Component/Factory/BeanDefinitionPostProcessor.ts"/>
+///<reference path="../../Typejector/MEF/Component/Factory/ConfigurableBeanFactory.ts"/>
+///<reference path="../../Typejector/MEF/Component/Factory/ConfigurableListableBeanFactory.ts"/>
 ///<reference path="../../Typejector/MEF/Component/Factory/Support/DefaultBeanDefinitionRegistry.ts"/>
+///<reference path="../../Typejector/MEF/Component/Factory/Support/FactoryBeanRegistrySupport.ts"/>
+///<reference path="../../Typejector/MEF/Component/Factory/Support/AbstractBeanFactory.ts"/>
+///<reference path="../../Typejector/MEF/Component/Factory/Support/AbstractAutowireCapableBeanFactory.ts"/>
+///<reference path="../../Typejector/MEF/Component/Factory/Support/DefaultListableBeanFactory.ts"/>
 ///<reference path="../../Typejector/MEF/Component/Factory/Support/DefaultBeanDefinitionPostProcessor.ts"/>
+///<reference path="../../Typejector/MEF/Component/Factory/Support/MergeBeanDefinitionPostProcessor.ts"/>
 /// <reference path="../../typings/mocha/mocha.d.ts"/>
 /// <reference path="Annotation/AnnotationUtilsTest.ts"/>
 /// <reference path="Annotation/AnnotationIntegrationTest.ts"/>
@@ -47,6 +62,7 @@
 /// <reference path="Core/Util/CollectionsTest.ts"/>
 /// <reference path="Core/Type/ClassTest.ts"/>
 /// <reference path="Component/Factory/Support/DefaultBeanDefinitionPostProcessorTest.ts"/>
+/// <reference path="Component/Factory/Support/MergeBeanDefinitionPostProcessorTest.ts"/>
 namespace Typejector{
 
 }

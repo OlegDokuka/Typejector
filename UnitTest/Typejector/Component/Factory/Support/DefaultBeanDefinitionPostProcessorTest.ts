@@ -3,10 +3,10 @@ namespace Typejector.Component.Factory.Support {
 
     class MockClass {
         @inject
-        prop:MockClass;
+        prop: MockClass;
 
         @inject
-        testmethod(arg:MockClass) {
+        testmethod(arg: MockClass) {
         }
     }
 
@@ -19,14 +19,14 @@ namespace Typejector.Component.Factory.Support {
 
     describe("DefaultBeanDefinitionPostProcessor Integration Test", () => {
         it("Test DefaultBeanDefinitionPostProcessor#postProcessBeanDefinition method initialize bean definition correctly", () => {
-            const registry = new DefaultBeanDefinitionRegistry();
+            const registry = new DefaultListableBeanFactory();
             const mockBean = createMockBeanDefinition();
 
             registry.registerBeanDefinition("MockClass", mockBean);
 
-            new DefaultBeanDefinitionPostProcessor().postProcessBeanDefinition(registry);
+            new DefaultBeanDefinitionPostProcessor().postProcessBeanDefinition(<any>registry);
 
-            if (!mockBean.methods.size || !mockBean.properties.size) {
+            if (!mockBean.methods.size || !mockBean.properties.size || !mockBean.dependsOn.size) {
                 throw new Error("Incorrect BeanDefinition expected");
             }
         });
