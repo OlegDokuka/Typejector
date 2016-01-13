@@ -5,7 +5,7 @@
     import factoryMethod = Annotation.factoryMethod;
 
     export class ConfigBeanFactoryPostProcessor extends DefaultBeanFactoryPostProcessor {
-        
+
         postProcessBeanFactory(configurableListableBeanFactory: ConfigurableListableBeanFactory): void {
             configurableListableBeanFactory.getBeanDefinitionNames()
                 .map(name=> configurableListableBeanFactory.getBeanDefinition(name))
@@ -15,14 +15,20 @@
 
         private processFactoryMethods(beanDefinition: BeanDefinition, configurableListableBeanFactory: ConfigurableListableBeanFactory) {
             Collections.filter(beanDefinition.methods, methodDesc=> Collections.contains(methodDesc.annotations, factoryMethod))
-                .forEach(methodDesc=> this.initializaFactoryMethod(
-                    Collections.firstOrDefault(configurableListableBeanFactory
-                        .getBeanNamesOfType(methodDesc.returnType.clazz)
-                        .map(beanName=> configurableListableBeanFactory.getBeanDefinition(beanName))
-                        .filter(bd=> bd.clazz == methodDesc.returnType.clazz),
-                        () => this.initializeDefaultBeanDefinition(methodDesc, configurableListableBeanFactory)
-                    ), beanDefinition, methodDesc, configurableListableBeanFactory
-                ));
+                .forEach(methodDesc=> {
+                    const returnBeanClass = methodDesc.returnType.clazz;
+                    let returnBeanDefinition: BeanDefinition;
+
+                    if (configurableListableBeanFactory.containsBeanDefinition(returnBeanClass)) {
+                        returnBeanDefinition = configurableListableBeanFactory.getBeanDefinition(returnBeanClass)
+                    } else {
+                        returnBeanDefinition = this.initializeDefaultBeanDefinition(methodDesc, configurableListableBeanFactory);
+                    }
+
+                    this.initializaFactoryMethod(returnBeanDefinition, beanDefinition, methodDesc, configurableListableBeanFactory)
+                });
+
+            this.lookupParentBeanDefinition(beanDefinition, configurableListableBeanFactory);
         }
 
         private initializeDefaultBeanDefinition(methodDescriptor: Config.MethodDescriptor, configurableListableBeanFactory: ConfigurableListableBeanFactory) {
@@ -33,6 +39,16 @@
             configurableListableBeanFactory.registerBeanDefinition(BeanNameGenerator.generateBeanName(beanDefinition.clazz), beanDefinition);
 
             return beanDefinition;
+        }
+
+        private lookupParentBeanDefinition(beanDefinition: BeanDefinition, configurableListableBeanFactory: ConfigurableListableBeanFactory) {
+            const parentClass = Class.getParentOf(beanDefinition.clazz);
+
+            if (parentClass && configurableListableBeanFactory.containsBeanDefinition(parentClass)) {
+                const parentBeanDefinition = configurableListableBeanFactory.getBeanDefinition(parentClass);
+
+                this.processFactoryMethods(parentBeanDefinition, configurableListableBeanFactory);
+            }
         }
 
         private initializaFactoryMethod(beanDefinition: BeanDefinition, configBeanDefiniton: BeanDefinition, factoryMethodDescriptor: Config.MethodDescriptor, configurableListableBeanFactory: ConfigurableListableBeanFactory) {
@@ -47,4 +63,4 @@
             configurableListableBeanFactory.registerFactory(beanDefinition.factoryMethodName, { getObject: objectGetter })
         }
     }
-} 
+}

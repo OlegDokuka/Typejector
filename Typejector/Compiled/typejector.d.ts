@@ -387,17 +387,18 @@ declare namespace Typejector.Component.Factory.Support {
 declare namespace Typejector.Component.Factory {
     import Class = Type.Class;
     interface BeanFactory {
-        containsBean(beanName: string): boolean;
-        containsBean(clazz: Class): boolean;
         getBean<T>(beanName: string): T;
         getBean<T>(clazz: Class): T;
     }
 }
 declare module Typejector.Component.Factory.Registry {
     import BeanDefinition = Config.BeanDefinition;
+    import Class = Typejector.Type.Class;
     interface BeanDefinitionRegistry {
+        containsBeanDefinition(beanClass: Class): any;
         containsBeanDefinition(beanName: string): boolean;
         registerBeanDefinition(beanName: string, beanDefinition: BeanDefinition): void;
+        getBeanDefinition(beanClass: Class): BeanDefinition;
         getBeanDefinition(beanName: string): BeanDefinition;
         getBeanDefinitionNames(): string[];
     }
@@ -479,25 +480,25 @@ declare namespace Typejector.Component.Factory.Support {
         postProcessBeanFactory(configurableListableBeanFactory: ConfigurableListableBeanFactory): void;
         private processFactoryMethods(beanDefinition, configurableListableBeanFactory);
         private initializeDefaultBeanDefinition(methodDescriptor, configurableListableBeanFactory);
+        private lookupParentBeanDefinition(beanDefinition, configurableListableBeanFactory);
         private initializaFactoryMethod(beanDefinition, configBeanDefiniton, factoryMethodDescriptor, configurableListableBeanFactory);
-        private processConfigurationBeanDefinitionDefinition(beanDefinition);
     }
 }
 declare namespace Typejector.Component.Factory.Support {
     class InstantiationBeanFactoryPostProcessor extends BeanFactoryPostProcessor {
         postProcessBeanFactory(configurableListableBeanFactory: ConfigurableListableBeanFactory): void;
-        private processFactoryMethods(beanDefinition, configurableListableBeanFactory);
-        private initializeDefaultBeanDefinition(methodDescriptor, configurableListableBeanFactory);
-        private initializaFactoryMethod(beanDefinition, configBeanDefiniton, factoryMethodDescriptor, configurableListableBeanFactory);
-        private processConfigurationBeanDefinitionDefinition(beanDefinition);
+        private instantiateBean(beanDefinition);
     }
 }
 declare namespace Typejector.Component.Factory.Support {
     import BeanDefinition = Typejector.Component.Factory.Config.BeanDefinition;
+    import Class = Typejector.Type.Class;
     class DefaultBeanDefinitionRegistry implements Registry.BeanDefinitionRegistry {
         private registeredBeanDefinitions;
+        containsBeanDefinition(beanClass: Class): boolean;
         containsBeanDefinition(beanName: string): boolean;
         registerBeanDefinition(beanName: string, beanDefinition: BeanDefinition): void;
+        getBeanDefinition(beanClass: Class): BeanDefinition;
         getBeanDefinition(beanName: string): BeanDefinition;
         protected getRegisteredBeanDefinitions(): any[];
         getBeanDefinitionNames(): string[];
@@ -526,8 +527,6 @@ declare module Typejector.Component.Factory.Support {
         private beanPostProcessors;
         addBeanPostProcessor(beanPostProcessor: BeanPostProcessor): void;
         getBeanPostProcessors(): Array<BeanPostProcessor>;
-        containsBean(beanName: string): boolean;
-        containsBean(clazz: Class): boolean;
         getBean<T>(beanName: string): T;
         getBean<T>(clazz: Class): T;
         protected abstract doGetBean(beanDifinition: BeanDefinition): any;
@@ -583,8 +582,6 @@ declare namespace Typejector.Component.Context {
         constructor();
         private initialize();
         register(typeDescriptor: TypeDescription): void;
-        containsBean(beanName: string): boolean;
-        containsBean(clazz: Class): boolean;
         getBean<T>(beanName: string): T;
         getBean<T>(clazz: Class): T;
         getBeanFactory(): ConfigurableListableBeanFactory;

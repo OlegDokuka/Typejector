@@ -18,31 +18,18 @@
             return this.beanPostProcessors;
         }
 
-        containsBean(beanName: string): boolean;
-        containsBean(clazz: Class): boolean;
-        containsBean(item: Class|string): boolean {
-            let beanName: string;
-
-            assert(item);
-
-            beanName = typeof item === typeof this.containsBean ?
-                BeanNameGenerator.generateBeanName(<Class>item) : <string>item;
-
-            return this.containsBeanDefinition(beanName);
-        }
-
         getBean<T>(beanName: string): T;
         getBean<T>(clazz: Class): T;
-        getBean<T>(item: Class|string): T {
+        getBean<T>(item: Class | string): T {
             let beanDefinition: BeanDefinition;
 
             assert(item);
 
-            if (typeof item === typeof "") {
-                beanDefinition = this.getBeanDefinition(<string>item);
+            if (Class.isClass(item)) {
+                beanDefinition = this.getBeanDefinition(item);
             }
             else {
-                beanDefinition = this.getBeanDefinition(BeanNameGenerator.generateBeanName(<Class>item));
+                beanDefinition = this.getBeanDefinition(item);
             }
 
             return this.doGetBean(beanDefinition);

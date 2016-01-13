@@ -44,12 +44,6 @@
         register(typeDescriptor: TypeDescription) {
         }
 
-        containsBean(beanName: string): boolean;
-        containsBean(clazz: Class): boolean;
-        containsBean(item: Class | string): boolean {
-            return this.mainBeanFactory.containsBean(<any>item);
-        }
-
         getBean<T>(beanName: string): T;
         getBean<T>(clazz: Class): T;
         getBean<T>(item: Class | string): T {

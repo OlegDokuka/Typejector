@@ -1,12 +1,18 @@
 ﻿namespace Typejector.Component.Factory.Support {
     import BeanDefinition = Typejector.Component.Factory.Config.BeanDefinition;
     import Collections = Typejector.Util.Collections;
+    import Class = Typejector.Type.Class;
 
     export class DefaultBeanDefinitionRegistry implements Registry.BeanDefinitionRegistry {
         private registeredBeanDefinitions: Map<string, BeanDefinition> = new Map();
 
-        containsBeanDefinition(beanName: string): boolean {
-            return this.registeredBeanDefinitions.has(beanName);
+        containsBeanDefinition(beanClass: Class): boolean;
+
+        containsBeanDefinition(beanName: string): boolean;
+
+        containsBeanDefinition(value: string | Class): boolean {
+            return Class.isClass(value) ? Collections.some(this.registeredBeanDefinitions, beanDef=> beanDef.clazz === value) :
+                this.registeredBeanDefinitions.has(<string>value);
         }
 
         registerBeanDefinition(beanName: string, beanDefinition: BeanDefinition): void {
@@ -17,12 +23,18 @@
             this.registeredBeanDefinitions.set(beanName, beanDefinition);
         }
 
-        getBeanDefinition(beanName: string): BeanDefinition {
-            if (!this.containsBeanDefinition(beanName)) {
-                throw new Error(`No such bean definitions found for name '${beanName}'`);
+        getBeanDefinition(beanClass: Class): BeanDefinition;
+        
+        getBeanDefinition(beanName: string): BeanDefinition;
+        
+        getBeanDefinition(val: string | Class): BeanDefinition {
+            if (!this.containsBeanDefinition(<any>val)) {
+                throw new Error(`No such bean definitions found for name '${Class.isClass(val) ? BeanNameGenerator.generateBeanName(val) : val}'`);
             }
 
-            return this.registeredBeanDefinitions.get(beanName);
+            return Class.isClass(val) ?
+                Collections.firstOrDefault(Collections.filter(this.registeredBeanDefinitions, beanDef=> beanDef.clazz === val)) :
+                this.registeredBeanDefinitions.get(val);
         }
 
         protected getRegisteredBeanDefinitions() {
