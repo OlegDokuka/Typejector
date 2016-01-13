@@ -42,8 +42,8 @@ namespace Typejector.Component.Factory.Support {
             registry.registerBeanDefinition("MockClass", mockBean);
             registry.registerBeanDefinition("ParentOfMock", parentOfMockBean);
 
-            new DefaultBeanDefinitionPostProcessor().postProcessBeanDefinition(registry);
-            new MergeBeanDefinitionPostProcessor().postProcessBeanDefinition(registry);
+            new DefaultBeanFactoryPostProcessor().postProcessBeanFactory(registry);
+            new MergeBeanFactoryPostProcessor().postProcessBeanFactory(registry);
 
             if (mockBean.methods.size != 2 || mockBean.properties.size != 2 || mockBean.dependsOn.size != 2) {
                 throw new Error("Incorrect BeanDefinition expected");

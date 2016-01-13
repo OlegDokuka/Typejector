@@ -470,7 +470,7 @@ declare namespace Typejector.Component.Factory.Support {
 }
 declare namespace Typejector.Component.Factory.Support {
     class MergeBeanFactoryPostProcessor extends BeanFactoryPostProcessor {
-        postProcessBeanDefinition(beanDefinitionRegistry: ConfigurableListableBeanFactory): void;
+        postProcessBeanFactory(beanDefinitionRegistry: ConfigurableListableBeanFactory): void;
         private groupBeanDefinition(beanDefinitions);
         private merge(beanDefinition, superBeanDefinition);
     }
@@ -485,8 +485,9 @@ declare namespace Typejector.Component.Factory.Support {
     }
 }
 declare namespace Typejector.Component.Factory.Support {
-    class InstantiationBeanFactoryPostProcessor extends BeanFactoryPostProcessor {
+    class InstantiationBeanFactoryPostProcessor extends MergedBeanFactoryPostProcessor {
         postProcessBeanFactory(configurableListableBeanFactory: ConfigurableListableBeanFactory): void;
+        private sortBeanDefinitions(configurableListableBeanFactory);
         private instantiateBean(beanDefinition);
     }
 }

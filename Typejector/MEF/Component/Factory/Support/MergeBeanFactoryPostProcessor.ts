@@ -5,7 +5,7 @@
 
     export class MergeBeanFactoryPostProcessor extends BeanFactoryPostProcessor {
 
-        public postProcessBeanDefinition(beanDefinitionRegistry: ConfigurableListableBeanFactory): void {
+        public postProcessBeanFactory(beanDefinitionRegistry: ConfigurableListableBeanFactory): void {
             const beanDefinitions = beanDefinitionRegistry.getBeanDefinitionNames()
                 .map(it=> beanDefinitionRegistry.getBeanDefinition(it));
             const groupedBeanDefinitions = this.groupBeanDefinition(beanDefinitions);
