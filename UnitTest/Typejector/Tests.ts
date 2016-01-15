@@ -8,6 +8,7 @@
 /// <reference path="Core/Type/ClassTest.ts"/>
 /// <reference path="Component/Factory/Support/DefaultBeanFactoryPostProcessorTest.ts"/>
 /// <reference path="Component/Factory/Support/MergeBeanFactoryPostProcessorTest.ts"/>
+/// <reference path="Component/Factory/Support/InstantiationBeanFactoryPostProcessorTest.ts"/>
 namespace Typejector{
 
 }

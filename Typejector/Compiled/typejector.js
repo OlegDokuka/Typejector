@@ -1391,7 +1391,6 @@ var Typejector;
                                 _this.processProperties(beanDefinition, it);
                             }
                         });
-                        this.processDependencies(beanDefinition, configurableListableBeanFactory);
                     };
                     DefaultBeanFactoryPostProcessor.prototype.processClassAnnotations = function (bean) {
                         var clazz = bean.clazz;
@@ -1442,16 +1441,6 @@ var Typejector;
                             bean.properties.add(descriptor);
                         }
                     };
-                    DefaultBeanFactoryPostProcessor.prototype.processDependencies = function (bean, beanFactory) {
-                        var dependencies = new Set();
-                        var addToDependencies = function (typeDescriptor) { return Collections.isCollection(typeDescriptor.clazz) ?
-                            typeDescriptor.genericTypes.forEach(function (type) { return dependencies.add(type); }) :
-                            dependencies.add(typeDescriptor.clazz); };
-                        bean.constructorArguments.forEach(addToDependencies);
-                        bean.methods.forEach(function (methodDesc) { return methodDesc.arguments.forEach(addToDependencies); });
-                        bean.properties.forEach(function (propertyDesc) { return addToDependencies(propertyDesc.clazz); });
-                        bean.dependsOn = Collections.flatMap(dependencies, function () { return new Set(); }, function (val) { return beanFactory.getBeanNamesOfType(val); }, function (collections, item) { return collections.add(item); });
-                    };
                     DefaultBeanFactoryPostProcessor.prototype.buildTypeDescriptor = function (src, propType, propKey, index) {
                         var paramDescriptor = new TypeDescriptor();
                         paramDescriptor.clazz = propType;
@@ -1482,17 +1471,28 @@ var Typejector;
                     function MergeBeanFactoryPostProcessor() {
                         _super.apply(this, arguments);
                     }
-                    MergeBeanFactoryPostProcessor.prototype.postProcessBeanDefinition = function (beanDefinitionRegistry) {
+                    MergeBeanFactoryPostProcessor.prototype.postProcessBeanFactory = function (configurableListableBeanFactory) {
                         var _this = this;
-                        var beanDefinitions = beanDefinitionRegistry.getBeanDefinitionNames()
-                            .map(function (it) { return beanDefinitionRegistry.getBeanDefinition(it); });
+                        var beanDefinitions = configurableListableBeanFactory.getBeanDefinitionNames()
+                            .map(function (it) { return configurableListableBeanFactory.getBeanDefinition(it); });
                         var groupedBeanDefinitions = this.groupBeanDefinition(beanDefinitions);
+                        beanDefinitions.forEach(function (beanDefinition) { return _this.processDependencies(beanDefinition, configurableListableBeanFactory); });
                         for (var i = 1; i < groupedBeanDefinitions.size; i++) {
-                            groupedBeanDefinitions.get(i).forEach(function (val) { return _this.merge(val, beanDefinitionRegistry.getBeanDefinition(val.parent)); });
+                            groupedBeanDefinitions.get(i).forEach(function (val) { return _this.merge(val, configurableListableBeanFactory.getBeanDefinition(val.parent)); });
                         }
                     };
+                    MergeBeanFactoryPostProcessor.prototype.processDependencies = function (bean, beanFactory) {
+                        var dependencies = new Set();
+                        var addToDependencies = function (typeDescriptor) { return Collections.isCollection(typeDescriptor.clazz) ?
+                            typeDescriptor.genericTypes.forEach(function (type) { return dependencies.add(type); }) :
+                            dependencies.add(typeDescriptor.clazz); };
+                        bean.constructorArguments.forEach(addToDependencies);
+                        bean.methods.forEach(function (methodDesc) { return methodDesc.arguments.forEach(addToDependencies); });
+                        bean.properties.forEach(function (propertyDesc) { return addToDependencies(propertyDesc.clazz); });
+                        bean.dependsOn = Collections.flatMap(dependencies, function () { return new Set(); }, function (val) { return beanFactory.getBeanNamesOfType(val); }, function (collections, item) { return collections.add(item); });
+                    };
                     MergeBeanFactoryPostProcessor.prototype.groupBeanDefinition = function (beanDefinitions) {
-                        return Collections.groupBy(beanDefinitions, function (val, index) {
+                        return Collections.groupBy(beanDefinitions, function (val) {
                             var parentsCount = 0;
                             var parentClass = val.clazz;
                             while ((parentClass = Class.getParentOf(parentClass))) {
@@ -1548,11 +1548,17 @@ var Typejector;
                         var _this = this;
                         Collections.filter(beanDefinition.methods, function (methodDesc) { return Collections.contains(methodDesc.annotations, factoryMethod); })
                             .forEach(function (methodDesc) {
-                            if (configurableListableBeanFactory.containsBeanDefinition)
-                                ;
-                            (configurableListableBeanFactory.getBeanDefinition());
-                            _this.initializaFactoryMethod(_this.initializeDefaultBeanDefinition(methodDesc, configurableListableBeanFactory), beanDefinition, methodDesc, configurableListableBeanFactory);
+                            var returnBeanClass = methodDesc.returnType.clazz;
+                            var returnBeanDefinition;
+                            if (configurableListableBeanFactory.containsBeanDefinition(returnBeanClass)) {
+                                returnBeanDefinition = configurableListableBeanFactory.getBeanDefinition(returnBeanClass);
+                            }
+                            else {
+                                returnBeanDefinition = _this.initializeDefaultBeanDefinition(methodDesc, configurableListableBeanFactory);
+                            }
+                            _this.initializaFactoryMethod(returnBeanDefinition, beanDefinition, methodDesc, configurableListableBeanFactory);
                         });
+                        this.lookupParentBeanDefinition(beanDefinition, configurableListableBeanFactory);
                     };
                     ConfigBeanFactoryPostProcessor.prototype.initializeDefaultBeanDefinition = function (methodDescriptor, configurableListableBeanFactory) {
                         var beanDefinition = new Support.Bean();
@@ -1563,8 +1569,9 @@ var Typejector;
                     };
                     ConfigBeanFactoryPostProcessor.prototype.lookupParentBeanDefinition = function (beanDefinition, configurableListableBeanFactory) {
                         var parentClass = Class.getParentOf(beanDefinition.clazz);
-                        if (parentClass) {
-                            var parentBeanDefinition = configurableListableBeanFactory.get;
+                        if (parentClass && configurableListableBeanFactory.containsBeanDefinition(parentClass)) {
+                            var parentBeanDefinition = configurableListableBeanFactory.getBeanDefinition(parentClass);
+                            this.processFactoryMethods(parentBeanDefinition, configurableListableBeanFactory);
                         }
                     };
                     ConfigBeanFactoryPostProcessor.prototype.initializaFactoryMethod = function (beanDefinition, configBeanDefiniton, factoryMethodDescriptor, configurableListableBeanFactory) {
@@ -1604,11 +1611,88 @@ var Typejector;
                             .filter(function (beanDefinition) { return Component.BeanUtils.isConfig(beanDefinition) || Component.BeanUtils.isSingleton(beanDefinition); })
                             .forEach(function (beanDefinition) { return _this.instantiateBean(beanDefinition); });
                     };
+                    InstantiationBeanFactoryPostProcessor.prototype.sortBeanDefinitions = function (configurableListableBeanFactory) {
+                        var sortingGraph = new Graph();
+                        var beanDefinitions = configurableListableBeanFactory.getBeanDefinitionNames()
+                            .map(function (name) { return configurableListableBeanFactory.getBeanDefinition(name); });
+                        var sortedBeanDefinitions = [];
+                        beanDefinitions.forEach(function (bd) { return sortingGraph.addNode(bd.name); });
+                        beanDefinitions.forEach(function (bd) { return bd.dependsOn.forEach(function (dependency) { return sortingGraph.addEdge(bd.name, dependency); }); });
+                        sortingGraph.sort().forEach(function (name) { return sortedBeanDefinitions.push(configurableListableBeanFactory.getBeanDefinition(name)); });
+                        return sortedBeanDefinitions;
+                    };
                     InstantiationBeanFactoryPostProcessor.prototype.instantiateBean = function (beanDefinition) {
                     };
                     return InstantiationBeanFactoryPostProcessor;
-                })(Factory.BeanFactoryPostProcessor);
+                })(Factory.MergedBeanFactoryPostProcessor);
                 Support.InstantiationBeanFactoryPostProcessor = InstantiationBeanFactoryPostProcessor;
+                var Node = (function () {
+                    function Node(id) {
+                        this.visited = false;
+                        this.precessed = false;
+                        this.edges = [];
+                        this.id = id;
+                    }
+                    return Node;
+                })();
+                ;
+                var Graph = (function () {
+                    function Graph() {
+                        this.nodes = [];
+                    }
+                    Graph.prototype.addNode = function (id) {
+                        if (this.findNode(id) < 0) {
+                            var edges = [];
+                            var n = new Node(id);
+                            this.nodes.push(n);
+                        }
+                    };
+                    Graph.prototype.addEdge = function (src, dst) {
+                        var i = this.findNode(src);
+                        var j = this.findNode(dst);
+                        if (i >= 0 && j >= 0) {
+                            this.nodes[i].edges.push(j);
+                        }
+                    };
+                    Graph.prototype.sort = function () {
+                        var _this = this;
+                        var nodesIndices = [];
+                        var nodesIdentities = [];
+                        var visit = function (n) {
+                            var node = _this.nodes[n];
+                            if (!node.visited) {
+                                if (node.precessed) {
+                                    throw new Error("Circular reference for \"" + node.id + "\"");
+                                }
+                                node.precessed = true;
+                                node.edges.forEach(visit);
+                                node.visited = true;
+                                nodesIndices.push(n);
+                            }
+                        };
+                        this.resetNodes();
+                        for (var i in this.nodes) {
+                            visit(i);
+                        }
+                        nodesIndices.forEach(function (index) { return nodesIdentities.push(_this.nodes[index].id); });
+                        return nodesIdentities;
+                    };
+                    Graph.prototype.resetNodes = function () {
+                        this.nodes.forEach(function (node) {
+                            node.visited = false;
+                            node.precessed = false;
+                        });
+                    };
+                    Graph.prototype.findNode = function (id) {
+                        for (var i = 0; i < this.nodes.length; i++) {
+                            if (this.nodes[i].id === id) {
+                                return i;
+                            }
+                        }
+                        return -1;
+                    };
+                    return Graph;
+                })();
             })(Support = Factory.Support || (Factory.Support = {}));
         })(Factory = Component.Factory || (Component.Factory = {}));
     })(Component = Typejector.Component || (Typejector.Component = {}));

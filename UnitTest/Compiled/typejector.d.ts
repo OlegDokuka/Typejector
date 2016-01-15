@@ -465,13 +465,13 @@ declare namespace Typejector.Component.Factory.Support {
         private processClassAnnotations(bean);
         private processMethods(bean, propKey);
         private processProperties(bean, propKey);
-        private processDependencies(bean, beanFactory);
         private buildTypeDescriptor(src, propType, propKey, index?);
     }
 }
 declare namespace Typejector.Component.Factory.Support {
     class MergeBeanFactoryPostProcessor extends BeanFactoryPostProcessor {
-        postProcessBeanFactory(beanDefinitionRegistry: ConfigurableListableBeanFactory): void;
+        postProcessBeanFactory(configurableListableBeanFactory: ConfigurableListableBeanFactory): void;
+        private processDependencies(bean, beanFactory);
         private groupBeanDefinition(beanDefinitions);
         private merge(beanDefinition, superBeanDefinition);
     }
@@ -486,9 +486,10 @@ declare namespace Typejector.Component.Factory.Support {
     }
 }
 declare namespace Typejector.Component.Factory.Support {
+    import BeanDefinition = Typejector.Component.Factory.Config.BeanDefinition;
     class InstantiationBeanFactoryPostProcessor extends MergedBeanFactoryPostProcessor {
         postProcessBeanFactory(configurableListableBeanFactory: ConfigurableListableBeanFactory): void;
-        private sortBeanDefinitions(configurableListableBeanFactory);
+        protected sortBeanDefinitions(configurableListableBeanFactory: ConfigurableListableBeanFactory): BeanDefinition[];
         private instantiateBean(beanDefinition);
     }
 }
@@ -602,6 +603,8 @@ declare namespace Typejector.Annotation {
 declare namespace Typejector.Util {
 }
 declare namespace Typejector.Type {
+}
+declare namespace Typejector.Component.Factory.Support {
 }
 declare namespace Typejector.Component.Factory.Support {
 }

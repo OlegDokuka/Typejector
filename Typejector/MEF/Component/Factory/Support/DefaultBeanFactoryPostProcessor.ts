@@ -46,8 +46,6 @@
                     this.processProperties(beanDefinition, it);
                 }
             });
-
-            this.processDependencies(beanDefinition, configurableListableBeanFactory);
         }
 
         private processClassAnnotations(bean: BeanDefinition) {
@@ -102,26 +100,6 @@
 
                 bean.properties.add(descriptor);
             }
-        }
-
-        private processDependencies(bean: BeanDefinition, beanFactory: ConfigurableListableBeanFactory) {
-            const dependencies = new Set();
-            const addToDependencies = (typeDescriptor: TypeDescriptor) => Collections.isCollection(typeDescriptor.clazz) ?
-                typeDescriptor.genericTypes.forEach(type=> dependencies.add(type)) :
-                dependencies.add(typeDescriptor.clazz);
-
-            bean.constructorArguments.forEach(addToDependencies);
-
-            bean.methods.forEach(methodDesc=> methodDesc.arguments.forEach(addToDependencies));
-
-            bean.properties.forEach(propertyDesc=> addToDependencies(propertyDesc.clazz));
-
-            bean.dependsOn = Collections.flatMap(
-                dependencies,
-                () => new Set(),
-                val=> beanFactory.getBeanNamesOfType(val),
-                (collections, item) => collections.add(item)
-            );
         }
 
         private buildTypeDescriptor(src: Class, propType: Class, propKey: string | symbol, index?: number) {

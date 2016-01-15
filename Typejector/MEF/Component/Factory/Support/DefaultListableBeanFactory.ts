@@ -54,7 +54,7 @@
         protected doGetBean(beanDefinition: BeanDefinition): any {
             let bean: any;
 
-            if (BeanUtils.isAbstract(beanDefinition)) {
+            if (BeanUtils.isAbstract(beanDefinition) && !beanDefinition.factoryMethodName) {
                 const beanDefinitions: BeanDefinition[]
                     = this.doGetBeanDefinitionsOfType(beanDefinition.clazz);
 

@@ -26,7 +26,7 @@ namespace Typejector.Component.Factory.Support {
 
             new DefaultBeanFactoryPostProcessor().postProcessBeanFactory(<any>registry);
 
-            if (!mockBean.methods.size || !mockBean.properties.size || !mockBean.dependsOn.size) {
+            if (!mockBean.methods.size || !mockBean.properties.size) {
                 throw new Error("Incorrect BeanDefinition expected");
             }
         });

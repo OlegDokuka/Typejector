@@ -16,7 +16,8 @@
 
             return this.doCreateBean(beanDefinition);
         }
-
+        //todo provide annotations analysing 
+        
         protected doCreateBean(beanDefinition: BeanDefinition) {
             let bean: any,
                 scope: Scope = this.getRegisteredScope(beanDefinition.scope),
