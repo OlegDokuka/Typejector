@@ -5,7 +5,7 @@
         clazz: Class;
         parent: string;
 
-        annotations: Set<Function> = new Set();
+        annotations: Map<Function, any> = new Map();
 
         name: string;
         scope: string = "prototype";

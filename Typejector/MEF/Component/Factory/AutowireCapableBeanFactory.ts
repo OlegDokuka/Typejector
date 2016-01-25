@@ -1,7 +1,7 @@
 ﻿namespace Typejector.Component.Factory {
     import Class = Type.Class;
     import BeanDefinition = Config.BeanDefinition;
-    import TypeDescriptor = Config.TypeDescriptor;
+    import ReferenceDescriptor = Config.ReferenceDescriptor;
 
     export interface AutowireCapableBeanFactory extends BeanFactory {
         createBean<T>(clazz: Class): T;
@@ -12,6 +12,6 @@
 
         applyBeanPostProcessorsAfterInitialization<T>(existingBean: T, beanDefinititon: BeanDefinition): T;
 
-        resolveDependency(typeDescriptor: TypeDescriptor): any;
+        resolveDependency(typeDescriptor: ReferenceDescriptor): any;
     }
 } 

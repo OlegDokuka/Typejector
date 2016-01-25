@@ -11,7 +11,6 @@
     import ConfigBeanFactoryPostProcessor = Component.Factory.Support.ConfigBeanFactoryPostProcessor;
     import InstantiationBeanFactoryPostProcessor = Component.Factory.Support.InstantiationBeanFactoryPostProcessor;
     import MergedBeanFactoryPostProcessor = Component.Factory.MergedBeanFactoryPostProcessor;
-    import MethodDependencyDescriptor = Config.MethodDependencyDescriptor;
     import singleton = Annotation.singleton;
     import SingletonScope = Typejector.Component.Factory.Support.SingletonScope;
 
@@ -25,13 +24,13 @@
 
         refresh() {
             const singletonScope = this.mainBeanFactory.getRegisteredScope(SingletonScope.NAME);
-            
+
             this.beanFactoryPostProcessors = [];
             this.mainBeanFactory.getBeanDefinitionNames().forEach(name=> singletonScope.remove(name));
-            
+
             this.initialize();
             this.initializePostProcessors();
-            
+
             this.beanFactoryPostProcessors
                 .filter(bfpp=> !(bfpp instanceof MergedBeanFactoryPostProcessor))
                 .forEach(bfpp=> bfpp.postProcessBeanFactory(this.mainBeanFactory));
@@ -53,7 +52,7 @@
             applicationContextBeanDefinition.name = BeanNameGenerator.generateBeanName(ApplicationContext);
             applicationContextBeanDefinition.clazz = ApplicationContext;
             applicationContextBeanDefinition.factoryMethodName = applicationContextBeanDefinition.name;
-            applicationContextBeanDefinition.annotations.add(singleton);
+            applicationContextBeanDefinition.annotations.set(singleton, {});
 
             this.mainBeanFactory.registerFactory(applicationContextBeanDefinition.factoryMethodName, {
                 getObject: () => this

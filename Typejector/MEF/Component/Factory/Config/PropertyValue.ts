@@ -1,9 +1,9 @@
 namespace Typejector.Component.Factory.Config {
     import Class = Typejector.Type.Class;
+    import Provider = Typejector.Component.Factory.Support.Provider;
 
     export interface PropertyValue {
-        name?: string;
-        instance: Object;
-        type: TypeDescriptor;
+        instanceGetter: ObjectFactory<any>;
+        reference: ReferenceDescriptor;
     }
 } 

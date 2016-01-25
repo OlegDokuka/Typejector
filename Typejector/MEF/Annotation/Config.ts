@@ -2,7 +2,7 @@
     import Class = Type.Class;
 
     export function config(clazz: Class) {
-        injection(clazz, config, singleton);
+        component(clazz, config, singleton);
     }
 
 }  

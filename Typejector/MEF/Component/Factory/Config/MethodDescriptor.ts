@@ -2,7 +2,7 @@
     import Class = Type.Class;
     export interface MethodDescriptor extends AnnotatedObject {
         name: string;
-        arguments: Array<TypeDescriptor>;
+        arguments: Array<MethodArgumentDescriptor>;
         returnType: TypeDescriptor;
     }
 } 

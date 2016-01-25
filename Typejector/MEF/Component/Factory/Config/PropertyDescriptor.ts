@@ -2,6 +2,6 @@
     import Class = Type.Class;
     export interface PropertyDescriptor extends AnnotatedObject {
         name: string;
-        clazz: TypeDescriptor;
+        type: TypeDescriptor;
     }
 } 

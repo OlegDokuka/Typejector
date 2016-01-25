@@ -2,6 +2,7 @@
     import Class = Type.Class;
     import BeanDefinition = Config.BeanDefinition;
     import TypeDescriptor = Config.TypeDescriptor;
+    import ReferenceDescriptor = Config.ReferenceDescriptor;
     import Scope = Config.Scope;
     import Collections = Typejector.Util.Collections;
 
@@ -71,7 +72,7 @@
             return bean;
         }
         
-        protected doResolveDependency(typeDescriptor: TypeDescriptor): any {
+        protected doResolveDependency(typeDescriptor: ReferenceDescriptor): any {
             let result;
 
             if (Collections.isCollection(typeDescriptor.clazz)) {

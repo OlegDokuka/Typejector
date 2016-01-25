@@ -10,12 +10,10 @@
         constructor(private beanFactory: ConfigurableListableBeanFactory) {
             super();
         }
-     
-        public processPropertyValues(...propertyValues: PropertyValue[]): boolean{
-           
 
-            
-            
+        public processPropertyValues(...propertyValues: PropertyValue[]): boolean {
+            propertyValues.forEach((val, index) => val.instanceGetter = { getObject: () => this.beanFactory.resolveDependency(val.reference) });
+
             return true;
         }
 

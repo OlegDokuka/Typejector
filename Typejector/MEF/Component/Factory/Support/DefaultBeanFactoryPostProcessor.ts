@@ -93,7 +93,7 @@
             if (Collections.contains(annotations, inject)) {
                 const descriptor: PropertyDescriptor = {
                     name: propKey,
-                    clazz: this.buildTypeDescriptor(clazz, Reflection.getType(clazz.prototype, propKey), propKey),
+                    type: this.buildTypeDescriptor(clazz, Reflection.getType(clazz.prototype, propKey), propKey),
                     annotations: annotations
                 };
 

@@ -29,7 +29,7 @@
 
             bean.methods.forEach(methodDesc=> methodDesc.arguments.forEach(addToDependencies));
 
-            bean.properties.forEach(propertyDesc=> addToDependencies(propertyDesc.clazz));
+            bean.properties.forEach(propertyDesc=> addToDependencies(propertyDesc.type));
 
             bean.dependsOn = Collections.flatMap(
                 dependencies,

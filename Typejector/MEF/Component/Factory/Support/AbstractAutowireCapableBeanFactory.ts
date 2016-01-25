@@ -2,6 +2,7 @@
     import Class = Typejector.Type.Class;
     import BeanDefinition = Config.BeanDefinition;
     import ReferenceDescriptor = Config.ReferenceDescriptor;
+    import PropertyValue = Config.PropertyValue;
     import Collections = Typejector.Util.Collections;
     import postConstructor = Annotation.postConstructor;
     import ObjectFactory = Factory.ObjectFactory;
@@ -47,14 +48,16 @@
 
 
             instance = this.applyBeanPostProcessorsBeforeInitialization(instance, beanDefinition);
-            
-            beanDefinition.properties.forEach(property=> {
-                if (property.annotations.has(lazy)) {
-                    Object.defineProperty(instance, property.name, Provider.of(() => this.beanFactory.resolveDependency(property.clazz)))
-                } else {
-                    instance[property.name] = this.resolveDependency(property.clazz);
-                }
-            });
+
+            Collections.map(beanDefinition.properties, () => [], (val, index) => {
+                const reference: ReferenceDescriptor = new ReferenceDescriptor();
+                const propertyValue: PropertyValue = { instanceGetter: undefined, reference: reference };
+
+                reference.clazz = val.type.clazz
+                reference.genericTypes = val.type.genericTypes;
+                reference.annotations = Annotations.get(beanDefinition.clazz.prototype, val.name);
+                
+            }, (coll, item) => coll.push(item));
 
 
             Collections.filter(beanDefinition.methods, (it) => Collections.contains(it.annotations, inject)).forEach((method) => {
@@ -69,7 +72,7 @@
 
 
             instance = this.applyBeanPostProcessorsAfterInitialization(instance, beanDefinition);
-            
+
             return instance;
         }
 
