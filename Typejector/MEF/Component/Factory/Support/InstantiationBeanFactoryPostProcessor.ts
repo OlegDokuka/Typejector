@@ -5,10 +5,26 @@
     import factoryMethod = Annotation.factoryMethod;
 
     export class InstantiationBeanFactoryPostProcessor extends MergedBeanFactoryPostProcessor {
+        constructor(private context: Context.ApplicationContext) {
+            super();
+        }
+
         postProcessBeanFactory(configurableListableBeanFactory: ConfigurableListableBeanFactory): void {
-            this.sortBeanDefinitions(configurableListableBeanFactory)
+            const sortedBeanDefinitions = this.sortBeanDefinitions(configurableListableBeanFactory);
+
+            sortedBeanDefinitions
+                .filter(beanDefinition=> beanDefinition.clazz !== BeanPostProcessor && Class.isAssignable(<any>BeanPostProcessor, beanDefinition.clazz))
+                .map(beanDefinition=> <BeanPostProcessor>this.instantiateBean(beanDefinition, configurableListableBeanFactory))
+                .forEach(beanPostProcessor=> configurableListableBeanFactory.addBeanPostProcessor(beanPostProcessor));
+
+            sortedBeanDefinitions
                 .filter(beanDefinition=> (BeanUtils.isConfig(beanDefinition) || BeanUtils.isSingleton(beanDefinition)) && !beanDefinition.isLazyInit)
                 .forEach(beanDefinition=> this.instantiateBean(beanDefinition, configurableListableBeanFactory));
+
+            sortedBeanDefinitions
+                .filter(beanDefinition=> beanDefinition.clazz !== BeanFactoryPostProcessor && Class.isAssignable(<any>BeanFactoryPostProcessor, beanDefinition.clazz))
+                .map(beanDefinition=> <BeanFactoryPostProcessor>this.instantiateBean(beanDefinition, configurableListableBeanFactory))
+                .forEach(beanFactoryPostProcessor=> this.context.addBeanFactoryPostProcessor(beanFactoryPostProcessor));
         }
 
         protected sortBeanDefinitions(configurableListableBeanFactory: ConfigurableListableBeanFactory) {
@@ -26,7 +42,7 @@
         }
 
         private instantiateBean(beanDefinition: BeanDefinition, configurableListableBeanFactory: ConfigurableListableBeanFactory) {
-            configurableListableBeanFactory.getBean(beanDefinition.name);
+            return configurableListableBeanFactory.getBean(beanDefinition.name);
         }
     }
 

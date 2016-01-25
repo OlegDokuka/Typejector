@@ -49,6 +49,12 @@ declare namespace Typejector.Util {
             forEach(callbackfn: (value: T, index: any, collection: any) => void);
         }, predicate: (val: T, index) => boolean): boolean;
         static keys<T>(src: Map<T, any>): T[];
+        static toArray<T>(src: {
+            forEach(callbackfn: (value: T, index: any, collection: any) => void);
+        }): any;
+        static toArray<T, U>(src: {
+            forEach(callbackfn: (value: T, index: any, collection: any) => void);
+        }, transformer: (val: T, key: any) => U): any;
         static isCollection(obj: any): boolean;
     }
 }
@@ -366,6 +372,17 @@ declare namespace Typejector.Component.Factory.Config {
     }
 }
 declare namespace Typejector.Component.Factory.Support {
+    class Provider<T> implements TypedPropertyDescriptor<T> {
+        private cachedValue;
+        private getter;
+        configurable: boolean;
+        enumerable: boolean;
+        get: () => T;
+        set: (value: T) => void;
+        static of<T>(getter: () => T): Provider<T>;
+    }
+}
+declare namespace Typejector.Component.Factory.Support {
     import Scope = Config.Scope;
     class PrototypeScope implements Scope {
         get<T>(name: string, objectFactory: ObjectFactory<T>): T;
@@ -488,9 +505,11 @@ declare namespace Typejector.Component.Factory.Support {
 declare namespace Typejector.Component.Factory.Support {
     import BeanDefinition = Typejector.Component.Factory.Config.BeanDefinition;
     class InstantiationBeanFactoryPostProcessor extends MergedBeanFactoryPostProcessor {
+        private context;
+        constructor(context: Context.ApplicationContext);
         postProcessBeanFactory(configurableListableBeanFactory: ConfigurableListableBeanFactory): void;
         protected sortBeanDefinitions(configurableListableBeanFactory: ConfigurableListableBeanFactory): BeanDefinition[];
-        private instantiateBean(beanDefinition);
+        private instantiateBean(beanDefinition, configurableListableBeanFactory);
     }
 }
 declare namespace Typejector.Component.Factory.Support {
@@ -571,28 +590,38 @@ declare namespace Typejector.Component.Context {
     import BeanFactory = Factory.BeanFactory;
     import TypeDescription = Factory.Config.TypeDescriptor;
     import ConfigurableListableBeanFactory = Component.Factory.ConfigurableListableBeanFactory;
+    import BeanFactoryPostProcessor = Typejector.Component.Factory.BeanFactoryPostProcessor;
     interface Context extends BeanFactory {
         register(typeDescriptor: TypeDescription): any;
+        refresh(): void;
+        run(): void;
         getBeanFactory(): ConfigurableListableBeanFactory;
+        addBeanFactoryPostProcessor(beanFactoryPostProcessor: BeanFactoryPostProcessor): any;
     }
 }
 declare namespace Typejector.Component.Context {
     import Class = Type.Class;
     import ConfigurableListableBeanFactory = Factory.ConfigurableListableBeanFactory;
     import TypeDescription = Factory.Config.TypeDescriptor;
+    import BeanFactoryPostProcessor = Typejector.Component.Factory.BeanFactoryPostProcessor;
     class ApplicationContext implements Context {
         private mainBeanFactory;
+        private beanFactoryPostProcessors;
         constructor();
+        refresh(): void;
+        private initializePostProcessors();
         private initialize();
         register(typeDescriptor: TypeDescription): void;
         getBean<T>(beanName: string): T;
         getBean<T>(clazz: Class): T;
         getBeanFactory(): ConfigurableListableBeanFactory;
+        addBeanFactoryPostProcessor(beanFactoryPostProcessor: BeanFactoryPostProcessor): void;
+        run(): void;
     }
 }
-declare module Typejector {
+declare namespace Typejector {
     import Context = Component.Context.Context;
-    function getContext(): Context;
+    let context: Context;
 }
 declare namespace Typejector.Annotation {
 }
@@ -603,6 +632,8 @@ declare namespace Typejector.Annotation {
 declare namespace Typejector.Util {
 }
 declare namespace Typejector.Type {
+}
+declare namespace Typejector.Component.Factory.Support {
 }
 declare namespace Typejector.Component.Factory.Support {
 }

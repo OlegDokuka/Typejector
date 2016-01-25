@@ -1,13 +1,15 @@
 ﻿module Typejector.Component.Factory.Support {
     import Class = Typejector.Type.Class;
     import BeanDefinition = Config.BeanDefinition;
-    import TypeDescriptor = Config.TypeDescriptor;
+    import ReferenceDescriptor = Config.ReferenceDescriptor;
     import Collections = Typejector.Util.Collections;
-    import inject = Annotation.inject;
     import postConstructor = Annotation.postConstructor;
     import ObjectFactory = Factory.ObjectFactory;
     import Scope = Factory.Config.Scope;
-    //todo: singleton not working. Rethink instance creation  flow
+    import Annotations = Typejector.Annotation.Annotations;
+    import inject = Annotation.inject;
+    import lazy = Annotation.lazy;
+
     export abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
         createBean<T>(clazz: Class): T {
             assert(clazz);
@@ -16,8 +18,7 @@
 
             return this.doCreateBean(beanDefinition);
         }
-        //todo provide annotations analysing 
-        
+
         protected doCreateBean(beanDefinition: BeanDefinition) {
             let bean: any,
                 scope: Scope = this.getRegisteredScope(beanDefinition.scope),
@@ -31,11 +32,7 @@
                         return instance;
                     }
 
-                    instance = this.applyBeanPostProcessorsBeforeInitialization(instance, beanDefinition);
-
                     instance = this.initializeBean(instance, beanDefinition);
-
-                    instance = this.applyBeanPostProcessorsAfterInitialization(instance, beanDefinition);
 
                     return instance;
                 }
@@ -48,19 +45,31 @@
             assert(instance);
             assert(beanDefinition);
 
-            beanDefinition.properties.forEach(property=> instance[property.name] = this.resolveDependency(property.clazz));
+
+            instance = this.applyBeanPostProcessorsBeforeInitialization(instance, beanDefinition);
+            
+            beanDefinition.properties.forEach(property=> {
+                if (property.annotations.has(lazy)) {
+                    Object.defineProperty(instance, property.name, Provider.of(() => this.beanFactory.resolveDependency(property.clazz)))
+                } else {
+                    instance[property.name] = this.resolveDependency(property.clazz);
+                }
+            });
 
 
             Collections.filter(beanDefinition.methods, (it) => Collections.contains(it.annotations, inject)).forEach((method) => {
                 const args = [];
 
                 for (let argType of method.arguments) {
-                    args.push(this.resolveDependency(argType));
+                    args.push(this.beanFactory.resolveDependency(argType));
                 }
 
                 instance[method.name].apply(instance, args);
             });
 
+
+            instance = this.applyBeanPostProcessorsAfterInitialization(instance, beanDefinition);
+            
             return instance;
         }
 
@@ -128,12 +137,12 @@
             };
         }
 
-        resolveDependency(typeDescriptor: TypeDescriptor): any {
+        resolveDependency(typeDescriptor: ReferenceDescriptor): any {
             assert(typeDescriptor);
 
             return this.doResolveDependency(typeDescriptor);
         }
 
-        protected abstract doResolveDependency(typeDescriptor: TypeDescriptor): any;
+        protected abstract doResolveDependency(typeDescriptor: ReferenceDescriptor): any;
     }
 }

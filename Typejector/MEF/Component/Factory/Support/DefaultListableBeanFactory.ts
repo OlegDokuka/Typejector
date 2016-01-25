@@ -70,6 +70,7 @@
 
             return bean;
         }
+        
         protected doResolveDependency(typeDescriptor: TypeDescriptor): any {
             let result;
 

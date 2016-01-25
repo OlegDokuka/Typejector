@@ -154,6 +154,16 @@ var Typejector;
                 src.forEach(function (val, key) { return keys.push(key); });
                 return keys;
             };
+            Collections.toArray = function (src, transformer) {
+                var result = [];
+                if (transformer) {
+                    src.forEach(function (val, key) { return result.push(transformer(val, key)); });
+                }
+                else {
+                    src.forEach(function (val) { return result.push(val); });
+                }
+                return result;
+            };
             Collections.isCollection = function (obj) {
                 return Class.isClass(obj) ?
                     obj == Map || obj == Set || obj == WeakMap || obj == WeakSet :
@@ -1237,6 +1247,42 @@ var Typejector;
         (function (Factory) {
             var Support;
             (function (Support) {
+                var Provider = (function () {
+                    function Provider() {
+                        var _this = this;
+                        this.configurable = true;
+                        this.enumerable = true;
+                        this.get = function () {
+                            if (_this.cachedValue == undefined) {
+                                _this.cachedValue = _this.getter();
+                            }
+                            return _this.cachedValue;
+                        };
+                        this.set = function (value) {
+                            _this.cachedValue = value;
+                        };
+                    }
+                    Provider.of = function (getter) {
+                        assert(getter);
+                        var provider = new Provider();
+                        provider.getter = getter;
+                        return provider;
+                    };
+                    return Provider;
+                })();
+                Support.Provider = Provider;
+            })(Support = Factory.Support || (Factory.Support = {}));
+        })(Factory = Component.Factory || (Component.Factory = {}));
+    })(Component = Typejector.Component || (Typejector.Component = {}));
+})(Typejector || (Typejector = {}));
+var Typejector;
+(function (Typejector) {
+    var Component;
+    (function (Component) {
+        var Factory;
+        (function (Factory) {
+            var Support;
+            (function (Support) {
                 var PrototypeScope = (function () {
                     function PrototypeScope() {
                     }
@@ -1599,17 +1645,27 @@ var Typejector;
         (function (Factory) {
             var Support;
             (function (Support) {
+                var Class = Typejector.Type.Class;
                 var InstantiationBeanFactoryPostProcessor = (function (_super) {
                     __extends(InstantiationBeanFactoryPostProcessor, _super);
-                    function InstantiationBeanFactoryPostProcessor() {
-                        _super.apply(this, arguments);
+                    function InstantiationBeanFactoryPostProcessor(context) {
+                        _super.call(this);
+                        this.context = context;
                     }
                     InstantiationBeanFactoryPostProcessor.prototype.postProcessBeanFactory = function (configurableListableBeanFactory) {
                         var _this = this;
-                        configurableListableBeanFactory.getBeanDefinitionNames()
-                            .map(function (name) { return configurableListableBeanFactory.getBeanDefinition(name); })
-                            .filter(function (beanDefinition) { return Component.BeanUtils.isConfig(beanDefinition) || Component.BeanUtils.isSingleton(beanDefinition); })
-                            .forEach(function (beanDefinition) { return _this.instantiateBean(beanDefinition); });
+                        var sortedBeanDefinitions = this.sortBeanDefinitions(configurableListableBeanFactory);
+                        sortedBeanDefinitions
+                            .filter(function (beanDefinition) { return Class.isAssignable(Factory.BeanPostProcessor, beanDefinition.clazz); })
+                            .map(function (beanDefinition) { return _this.instantiateBean(beanDefinition, configurableListableBeanFactory); })
+                            .forEach(function (beanPostProcessor) { return configurableListableBeanFactory.addBeanPostProcessor(beanPostProcessor); });
+                        sortedBeanDefinitions
+                            .filter(function (beanDefinition) { return (Component.BeanUtils.isConfig(beanDefinition) || Component.BeanUtils.isSingleton(beanDefinition)) && !beanDefinition.isLazyInit; })
+                            .forEach(function (beanDefinition) { return _this.instantiateBean(beanDefinition, configurableListableBeanFactory); });
+                        sortedBeanDefinitions
+                            .filter(function (beanDefinition) { return Class.isAssignable(Factory.BeanFactoryPostProcessor, beanDefinition.clazz); })
+                            .map(function (beanDefinition) { return _this.instantiateBean(beanDefinition, configurableListableBeanFactory); })
+                            .forEach(function (beanFactoryPostProcessor) { return _this.context.addBeanFactoryPostProcessor(beanFactoryPostProcessor); });
                     };
                     InstantiationBeanFactoryPostProcessor.prototype.sortBeanDefinitions = function (configurableListableBeanFactory) {
                         var sortingGraph = new Graph();
@@ -1621,7 +1677,8 @@ var Typejector;
                         sortingGraph.sort().forEach(function (name) { return sortedBeanDefinitions.push(configurableListableBeanFactory.getBeanDefinition(name)); });
                         return sortedBeanDefinitions;
                     };
-                    InstantiationBeanFactoryPostProcessor.prototype.instantiateBean = function (beanDefinition) {
+                    InstantiationBeanFactoryPostProcessor.prototype.instantiateBean = function (beanDefinition, configurableListableBeanFactory) {
+                        return configurableListableBeanFactory.getBean(beanDefinition.name);
                     };
                     return InstantiationBeanFactoryPostProcessor;
                 })(Factory.MergedBeanFactoryPostProcessor);
@@ -1794,6 +1851,7 @@ var Typejector;
             var Support;
             (function (Support) {
                 var Class = Typejector.Type.Class;
+                var Collections = Typejector.Util.Collections;
                 var AbstractBeanFactory = (function (_super) {
                     __extends(AbstractBeanFactory, _super);
                     function AbstractBeanFactory() {
@@ -1801,13 +1859,13 @@ var Typejector;
                         this.prototypeScope = new Support.PrototypeScope();
                         this.singletonScope = new Support.SingletonScope();
                         this.registeredScopes = [];
-                        this.beanPostProcessors = [];
+                        this.beanPostProcessors = new Set();
                     }
                     AbstractBeanFactory.prototype.addBeanPostProcessor = function (beanPostProcessor) {
-                        this.beanPostProcessors.push(beanPostProcessor);
+                        this.beanPostProcessors.add(beanPostProcessor);
                     };
                     AbstractBeanFactory.prototype.getBeanPostProcessors = function () {
-                        return this.beanPostProcessors;
+                        return Collections.toArray(this.beanPostProcessors);
                     };
                     AbstractBeanFactory.prototype.getBean = function (item) {
                         var beanDefinition;
@@ -1852,6 +1910,7 @@ var Typejector;
             (function (Support) {
                 var Collections = Typejector.Util.Collections;
                 var inject = Typejector.Annotation.inject;
+                var lazy = Typejector.Annotation.lazy;
                 var postConstructor = Typejector.Annotation.postConstructor;
                 var AbstractAutowireCapableBeanFactory = (function (_super) {
                     __extends(AbstractAutowireCapableBeanFactory, _super);
@@ -1884,7 +1943,14 @@ var Typejector;
                         var _this = this;
                         assert(instance);
                         assert(beanDefinition);
-                        beanDefinition.properties.forEach(function (property) { return instance[property.name] = _this.resolveDependency(property.clazz); });
+                        beanDefinition.properties.forEach(function (property) {
+                            if (property.annotations.has(lazy)) {
+                                Object.defineProperty(instance, property.name, Support.Provider.of(function () { return _this.resolveDependency(property.clazz); }));
+                            }
+                            else {
+                                instance[property.name] = _this.resolveDependency(property.clazz);
+                            }
+                        });
                         Collections.filter(beanDefinition.methods, function (it) { return Collections.contains(it.annotations, inject); }).forEach(function (method) {
                             var args = [];
                             for (var _i = 0, _a = method.arguments; _i < _a.length; _i++) {
@@ -1999,7 +2065,7 @@ var Typejector;
                     };
                     DefaultListableBeanFactory.prototype.doGetBean = function (beanDefinition) {
                         var bean;
-                        if (Component.BeanUtils.isAbstract(beanDefinition)) {
+                        if (Component.BeanUtils.isAbstract(beanDefinition) && !beanDefinition.factoryMethodName) {
                             var beanDefinitions = this.doGetBeanDefinitionsOfType(beanDefinition.clazz);
                             if (!beanDefinitions.length) {
                                 throw new Error("No " + beanDefinition.name + " class found");
@@ -2036,12 +2102,38 @@ var Typejector;
         (function (Context) {
             var BeanNameGenerator = Component.Factory.Support.BeanNameGenerator;
             var Bean = Component.Factory.Support.Bean;
+            var DefaultBeanFactoryPostProcessor = Component.Factory.Support.DefaultBeanFactoryPostProcessor;
+            var MergeBeanFactoryPostProcessor = Component.Factory.Support.MergeBeanFactoryPostProcessor;
+            var ConfigBeanFactoryPostProcessor = Component.Factory.Support.ConfigBeanFactoryPostProcessor;
+            var InstantiationBeanFactoryPostProcessor = Component.Factory.Support.InstantiationBeanFactoryPostProcessor;
+            var MergedBeanFactoryPostProcessor = Component.Factory.MergedBeanFactoryPostProcessor;
             var singleton = Typejector.Annotation.singleton;
+            var SingletonScope = Typejector.Component.Factory.Support.SingletonScope;
             var ApplicationContext = (function () {
                 function ApplicationContext() {
                     this.mainBeanFactory = new Component.Factory.Support.DefaultListableBeanFactory();
+                    this.beanFactoryPostProcessors = [];
                     this.initialize();
+                    this.initializePostProcessors();
                 }
+                ApplicationContext.prototype.refresh = function () {
+                    var _this = this;
+                    var singletonScope = this.mainBeanFactory.getRegisteredScope(SingletonScope.NAME);
+                    this.mainBeanFactory.getBeanDefinitionNames().forEach(function (name) { return singletonScope.remove(name); });
+                    this.beanFactoryPostProcessors = [];
+                    this.beanFactoryPostProcessors
+                        .filter(function (bfpp) { return !(bfpp instanceof MergedBeanFactoryPostProcessor); })
+                        .forEach(function (bfpp) { return bfpp.postProcessBeanFactory(_this.mainBeanFactory); });
+                    this.beanFactoryPostProcessors
+                        .filter(function (bfpp) { return !(bfpp instanceof MergedBeanFactoryPostProcessor); })
+                        .forEach(function (bfpp) { return bfpp.postProcessBeanFactory; });
+                };
+                ApplicationContext.prototype.initializePostProcessors = function () {
+                    this.beanFactoryPostProcessors.push(new DefaultBeanFactoryPostProcessor());
+                    this.beanFactoryPostProcessors.push(new MergeBeanFactoryPostProcessor());
+                    this.beanFactoryPostProcessors.push(new ConfigBeanFactoryPostProcessor());
+                    this.beanFactoryPostProcessors.push(new InstantiationBeanFactoryPostProcessor(this));
+                };
                 ApplicationContext.prototype.initialize = function () {
                     var _this = this;
                     var applicationContextBeanDefinition = new Bean();
@@ -2060,6 +2152,15 @@ var Typejector;
                     return this.mainBeanFactory.getBean(item);
                 };
                 ApplicationContext.prototype.getBeanFactory = function () { return this.mainBeanFactory; };
+                ApplicationContext.prototype.addBeanFactoryPostProcessor = function (beanFactoryPostProcessor) {
+                    this.beanFactoryPostProcessors.push(beanFactoryPostProcessor);
+                };
+                ApplicationContext.prototype.run = function () {
+                    var _this = this;
+                    var beanDefinitions = new Typejector.Annotation.ClassBeanDefinitionScanner().scan();
+                    beanDefinitions.forEach(function (beanDefinition) { return _this.mainBeanFactory.registerBeanDefinition(BeanNameGenerator.generateBeanName(beanDefinition.clazz), beanDefinition); });
+                    this.refresh();
+                };
                 return ApplicationContext;
             })();
             Context.ApplicationContext = ApplicationContext;
@@ -2069,11 +2170,8 @@ var Typejector;
 var Typejector;
 (function (Typejector) {
     var ApplicationContext = Typejector.Component.Context.ApplicationContext;
-    var context = new ApplicationContext();
-    function getContext() {
-        return context;
-    }
-    Typejector.getContext = getContext;
+    var applicationContext = new ApplicationContext();
+    Object.defineProperty(Typejector, "context", { configurable: false, get: function () { return applicationContext; }, enumerable: true });
 })(Typejector || (Typejector = {}));
 var Typejector;
 (function (Typejector) {
@@ -2365,6 +2463,27 @@ var Typejector;
                         sortedBeanDefinitions = (new Support.InstantiationBeanFactoryPostProcessor()).sortBeanDefinitions(registry);
                         if (sortedBeanDefinitions[0] !== parentOfMockBean && sortedBeanDefinitions[1] !== mockBean) {
                             throw new Error("Incorrect sorting expected");
+                        }
+                    });
+                });
+            })(Support = Factory.Support || (Factory.Support = {}));
+        })(Factory = Component.Factory || (Component.Factory = {}));
+    })(Component = Typejector.Component || (Typejector.Component = {}));
+})(Typejector || (Typejector = {}));
+var Typejector;
+(function (Typejector) {
+    var Component;
+    (function (Component) {
+        var Factory;
+        (function (Factory) {
+            var Support;
+            (function (Support) {
+                describe("Provider Integration Test", function () {
+                    it("Test that provider correctly works", function () {
+                        var testObj = {};
+                        Object.defineProperty(testObj, "testProp", Support.Provider.of(function () { return "Hello World!"; }));
+                        if (testObj["testProp"] !== "Hello World!") {
+                            throw new Error("Provider return unexpected value");
                         }
                     });
                 });

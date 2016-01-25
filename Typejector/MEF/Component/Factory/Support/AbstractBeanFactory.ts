@@ -1,6 +1,6 @@
 ﻿module Typejector.Component.Factory.Support {
     import Class = Type.Class;
-
+    import Collections = Typejector.Util.Collections;
     import BeanDefinition = Config.BeanDefinition;
     import Scope = Config.Scope;
 
@@ -8,14 +8,14 @@
         private prototypeScope = new PrototypeScope();
         private singletonScope = new SingletonScope();
         private registeredScopes: Array<Scope> = [];
-        private beanPostProcessors: Array<BeanPostProcessor> = [];
+        private beanPostProcessors: Set<BeanPostProcessor> = new Set();
 
         addBeanPostProcessor(beanPostProcessor: BeanPostProcessor): void {
-            this.beanPostProcessors.push(beanPostProcessor);
+            this.beanPostProcessors.add(beanPostProcessor);
         }
 
         getBeanPostProcessors(): Array<BeanPostProcessor> {
-            return this.beanPostProcessors;
+            return Collections.toArray(this.beanPostProcessors);
         }
 
         getBean<T>(beanName: string): T;

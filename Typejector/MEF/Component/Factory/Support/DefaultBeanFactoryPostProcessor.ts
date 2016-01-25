@@ -17,7 +17,6 @@
     import lazy = Typejector.Annotation.lazy;
     import factoryMethod = Typejector.Annotation.factoryMethod;
 
-    //todo: provide dependencOn seeking
     export class DefaultBeanFactoryPostProcessor extends BeanFactoryPostProcessor {
         postProcessBeanFactory(configurableListableBeanFactory: ConfigurableListableBeanFactory): void {
             configurableListableBeanFactory

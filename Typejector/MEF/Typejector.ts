@@ -12,11 +12,13 @@
 ///<reference path="Annotation/Annotations.ts"/>
 ///<reference path="Component/Factory/Config/AnnotatedObject.ts"/>
 ///<reference path="Component/Factory/Config/TypeDescriptor.ts"/>
+///<reference path="Component/Factory/Config/ReferenceDescriptor.ts"/>
 ///<reference path="Component/Factory/Config/DependencyDescriptor.ts"/>
 ///<reference path="Component/Factory/Config/PropertyDescriptor.ts"/>
 ///<reference path="Component/Factory/Config/MethodDescriptor.ts"/>
 ///<reference path="Component/Factory/Config/ResolveDefinition.ts"/>
 ///<reference path="Component/Factory/Config/BeanDefinition.ts"/>
+///<reference path="Component/Factory/Config/PropertyValue.ts"/>
 ///<reference path="Component/Context/Config/BeanDescriptor.ts"/>
 ///<reference path="Component/Context/Config/FieldDependencyDescriptor.ts"/>
 ///<reference path="Component/Context/Config/ArgumentDependencyDescriptor.ts"/>
@@ -36,6 +38,7 @@
 ///<reference path="Component/BeanUtils.ts"/>
 ///<reference path="Component/Factory/ObjectFactory.ts"/>
 ///<reference path="Component/Factory/Config/Scope.ts"/>
+///<reference path="Component/Factory/Support/Provider.ts"/>
 ///<reference path="Component/Factory/Support/PrototypeScope.ts"/>
 ///<reference path="Component/Factory/Support/SingletonScope.ts"/>
 ///<reference path="Component/Factory/BeanFactory.ts"/>
@@ -44,6 +47,7 @@
 ///<reference path="Component/Factory/AutowireCapableBeanFactory.ts"/>
 ///<reference path="Component/Factory/ListableBeanFactory.ts"/>
 ///<reference path="Component/Factory/BeanPostProcessor.ts"/>
+///<reference path="Component/Factory/BeanPropertiesPostProcessor.ts"/>
 ///<reference path="Component/Factory/BeanFactoryPostProcessor.ts"/>
 ///<reference path="Component/Factory/MergedBeanFactoryPostProcessor.ts"/>
 ///<reference path="Component/Factory/ConfigurableBeanFactory.ts"/>
@@ -57,15 +61,16 @@
 ///<reference path="Component/Factory/Support/AbstractBeanFactory.ts"/>
 ///<reference path="Component/Factory/Support/AbstractAutowireCapableBeanFactory.ts"/>
 ///<reference path="Component/Factory/Support/DefaultListableBeanFactory.ts"/>
+///<reference path="Component/Factory/Support/InitializeBeanPostProcessor.ts"/>
 ///<reference path="Component/Context/Context.ts"/>
 ///<reference path="Component/Context/ApplicationContext.ts"/>
-module Typejector {
+namespace Typejector {
     import Context = Component.Context.Context;
     import ApplicationContext = Component.Context.ApplicationContext;
 
-    let context: Context = new ApplicationContext();
+    let applicationContext: Context = new ApplicationContext();
 
-    export function getContext() {
-        return context;
-    }
+    export let context: Context;
+    Object.defineProperty(Typejector, "context", { configurable: false, get: () => applicationContext, enumerable: true });
 }
+//todo обдумать поддержку множеста фабрик бинов,добавить инициализацию и добавление бинов которые являются фабриками

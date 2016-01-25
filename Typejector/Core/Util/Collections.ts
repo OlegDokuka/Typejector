@@ -90,7 +90,7 @@
             if (src instanceof Array) {
                 result = src[0];
             } else {
-                src.forEach(val=> result == undefined ? void 0 : result = val);
+                src.forEach(val=> result != undefined ? void 0 : result = val);
             }
 
             return result == undefined ? (val instanceof Function ? ((result = val()) ? result : val) : val) : result;
@@ -99,7 +99,7 @@
 
         public static filter<T>(src: { forEach(callbackfn: (value: T, index: any, collection: any) => void, thisArg?: any) },
             filter: (val: T, key: any) => boolean) {
-            const collection: typeof src = Object.create(Object.getPrototypeOf(src));
+            const collection: typeof src = Collections.create(src);
 
             if (src instanceof Array) {
                 return src.filter(filter);
@@ -163,6 +163,21 @@
         }
 
 
+        public static toArray<T>(src: { forEach(callbackfn: (value: T, index: any, collection: any) => void) });
+        public static toArray<T, U>(src: { forEach(callbackfn: (value: T, index: any, collection: any) => void) }, transformer: (val: T, key: any) => U);
+        public static toArray<T, U>(src: { forEach(callbackfn: (value: T, index: any, collection: any) => void) }, transformer?: (val: T, key: any) => U) {
+            const result = [];
+
+            if (transformer) {
+                src.forEach((val, key) => result.push(transformer(val, key)))
+            } else {
+                src.forEach(val => result.push(val))
+            }
+
+            return result;
+        }
+
+
         public static isCollection(obj: any) {
             return Class.isClass(obj) ?
                 obj == Map || obj == Set || obj == WeakMap || obj == WeakSet :
@@ -171,6 +186,20 @@
                 obj instanceof Set ||
                 obj instanceof WeakMap ||
                 obj instanceof WeakSet;
+        }
+
+        private static create<T>(src: { forEach(callbackfn: (value: T, index: any, collection: any) => void) }) {
+            let result: typeof src;
+
+            if (src instanceof Map) {
+                result = new Map<T, any>();
+            } else if (src instanceof Set) {
+                result = new Set<T>();
+            } else {
+                result = [];
+            }
+
+            return result;
         }
     }
 } 

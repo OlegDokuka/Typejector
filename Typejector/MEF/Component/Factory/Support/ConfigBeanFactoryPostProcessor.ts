@@ -3,8 +3,8 @@
     import BeanDefinition = Typejector.Component.Factory.Config.BeanDefinition;
     import Collections = Util.Collections;
     import factoryMethod = Annotation.factoryMethod;
-//todo: add scope instead of singleton annotation
-//todo: improve factoryMethod initializing
+    //todo: add scope instead of singleton annotation
+    //todo: improve factoryMethod initializing
     export class ConfigBeanFactoryPostProcessor extends DefaultBeanFactoryPostProcessor {
 
         postProcessBeanFactory(configurableListableBeanFactory: ConfigurableListableBeanFactory): void {

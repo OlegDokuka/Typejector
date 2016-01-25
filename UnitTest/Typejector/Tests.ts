@@ -9,6 +9,6 @@
 /// <reference path="Component/Factory/Support/DefaultBeanFactoryPostProcessorTest.ts"/>
 /// <reference path="Component/Factory/Support/MergeBeanFactoryPostProcessorTest.ts"/>
 /// <reference path="Component/Factory/Support/InstantiationBeanFactoryPostProcessorTest.ts"/>
-namespace Typejector{
-
+/// <reference path="Component/Factory/Support/ProviderTest.ts"/>
+namespace Typejector {
 }
