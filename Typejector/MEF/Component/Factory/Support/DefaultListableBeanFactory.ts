@@ -2,7 +2,7 @@
     import Class = Type.Class;
     import BeanDefinition = Config.BeanDefinition;
     import TypeDescriptor = Config.TypeDescriptor;
-    import ReferenceDescriptor = Config.ReferenceDescriptor;
+    import ReferenceDescriptor = Config.DependencyDescriptor;
     import Scope = Config.Scope;
     import Collections = Typejector.Util.Collections;
 

@@ -12,7 +12,6 @@
 ///<reference path="Annotation/Annotations.ts"/>
 ///<reference path="Component/Factory/Config/AnnotatedObject.ts"/>
 ///<reference path="Component/Factory/Config/TypeDescriptor.ts"/>
-///<reference path="Component/Factory/Config/ReferenceDescriptor.ts"/>
 ///<reference path="Component/Factory/Config/DependencyDescriptor.ts"/>
 ///<reference path="Component/Factory/Config/PropertyDescriptor.ts"/>
 ///<reference path="Component/Factory/Config/MethodArgumentDescriptor.ts"/>

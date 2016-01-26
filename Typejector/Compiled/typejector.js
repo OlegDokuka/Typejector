@@ -914,11 +914,6 @@ var Typejector;
         })(Factory = Component.Factory || (Component.Factory = {}));
     })(Component = Typejector.Component || (Typejector.Component = {}));
 })(Typejector || (Typejector = {}));
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 var Typejector;
 (function (Typejector) {
     var Component;
@@ -927,33 +922,11 @@ var Typejector;
         (function (Factory) {
             var Config;
             (function (Config) {
-                var ReferenceDescriptor = (function (_super) {
-                    __extends(ReferenceDescriptor, _super);
-                    function ReferenceDescriptor() {
-                        _super.apply(this, arguments);
-                    }
-                    return ReferenceDescriptor;
-                })(Config.TypeDescriptor);
-                Config.ReferenceDescriptor = ReferenceDescriptor;
-            })(Config = Factory.Config || (Factory.Config = {}));
-        })(Factory = Component.Factory || (Component.Factory = {}));
-    })(Component = Typejector.Component || (Typejector.Component = {}));
-})(Typejector || (Typejector = {}));
-var Typejector;
-(function (Typejector) {
-    var Component;
-    (function (Component) {
-        var Factory;
-        (function (Factory) {
-            var Config;
-            (function (Config) {
-                var DependencyDescriptor = (function (_super) {
-                    __extends(DependencyDescriptor, _super);
+                var DependencyDescriptor = (function () {
                     function DependencyDescriptor() {
-                        _super.apply(this, arguments);
                     }
                     return DependencyDescriptor;
-                })(Config.TypeDescriptor);
+                })();
                 Config.DependencyDescriptor = DependencyDescriptor;
             })(Config = Factory.Config || (Factory.Config = {}));
         })(Factory = Component.Factory || (Component.Factory = {}));
@@ -1249,6 +1222,11 @@ var Typejector;
         })(Factory = Component.Factory || (Component.Factory = {}));
     })(Component = Typejector.Component || (Typejector.Component = {}));
 })(Typejector || (Typejector = {}));
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var Typejector;
 (function (Typejector) {
     var Component;
@@ -1406,7 +1384,6 @@ var Typejector;
                         var clazz = bean.clazz;
                         var annotations = Annotations.get(clazz);
                         annotations.forEach(function (val, key) {
-                            bean.annotations.add(key);
                             if (key == singleton) {
                                 bean.scope = "singleton";
                             }
@@ -1420,28 +1397,41 @@ var Typejector;
                                 bean.isLazyInit = true;
                             }
                         });
+                        bean.annotations = annotations;
                     };
                     DefaultBeanFactoryPostProcessor.prototype.processMethods = function (bean, propKey) {
-                        var _this = this;
                         var clazz = bean.clazz;
-                        var annotations = Collections.map(Annotations.get(clazz.prototype, propKey), function () { return new Set(); }, function (value, key) { return key; }, function (set, item) { return set.add(item); });
+                        var annotations = Annotations.get(clazz.prototype, propKey);
                         var containsPostConstructorAnnotation = Collections.contains(annotations, postConstructor);
                         if (Collections.contains(annotations, factoryMethod) || Collections.contains(annotations, inject) || containsPostConstructorAnnotation) {
                             var descriptor = {
                                 name: propKey,
-                                arguments: Reflection.getParamTypes(clazz.prototype, propKey).map(function (type, index) { return _this.buildTypeDescriptor(clazz, type, propKey, index); }),
+                                arguments: undefined,
                                 returnType: this.buildTypeDescriptor(clazz, Reflection.getReturnType(clazz.prototype, propKey), propKey),
                                 annotations: annotations
                             };
+                            descriptor.arguments = this.processMethodsArguments(bean, descriptor, Reflection.getParamTypes(clazz.prototype, propKey));
                             if (containsPostConstructorAnnotation) {
                                 bean.initMethodName = propKey;
                             }
                             bean.methods.add(descriptor);
                         }
                     };
+                    DefaultBeanFactoryPostProcessor.prototype.processMethodsArguments = function (bean, methodDescriptor, parametrsClasses) {
+                        var _this = this;
+                        var result = parametrsClasses
+                            .map(function (pc, index) { return _this.buildTypeDescriptor(bean.clazz, pc, methodDescriptor.name, index); })
+                            .map(function (td, index) { return ({
+                            methodDescriptor: methodDescriptor,
+                            type: td,
+                            index: index,
+                            annotations: Annotations.get(bean.clazz.prototype, methodDescriptor.name, index)
+                        }); });
+                        return result;
+                    };
                     DefaultBeanFactoryPostProcessor.prototype.processProperties = function (bean, propKey) {
                         var clazz = bean.clazz;
-                        var annotations = Collections.map(Annotations.get(clazz.prototype, propKey), function () { return new Set(); }, function (value, key) { return key; }, function (set, item) { return set.add(item); });
+                        var annotations = Annotations.get(clazz.prototype, propKey);
                         if (Collections.contains(annotations, inject)) {
                             var descriptor = {
                                 name: propKey,
@@ -1497,7 +1487,7 @@ var Typejector;
                             typeDescriptor.genericTypes.forEach(function (type) { return dependencies.add(type); }) :
                             dependencies.add(typeDescriptor.clazz); };
                         bean.constructorArguments.forEach(addToDependencies);
-                        bean.methods.forEach(function (methodDesc) { return methodDesc.arguments.forEach(addToDependencies); });
+                        bean.methods.forEach(function (methodDesc) { return methodDesc.arguments.forEach(function (arg) { return addToDependencies(arg.type); }); });
                         bean.properties.forEach(function (propertyDesc) { return addToDependencies(propertyDesc.type); });
                         bean.dependsOn = Collections.flatMap(dependencies, function () { return new Set(); }, function (val) { return beanFactory.getBeanNamesOfType(val); }, function (collections, item) { return collections.add(item); });
                     };
@@ -1872,7 +1862,7 @@ var Typejector;
         (function (Factory) {
             var Support;
             (function (Support) {
-                var ReferenceDescriptor = Factory.Config.ReferenceDescriptor;
+                var ReferenceDescriptor = Factory.Config.DependencyDescriptor;
                 var Collections = Typejector.Util.Collections;
                 var postConstructor = Typejector.Annotation.postConstructor;
                 var Annotations = Typejector.Annotation.Annotations;

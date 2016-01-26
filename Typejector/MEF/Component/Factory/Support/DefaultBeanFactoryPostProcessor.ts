@@ -2,6 +2,7 @@
     import Class = Typejector.Type.Class;
     import Collections = Typejector.Util.Collections;
     import MethodDescriptor = Typejector.Component.Factory.Config.MethodDescriptor;
+    import MethodArgumentDescriptor = Typejector.Component.Factory.Config.MethodArgumentDescriptor;
     import PropertyDescriptor = Typejector.Component.Factory.Config.PropertyDescriptor;
     import TypeDescriptor = Typejector.Component.Factory.Config.TypeDescriptor;
     import BeanNameGenerator = Typejector.Component.Factory.Support.BeanNameGenerator;
@@ -52,7 +53,6 @@
             const annotations = Annotations.get(clazz);
 
             annotations.forEach((val, key) => {
-                bean.annotations.add(key);
                 if (key == singleton) {
                     bean.scope = "singleton";
                 } else if (key == primary) {
@@ -63,20 +63,24 @@
                     bean.isLazyInit = true;
                 }
             });
+
+            bean.annotations = annotations;
         }
 
         private processMethods(bean: BeanDefinition, propKey: string) {
             const clazz = bean.clazz;
-            const annotations = Collections.map(Annotations.get(clazz.prototype, propKey), () => new Set(), (value, key) => key, (set, item) => set.add(item));
+            const annotations = Annotations.get(clazz.prototype, propKey);
             const containsPostConstructorAnnotation = Collections.contains(annotations, postConstructor);
 
             if (Collections.contains(annotations, factoryMethod) || Collections.contains(annotations, inject) || containsPostConstructorAnnotation) {
                 const descriptor: MethodDescriptor = {
                     name: propKey,
-                    arguments: Reflection.getParamTypes(clazz.prototype, propKey).map((type, index) => this.buildTypeDescriptor(clazz, type, propKey, index)),
+                    arguments: undefined,
                     returnType: this.buildTypeDescriptor(clazz, Reflection.getReturnType(clazz.prototype, propKey), propKey),
                     annotations: annotations
                 };
+
+                descriptor.arguments = this.processMethodsArguments(bean, descriptor, Reflection.getParamTypes(clazz.prototype, propKey));
 
                 if (containsPostConstructorAnnotation) {
                     bean.initMethodName = propKey;
@@ -86,9 +90,22 @@
             }
         }
 
+        private processMethodsArguments(bean: BeanDefinition, methodDescriptor: MethodDescriptor, parametrsClasses: Class[]) {
+            const result: MethodArgumentDescriptor[] = parametrsClasses
+                .map((pc, index) => this.buildTypeDescriptor(bean.clazz, pc, methodDescriptor.name, index))
+                .map<MethodArgumentDescriptor>((td, index) => ({
+                    methodDescriptor: methodDescriptor,
+                    type: td,
+                    index: index,
+                    annotations: Annotations.get(bean.clazz.prototype, methodDescriptor.name, index)
+                }));
+
+            return result
+        }
+
         private processProperties(bean: BeanDefinition, propKey: string) {
             const clazz = bean.clazz;
-            const annotations = Collections.map(Annotations.get(clazz.prototype, propKey), () => new Set(), (value, key) => key, (set, item) => set.add(item));
+            const annotations = Annotations.get(clazz.prototype, propKey);
 
             if (Collections.contains(annotations, inject)) {
                 const descriptor: PropertyDescriptor = {
@@ -101,7 +118,7 @@
             }
         }
 
-        private buildTypeDescriptor(src: Class, propType: Class, propKey: string | symbol, index?: number) {
+        private buildTypeDescriptor(src: Class, propType: Class, propKey: string | symbol, index?: number): TypeDescriptor {
             const paramDescriptor = new TypeDescriptor();
 
             paramDescriptor.clazz = propType;

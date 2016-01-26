@@ -216,16 +216,9 @@ declare module Typejector.Component.Factory.Config {
     }
 }
 declare namespace Typejector.Component.Factory.Config {
-    class ReferenceDescriptor extends TypeDescriptor implements AnnotatedObject {
+    class DependencyDescriptor {
         parentBeanName: string;
         occurrence: AnnotatedObject;
-        annotations: Map<any, any>;
-    }
-}
-declare module Typejector.Component.Factory.Config {
-    import Class = Type.Class;
-    class DependencyDescriptor extends TypeDescriptor {
-        parent: Class;
     }
 }
 declare module Typejector.Component.Factory.Config {
@@ -273,7 +266,7 @@ declare module Typejector.Component.Factory.Config {
 declare namespace Typejector.Component.Factory.Config {
     interface PropertyValue {
         instanceGetter: ObjectFactory<any>;
-        reference: ReferenceDescriptor;
+        reference: DependencyDescriptor;
     }
 }
 declare module Typejector.Annotation {
@@ -420,7 +413,7 @@ declare namespace Typejector.Component.Factory.Registry {
 declare namespace Typejector.Component.Factory {
     import Class = Type.Class;
     import BeanDefinition = Config.BeanDefinition;
-    import ReferenceDescriptor = Config.ReferenceDescriptor;
+    import ReferenceDescriptor = Config.DependencyDescriptor;
     interface AutowireCapableBeanFactory extends BeanFactory {
         createBean<T>(clazz: Class): T;
         initializeBean<T>(instance: T, beanDefinititon: BeanDefinition): T;
@@ -477,6 +470,7 @@ declare namespace Typejector.Component.Factory.Support {
         protected processBeanDefinition(beanDefinition: BeanDefinition, configurableListableBeanFactory: ConfigurableListableBeanFactory): void;
         private processClassAnnotations(bean);
         private processMethods(bean, propKey);
+        private processMethodsArguments(bean, methodDescriptor, parametrsClasses);
         private processProperties(bean, propKey);
         private buildTypeDescriptor(src, propType, propKey, index?);
     }
@@ -555,7 +549,7 @@ declare module Typejector.Component.Factory.Support {
 declare module Typejector.Component.Factory.Support {
     import Class = Typejector.Type.Class;
     import BeanDefinition = Config.BeanDefinition;
-    import ReferenceDescriptor = Config.ReferenceDescriptor;
+    import ReferenceDescriptor = Config.DependencyDescriptor;
     import ObjectFactory = Factory.ObjectFactory;
     abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
         createBean<T>(clazz: Class): T;
@@ -571,7 +565,7 @@ declare module Typejector.Component.Factory.Support {
 declare module Typejector.Component.Factory.Support {
     import Class = Type.Class;
     import BeanDefinition = Config.BeanDefinition;
-    import ReferenceDescriptor = Config.ReferenceDescriptor;
+    import ReferenceDescriptor = Config.DependencyDescriptor;
     class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory implements ListableBeanFactory {
         getBeansOfType<T>(clazz: Class): Array<T>;
         getBeanNamesOfType(clazz: Class): Array<string>;

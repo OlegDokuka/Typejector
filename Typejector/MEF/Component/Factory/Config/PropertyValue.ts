@@ -4,6 +4,6 @@ namespace Typejector.Component.Factory.Config {
 
     export interface PropertyValue {
         instanceGetter: ObjectFactory<any>;
-        reference: ReferenceDescriptor;
+        dependency: DependencyDescriptor;
     }
 } 

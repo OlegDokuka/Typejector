@@ -1,7 +1,7 @@
 ﻿module Typejector.Component.Factory.Support {
     import Class = Typejector.Type.Class;
     import BeanDefinition = Config.BeanDefinition;
-    import ReferenceDescriptor = Config.ReferenceDescriptor;
+    import ReferenceDescriptor = Config.DependencyDescriptor;
     import PropertyValue = Config.PropertyValue;
     import Collections = Typejector.Util.Collections;
     import postConstructor = Annotation.postConstructor;
@@ -51,7 +51,7 @@
 
             Collections.map(beanDefinition.properties, () => [], (val, index) => {
                 const reference: ReferenceDescriptor = new ReferenceDescriptor();
-                const propertyValue: PropertyValue = { instanceGetter: undefined, reference: reference };
+                const propertyValue: PropertyValue = { instanceGetter: undefined, dependency: reference };
 
                 reference.clazz = val.type.clazz
                 reference.genericTypes = val.type.genericTypes;

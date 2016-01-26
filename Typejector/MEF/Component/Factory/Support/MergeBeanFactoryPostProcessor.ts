@@ -27,7 +27,7 @@
 
             bean.constructorArguments.forEach(addToDependencies);
 
-            bean.methods.forEach(methodDesc=> methodDesc.arguments.forEach(addToDependencies));
+            bean.methods.forEach(methodDesc=> methodDesc.arguments.forEach(arg=> addToDependencies(arg.type)));
 
             bean.properties.forEach(propertyDesc=> addToDependencies(propertyDesc.type));
 
