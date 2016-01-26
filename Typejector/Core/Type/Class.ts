@@ -1,14 +1,14 @@
 ﻿module Typejector.Type {
     export type Class = {
-        new (...args:any[]): any;
+        new (...args: any[]): any;
         prototype: any;
     };
 
     export namespace Class {
-        const classCache:Class[] = [];
+        const classCache: Class[] = [];
         const baseClass = Object.getPrototypeOf(Function);
 
-        export function register(clazz:Class) {
+        export function register(clazz: Class) {
             if (!clazz || classCache.indexOf(clazz) > -1) {
                 return;
             }
@@ -16,15 +16,15 @@
             classCache.push(clazz);
         }
 
-        export function classes():Class[] {
-            let classes:Class[] = [];
+        export function classes(): Class[] {
+            let classes: Class[] = [];
 
             classCache.forEach(it=> classes.push(it));
 
             return classes;
         }
 
-        export function isClass(val:any):val is Class {
+        export function isClass(val: any): val is Class {
             return typeof val === "function";
         }
 
@@ -33,7 +33,7 @@
          * @param {Typejector.Type.Class} src
          * @returns {Typejector.Type.Class} or {undefined} if there is no parent class
          */
-        export function getParentOf(src:any):Class {
+        export function getParentOf(src: any): Class {
             const isFunction = Function.prototype.isPrototypeOf(src);
             const parentClass = Object.getPrototypeOf(src);
 
@@ -51,7 +51,13 @@
             return parentClass;
         }
 
-        export function isAssignable(clazz:Class, classFrom:Class):boolean {
+        /**
+         * Class represented by the @arg clazz object is a superclass or superinterface of @arg classFrom
+         * @param clazz superclass or superinterface 
+         * @param classFrom class that required some checking 
+         * @returns Boolean result of checking 
+         */
+        export function isAssignable(clazz: Class, classFrom: Class): boolean {
             return clazz === classFrom || clazz.prototype.isPrototypeOf(classFrom.prototype);
         }
     }

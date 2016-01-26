@@ -925,6 +925,14 @@ var Typejector;
                 var DependencyDescriptor = (function () {
                     function DependencyDescriptor() {
                     }
+                    DependencyDescriptor.of = function (beanName, desription) {
+                        assert(beanName);
+                        assert(desription);
+                        var result = new DependencyDescriptor();
+                        result.parentBeanName = beanName;
+                        result.occurrence = desription;
+                        return result;
+                    };
                     return DependencyDescriptor;
                 })();
                 Config.DependencyDescriptor = DependencyDescriptor;
@@ -1120,6 +1128,7 @@ var Typejector;
 (function (Typejector) {
     var Component;
     (function (Component) {
+        var DependencyDescriptor = Component.Factory.Config.DependencyDescriptor;
         var abstract = Typejector.Annotation.abstract;
         var config = Typejector.Annotation.config;
         var singleton = Typejector.Annotation.singleton;
@@ -1144,15 +1153,12 @@ var Typejector;
                 args.unshift(clazz);
                 return new (clazz.bind.apply(clazz, args))();
             };
-            BeanUtils.createObjectFactoryFrom = function (methodDescriptor, parent, beanFactory) {
-                return {
-                    getObject: function () {
-                        var resolvedArguments = methodDescriptor.arguments
-                            .map(function (val) { return beanFactory.resolveDependency(val); }), target = beanFactory.getBean(parent);
-                        return (_a = target[methodDescriptor.name]).call.apply(_a, [target].concat(resolvedArguments));
-                        var _a;
-                    }
-                };
+            BeanUtils.createPropetyValuesFrom = function (beanDefinition) {
+                var properties = [];
+                for (var _i = 1; _i < arguments.length; _i++) {
+                    properties[_i - 1] = arguments[_i];
+                }
+                return properties.map(function (it) { return ({ dependency: DependencyDescriptor.of(beanDefinition.name, it), instanceGetter: undefined }); });
             };
             return BeanUtils;
         })();
@@ -1862,10 +1868,8 @@ var Typejector;
         (function (Factory) {
             var Support;
             (function (Support) {
-                var ReferenceDescriptor = Factory.Config.DependencyDescriptor;
                 var Collections = Typejector.Util.Collections;
                 var postConstructor = Typejector.Annotation.postConstructor;
-                var Annotations = Typejector.Annotation.Annotations;
                 var inject = Typejector.Annotation.inject;
                 var AbstractAutowireCapableBeanFactory = (function (_super) {
                     __extends(AbstractAutowireCapableBeanFactory, _super);
@@ -1897,20 +1901,15 @@ var Typejector;
                         assert(instance);
                         assert(beanDefinition);
                         instance = this.applyBeanPostProcessorsBeforeInitialization(instance, beanDefinition);
-                        Collections.map(beanDefinition.properties, function () { return []; }, function (val, index) {
-                            var reference = new ReferenceDescriptor();
-                            var propertyValue = { instanceGetter: undefined, reference: reference };
-                            reference.clazz = val.type.clazz;
-                            reference.genericTypes = val.type.genericTypes;
-                            reference.annotations = Annotations.get(beanDefinition.clazz.prototype, val.name);
-                        }, function (coll, item) { return coll.push(item); });
+                        var properties = Component.BeanUtils.createPropetyValuesFrom.apply(Component.BeanUtils, [beanDefinition].concat(Collections.toArray(beanDefinition.properties)));
+                        this.getBeanPostProcessors()
+                            .filter(function (it) { return it instanceof Factory.BeanPropertiesPostProcessor; })
+                            .every(function (it) { return (_a = it).processPropertyValues.apply(_a, properties); var _a; });
                         Collections.filter(beanDefinition.methods, function (it) { return Collections.contains(it.annotations, inject); }).forEach(function (method) {
-                            var args = [];
-                            for (var _i = 0, _a = method.arguments; _i < _a.length; _i++) {
-                                var argType = _a[_i];
-                                args.push(_this.beanFactory.resolveDependency(argType));
-                            }
-                            instance[method.name].apply(instance, args);
+                            var properties = Component.BeanUtils.createPropetyValuesFrom.apply(Component.BeanUtils, [beanDefinition].concat(method.arguments));
+                            _this.getBeanPostProcessors()
+                                .filter(function (it) { return it instanceof Factory.BeanPropertiesPostProcessor; })
+                                .every(function (it) { return (_a = it).processPropertyValues.apply(_a, properties); var _a; });
                         });
                         instance = this.applyBeanPostProcessorsAfterInitialization(instance, beanDefinition);
                         return instance;
@@ -2024,7 +2023,16 @@ var Typejector;
                             if (!beanDefinitions.length) {
                                 throw new Error("No " + beanDefinition.name + " class found");
                             }
-                            bean = this.doGetBean(beanDefinitions.pop());
+                            if (beanDefinitions.length > 1) {
+                                beanDefinitions = beanDefinitions.filter(function (bd) { return bd.isPrimary; });
+                                if (!beanDefinitions.length) {
+                                    throw new Error("No primary BeanDefinition for " + beanDefinition.name);
+                                }
+                                bean = this.doGetBean(beanDefinitions.pop());
+                            }
+                            else {
+                                bean = this.doGetBean(beanDefinitions.pop());
+                            }
                         }
                         else {
                             bean = this.createBean(beanDefinition.clazz);
@@ -2069,7 +2077,7 @@ var Typejector;
                         for (var _i = 0; _i < arguments.length; _i++) {
                             propertyValues[_i - 0] = arguments[_i];
                         }
-                        propertyValues.forEach(function (val, index) { return val.instanceGetter = { getObject: function () { return _this.beanFactory.resolveDependency(val.reference); } }; });
+                        propertyValues.forEach(function (val, index) { return val.instanceGetter = { getObject: function () { return _this.beanFactory.resolveDependency(val.dependency); } }; });
                         return true;
                     };
                     InitializeBeanPostProcessor.prototype.postProcessAfterInitialization = function (bean, beanDefinition) {

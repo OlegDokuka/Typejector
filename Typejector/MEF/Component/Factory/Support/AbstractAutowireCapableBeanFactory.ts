@@ -1,7 +1,10 @@
 ﻿module Typejector.Component.Factory.Support {
     import Class = Typejector.Type.Class;
     import BeanDefinition = Config.BeanDefinition;
-    import ReferenceDescriptor = Config.DependencyDescriptor;
+    import DependencyDescriptor = Config.DependencyDescriptor;
+    import MethodArgumentDescriptor = Config.MethodArgumentDescriptor;
+    import PropertyDescriptor = Config.PropertyDescriptor;
+    import AnnotatedObject = Config.AnnotatedObject;
     import PropertyValue = Config.PropertyValue;
     import Collections = Typejector.Util.Collections;
     import postConstructor = Annotation.postConstructor;
@@ -46,34 +49,34 @@
             assert(instance);
             assert(beanDefinition);
 
-
             instance = this.applyBeanPostProcessorsBeforeInitialization(instance, beanDefinition);
 
-            Collections.map(beanDefinition.properties, () => [], (val, index) => {
-                const reference: ReferenceDescriptor = new ReferenceDescriptor();
-                const propertyValue: PropertyValue = { instanceGetter: undefined, dependency: reference };
+            this.doResolvePropertyValues(beanDefinition, Collections.toArray(beanDefinition.properties));
+            //todo inject all autowired values
 
-                reference.clazz = val.type.clazz
-                reference.genericTypes = val.type.genericTypes;
-                reference.annotations = Annotations.get(beanDefinition.clazz.prototype, val.name);
-                
-            }, (coll, item) => coll.push(item));
-
-
-            Collections.filter(beanDefinition.methods, (it) => Collections.contains(it.annotations, inject)).forEach((method) => {
-                const args = [];
-
-                for (let argType of method.arguments) {
-                    args.push(this.beanFactory.resolveDependency(argType));
-                }
-
-                instance[method.name].apply(instance, args);
-            });
-
+            Collections
+                .filter(beanDefinition.methods, (it) => Collections.contains(it.annotations, inject))
+                .forEach((method) => {
+                    this.doResolvePropertyValues(beanDefinition, method.arguments);
+                    //todo get all properties and then invoke method 
+                });
 
             instance = this.applyBeanPostProcessorsAfterInitialization(instance, beanDefinition);
 
             return instance;
+        }
+
+        protected doResolvePropertyValues(beanDefinition: BeanDefinition, params: PropertyDecorator[] | MethodArgumentDescriptor[]) {
+            const properties: PropertyValue[] = BeanUtils.createPropetyValuesFrom(beanDefinition, ...<any>params);
+            const processed = this.getBeanPostProcessors()
+                .filter(it=> it instanceof BeanPropertiesPostProcessor)
+                .every(it=> (it as BeanPropertiesPostProcessor).processPropertyValues(...properties));
+
+            if (!processed) {
+                throw new Error(`Propety values processing fails on bean name "${beanDefinition.name}"`)
+            }
+
+            return properties;
         }
 
         applyBeanPostProcessorsBeforeInitialization<T>(existingBean: T, beanDefinititon: BeanDefinition): T {
@@ -140,12 +143,12 @@
             };
         }
 
-        resolveDependency(typeDescriptor: ReferenceDescriptor): any {
+        resolveDependency(typeDescriptor: DependencyDescriptor): any {
             assert(typeDescriptor);
 
             return this.doResolveDependency(typeDescriptor);
         }
 
-        protected abstract doResolveDependency(typeDescriptor: ReferenceDescriptor): any;
+        protected abstract doResolveDependency(typeDescriptor: DependencyDescriptor): any;
     }
 }
