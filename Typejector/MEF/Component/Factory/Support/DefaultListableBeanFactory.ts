@@ -56,14 +56,25 @@
             let bean: any;
 
             if (BeanUtils.isAbstract(beanDefinition) && !beanDefinition.factoryMethodName) {
-                const beanDefinitions: BeanDefinition[]
+                let beanDefinitions: BeanDefinition[]
                     = this.doGetBeanDefinitionsOfType(beanDefinition.clazz);
 
                 if (!beanDefinitions.length) {
                     throw new Error(`No ${beanDefinition.name} class found`);
                 }
 
-                bean = this.doGetBean(beanDefinitions.pop());
+                if (beanDefinitions.length > 1) {
+                    beanDefinitions = beanDefinitions.filter(bd=> bd.isPrimary);
+
+                    if (!beanDefinitions.length) {
+                        throw new Error(`No primary BeanDefinition for ${beanDefinition.name}`);
+                    }
+
+                    bean = this.doGetBean(beanDefinitions.pop());
+                }
+                else {
+                    bean = this.doGetBean(beanDefinitions.pop());
+                }
             }
             else {
                 bean = this.createBean(beanDefinition.clazz);
@@ -71,7 +82,7 @@
 
             return bean;
         }
-        
+
         protected doResolveDependency(typeDescriptor: ReferenceDescriptor): any {
             let result;
 
