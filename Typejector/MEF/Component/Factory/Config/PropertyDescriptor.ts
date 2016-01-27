@@ -1,7 +1,9 @@
 ﻿module Typejector.Component.Factory.Config {
     import Class = Type.Class;
-    export interface PropertyDescriptor extends AnnotatedObject {
+    
+    export class PropertyDescriptor implements AnnotatedObject {
         name: string;
         type: TypeDescriptor;
+        annotations: Map<Function, any>;
     }
 } 

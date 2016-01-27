@@ -83,7 +83,8 @@
             return bean;
         }
 
-        protected doResolveDependency(typeDescriptor: DependencyDescriptor): any {
+        protected doResolveDependency(dependencyDescriptor: DependencyDescriptor): any {
+            const typeDescriptor = dependencyDescriptor.parametrTypeDescriptor;
             let result;
 
             if (Collections.isCollection(typeDescriptor.clazz)) {

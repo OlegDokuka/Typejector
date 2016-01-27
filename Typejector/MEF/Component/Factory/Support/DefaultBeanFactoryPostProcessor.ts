@@ -73,13 +73,11 @@
             const containsPostConstructorAnnotation = Collections.contains(annotations, postConstructor);
 
             if (Collections.contains(annotations, factoryMethod) || Collections.contains(annotations, inject) || containsPostConstructorAnnotation) {
-                const descriptor: MethodDescriptor = {
-                    name: propKey,
-                    arguments: undefined,
-                    returnType: this.buildTypeDescriptor(clazz, Reflection.getReturnType(clazz.prototype, propKey), propKey),
-                    annotations: annotations
-                };
+                const descriptor: MethodDescriptor = new MethodDescriptor();
 
+                descriptor.name = propKey;
+                descriptor.returnType = this.buildTypeDescriptor(clazz, Reflection.getReturnType(clazz.prototype, propKey), propKey);
+                descriptor.annotations = annotations;
                 descriptor.arguments = this.processMethodsArguments(bean, descriptor, Reflection.getParamTypes(clazz.prototype, propKey));
 
                 if (containsPostConstructorAnnotation) {
@@ -93,12 +91,16 @@
         private processMethodsArguments(bean: BeanDefinition, methodDescriptor: MethodDescriptor, parametrsClasses: Class[]) {
             const result: MethodArgumentDescriptor[] = parametrsClasses
                 .map((pc, index) => this.buildTypeDescriptor(bean.clazz, pc, methodDescriptor.name, index))
-                .map<MethodArgumentDescriptor>((td, index) => ({
-                    methodDescriptor: methodDescriptor,
-                    type: td,
-                    index: index,
-                    annotations: Annotations.get(bean.clazz.prototype, methodDescriptor.name, index)
-                }));
+                .map((td, index) => {
+                    const descriptor: MethodArgumentDescriptor = new MethodArgumentDescriptor();
+
+                    descriptor.methodDescriptor = methodDescriptor;
+                    descriptor.type = td;
+                    descriptor.index = index;
+                    descriptor.annotations = Annotations.get(bean.clazz.prototype, methodDescriptor.name, index);
+
+                    return descriptor;
+                });
 
             return result
         }
@@ -108,11 +110,11 @@
             const annotations = Annotations.get(clazz.prototype, propKey);
 
             if (Collections.contains(annotations, inject)) {
-                const descriptor: PropertyDescriptor = {
-                    name: propKey,
-                    type: this.buildTypeDescriptor(clazz, Reflection.getType(clazz.prototype, propKey), propKey),
-                    annotations: annotations
-                };
+                const descriptor: PropertyDescriptor = new PropertyDescriptor();
+
+                descriptor.name = propKey;
+                descriptor.type = this.buildTypeDescriptor(clazz, Reflection.getType(clazz.prototype, propKey), propKey);
+                descriptor.annotations = annotations;
 
                 bean.properties.add(descriptor);
             }

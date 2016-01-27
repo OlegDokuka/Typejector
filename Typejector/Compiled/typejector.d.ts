@@ -148,30 +148,6 @@ interface WeakSetConstructor {
     prototype: WeakSet<any>;
 }
 declare var WeakSet: WeakSetConstructor;
-declare namespace Reflect {
-    function decorate(decorators: ClassDecorator[], target: Function): Function;
-    function decorate(decorators: (PropertyDecorator | MethodDecorator)[], target: Object, targetKey: string | symbol, descriptor?: PropertyDescriptor): PropertyDescriptor;
-    function metadata(metadataKey: any, metadataValue: any): {
-        (target: Function): void;
-        (target: Object, targetKey: string | symbol): void;
-    };
-    function defineMetadata(metadataKey: any, metadataValue: any, target: Object): void;
-    function defineMetadata(metadataKey: any, metadataValue: any, target: Object, targetKey: string | symbol): void;
-    function hasMetadata(metadataKey: any, target: Object): boolean;
-    function hasMetadata(metadataKey: any, target: Object, targetKey: string | symbol): boolean;
-    function hasOwnMetadata(metadataKey: any, target: Object): boolean;
-    function hasOwnMetadata(metadataKey: any, target: Object, targetKey: string | symbol): boolean;
-    function getMetadata(metadataKey: any, target: Object): any;
-    function getMetadata(metadataKey: any, target: Object, targetKey: string | symbol): any;
-    function getOwnMetadata(metadataKey: any, target: Object): any;
-    function getOwnMetadata(metadataKey: any, target: Object, targetKey: string | symbol): any;
-    function getMetadataKeys(target: Object): any[];
-    function getMetadataKeys(target: Object, targetKey: string | symbol): any[];
-    function getOwnMetadataKeys(target: Object): any[];
-    function getOwnMetadataKeys(target: Object, targetKey: string | symbol): any[];
-    function deleteMetadata(metadataKey: any, target: Object): boolean;
-    function deleteMetadata(metadataKey: any, target: Object, targetKey: string | symbol): boolean;
-}
 declare namespace Typejector.Util {
     import Class = Typejector.Type.Class;
     class Reflection {
@@ -220,26 +196,30 @@ declare namespace Typejector.Component.Factory.Config {
         parentBeanName: string;
         occurrence: AnnotatedObject;
         static of(beanName: string, desription: AnnotatedObject): DependencyDescriptor;
+        parametrTypeDescriptor: TypeDescriptor;
     }
 }
 declare module Typejector.Component.Factory.Config {
-    interface PropertyDescriptor extends AnnotatedObject {
+    class PropertyDescriptor implements AnnotatedObject {
         name: string;
         type: TypeDescriptor;
+        annotations: Map<Function, any>;
     }
 }
 declare module Typejector.Component.Factory.Config {
-    interface MethodArgumentDescriptor extends AnnotatedObject {
+    class MethodArgumentDescriptor implements AnnotatedObject {
         index: number;
         type: TypeDescriptor;
         methodDescriptor: MethodDescriptor;
+        annotations: Map<Function, any>;
     }
 }
 declare module Typejector.Component.Factory.Config {
-    interface MethodDescriptor extends AnnotatedObject {
+    class MethodDescriptor implements AnnotatedObject {
         name: string;
         arguments: Array<MethodArgumentDescriptor>;
         returnType: TypeDescriptor;
+        annotations: Map<Function, any>;
     }
 }
 declare namespace Typejector.Component.Factory.Config {
@@ -552,11 +532,14 @@ declare module Typejector.Component.Factory.Support {
     import Class = Typejector.Type.Class;
     import BeanDefinition = Config.BeanDefinition;
     import DependencyDescriptor = Config.DependencyDescriptor;
+    import MethodArgumentDescriptor = Config.MethodArgumentDescriptor;
+    import PropertyValue = Config.PropertyValue;
     import ObjectFactory = Factory.ObjectFactory;
     abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
         createBean<T>(clazz: Class): T;
         protected doCreateBean(beanDefinition: BeanDefinition): any;
         initializeBean<T>(instance: T, beanDefinition: BeanDefinition): T;
+        protected doResolvePropertyValues(beanDefinition: BeanDefinition, params: PropertyDecorator[] | MethodArgumentDescriptor[]): PropertyValue[];
         applyBeanPostProcessorsBeforeInitialization<T>(existingBean: T, beanDefinititon: BeanDefinition): T;
         applyBeanPostProcessorsAfterInitialization<T>(existingBean: T, beanDefinititon: BeanDefinition): T;
         protected doGetFactory<T>(beanDefinition: BeanDefinition): ObjectFactory<T>;
@@ -575,7 +558,7 @@ declare module Typejector.Component.Factory.Support {
         protected doGetBeansOfType(clazz: Class): any[];
         protected doGetBeanDefinitionsOfType(clazz: Class, useAbstract?: boolean): any[];
         protected doGetBean(beanDefinition: BeanDefinition): any;
-        protected doResolveDependency(typeDescriptor: DependencyDescriptor): any;
+        protected doResolveDependency(dependencyDescriptor: DependencyDescriptor): any;
     }
 }
 declare namespace Typejector.Component.Factory.Support {

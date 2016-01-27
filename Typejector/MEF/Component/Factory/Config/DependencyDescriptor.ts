@@ -16,5 +16,17 @@ namespace Typejector.Component.Factory.Config {
 
             return result;
         }
+
+        get parametrTypeDescriptor(): TypeDescriptor {
+            const occurrence = this.occurrence;
+
+            if (occurrence instanceof MethodArgumentDescriptor) {
+                return occurrence.type;
+            } else if (occurrence instanceof PropertyDescriptor) {
+                return occurrence.type;
+            }
+
+            throw new Error("Inccorect occurrence type");
+        }
     }
 } 
