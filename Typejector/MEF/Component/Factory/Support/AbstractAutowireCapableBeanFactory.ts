@@ -51,17 +51,36 @@
 
             instance = this.applyBeanPostProcessorsBeforeInitialization(instance, beanDefinition);
 
-            this.doResolvePropertyValues(beanDefinition, Collections.toArray(beanDefinition.properties));
-            //todo inject all autowired values
+            this.doResolvePropertyValues(beanDefinition, Collections.toArray(beanDefinition.properties))
+                .forEach(propValue=> {
+                    const propName = (<PropertyDescriptor>propValue.dependency.occurrence).name;
+
+                    if (propValue.dependency.occurrence.annotations.has(lazy)) {
+                        Object.defineProperty(instance, propName, Provider.of(propValue.instanceGetter.getObject));
+                    }
+                    else {
+                        instance[propName] = propValue.instanceGetter.getObject();
+                    }
+                });
 
             Collections
                 .filter(beanDefinition.methods, (it) => Collections.contains(it.annotations, inject))
                 .forEach((method) => {
-                    this.doResolvePropertyValues(beanDefinition, method.arguments);
-                    //todo get all properties and then invoke method 
+                    const propertyValues = this.doResolvePropertyValues(beanDefinition, method.arguments);
+                    const args = propertyValues.map(propValue=> propValue.instanceGetter.getObject());
+
+                    instance[method.name].apply(instance, args);
                 });
 
             instance = this.applyBeanPostProcessorsAfterInitialization(instance, beanDefinition);
+            
+            //run post constructors here
+            Collections.filter(beanDefinition.methods, (it) => Collections.contains(it.annotations, postConstructor)).forEach((method) => {
+                const propertyValues = this.doResolvePropertyValues(beanDefinition, method.arguments);
+                const args = propertyValues.map(propValue=> propValue.instanceGetter.getObject());
+
+                instance[method.name].apply(instance, args);
+            });
 
             return instance;
         }
@@ -79,16 +98,16 @@
             return properties;
         }
 
-        applyBeanPostProcessorsBeforeInitialization<T>(existingBean: T, beanDefinititon: BeanDefinition): T {
+        applyBeanPostProcessorsBeforeInitialization<T>(existingBean: T, beanDefinition: BeanDefinition): T {
             let instance = existingBean;
 
 
             assert(existingBean);
-            assert(beanDefinititon);
+            assert(beanDefinition);
 
 
             for (let beanProcessor of this.getBeanPostProcessors()) {
-                instance = beanProcessor.postProcessBeforeInitialization(instance, beanDefinititon);
+                instance = beanProcessor.postProcessBeforeInitialization(instance, beanDefinition);
 
                 if (instance == null) {
                     return instance;
@@ -98,32 +117,21 @@
             return instance;
         }
 
-        applyBeanPostProcessorsAfterInitialization<T>(existingBean: T, beanDefinititon: BeanDefinition): T {
+        applyBeanPostProcessorsAfterInitialization<T>(existingBean: T, beanDefinition: BeanDefinition): T {
             let instance = existingBean;
 
 
             assert(existingBean);
-            assert(beanDefinititon);
+            assert(beanDefinition);
 
 
             for (let beanProcessor of this.getBeanPostProcessors()) {
-                instance = beanProcessor.postProcessAfterInitialization(instance, beanDefinititon);
+                instance = beanProcessor.postProcessAfterInitialization(instance, beanDefinition);
 
                 if (instance == undefined) {
                     return instance;
                 }
             }
-
-
-            Collections.filter(beanDefinititon.methods, (it) => Collections.contains(it.annotations, postConstructor)).forEach((method) => {
-                const args = [];
-
-                for (let argType of method.arguments) {
-                    args.push(this.resolveDependency(argType));
-                }
-
-                instance[method.name].apply(instance, args);
-            });
 
             return instance;
         }

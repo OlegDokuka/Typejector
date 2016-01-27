@@ -12,7 +12,13 @@
         }
 
         public processPropertyValues(...propertyValues: PropertyValue[]): boolean {
-            propertyValues.forEach((val, index) => val.instanceGetter = { getObject: () => this.beanFactory.resolveDependency(val.dependency) });
+            propertyValues.forEach((val, index) => {
+                try {
+                    val.instanceGetter = { getObject: () => this.beanFactory.resolveDependency(val.dependency) }
+                } catch (e) {
+
+                }
+            });
 
             return true;
         }
