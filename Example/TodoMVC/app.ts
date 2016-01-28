@@ -1,7 +1,8 @@
 ﻿///<reference path="../../Typejector/Compiled/typejector.d.ts"/>
 
 namespace Example.TodoMVC {
-    import injection = Typejector.Annotation.injection;
+    import Class = Typejector.Type.Class;
+    import component = Typejector.Annotation.component;
     import inject = Typejector.Annotation.inject;
     import ApplicationContext = Typejector.Component.Context.ApplicationContext;
     import config = Typejector.Annotation.config;
@@ -12,6 +13,14 @@ namespace Example.TodoMVC {
     import Collections = Typejector.Util.Collections;
     import Annotations = Typejector.Annotation.Annotations;
     import singleton = Typejector.Annotation.singleton;
+
+    function controller(id: string) {
+        return (clazz: Class) => {
+            component(clazz);
+
+            Annotations.add(controller, id, clazz);
+        }
+    }
 
     function click(id: string): MethodDecorator {
         return (target: Object, propertyKey: string) => Annotations.add(click, id, target, propertyKey);
@@ -36,7 +45,7 @@ namespace Example.TodoMVC {
         };
     }
 
-    @injection
+    @component
     export class ClickableBeanPostProcessor extends BeanPostProcessor {
         postProcessBeforeInitialization<T extends Object>(bean: T, beanDefinition: BeanDefinition): T {
             return bean;
@@ -75,7 +84,7 @@ namespace Example.TodoMVC {
         onChange(target: T, propertyKey);
     }
 
-    @injection
+    @component
     export class Model implements Observable<Model> {
         private taskList: Array<string> = [];
         public subscribers: Array<Observer<Model>> = [];
@@ -110,9 +119,9 @@ namespace Example.TodoMVC {
         }
 
         @html("#tasks")
-        updateList(element:HTMLElement){
+        updateList(element: HTMLElement) {
             const
-            element.appendChild()
+                element.appendChild()
         }
     }
 
