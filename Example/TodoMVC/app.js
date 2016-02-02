@@ -16,11 +16,17 @@ var Example;
 (function (Example) {
     var TodoMVC;
     (function (TodoMVC) {
-        var injection = Typejector.Annotation.injection;
+        var component = Typejector.Annotation.component;
         var inject = Typejector.Annotation.inject;
         var BeanPostProcessor = Typejector.Component.Factory.BeanPostProcessor;
         var Annotations = Typejector.Annotation.Annotations;
         var singleton = Typejector.Annotation.singleton;
+        function controller(id) {
+            return function (clazz) {
+                component(clazz);
+                Annotations.add(controller, id, clazz);
+            };
+        }
         function click(id) {
             return function (target, propertyKey) { return Annotations.add(click, id, target, propertyKey); };
         }
@@ -71,7 +77,7 @@ var Example;
                 return bean;
             };
             ClickableBeanPostProcessor = __decorate([
-                injection, 
+                component, 
                 __metadata('design:paramtypes', [])
             ], ClickableBeanPostProcessor);
             return ClickableBeanPostProcessor;
@@ -94,7 +100,7 @@ var Example;
                 this.subscribers.forEach(function (subscriber) { return subscriber.onChange(_this, propKey); });
             };
             Model = __decorate([
-                injection, 
+                component, 
                 __metadata('design:paramtypes', [])
             ], Model);
             return Model;
@@ -109,7 +115,6 @@ var Example;
                 }
             };
             Controller.prototype.updateList = function (element) {
-                var element, appendChild = ();
             };
             __decorate([
                 inject, 

@@ -7,10 +7,12 @@
     "gulp-clean": "latest",
     "mocha": "latest",
     "gulp-mocha": "latest",
-    "tsd": "latest",
-	"reflect-metadata": "latest",
+    "typings": "latest",
+    "reflect-metadata": "latest",
     "expect.js": "latest",
-    "requirejs": "latest"
+    "requirejs": "latest",
+    "react": "latest",
+    "react-dom": "latest"
   },
   "description": "Typejector powerful dependency injection container for Typescript",
   "author": "Oleg Dokuka <shadowgun@i.ua>",

@@ -564,8 +564,8 @@ declare module Typejector.Component.Factory.Support {
         protected doCreateBean(beanDefinition: BeanDefinition): any;
         initializeBean<T>(instance: T, beanDefinition: BeanDefinition): T;
         protected doResolvePropertyValues(beanDefinition: BeanDefinition, params: PropertyDecorator[] | MethodArgumentDescriptor[]): PropertyValue[];
-        applyBeanPostProcessorsBeforeInitialization<T>(existingBean: T, beanDefinititon: BeanDefinition): T;
-        applyBeanPostProcessorsAfterInitialization<T>(existingBean: T, beanDefinititon: BeanDefinition): T;
+        applyBeanPostProcessorsBeforeInitialization<T>(existingBean: T, beanDefinition: BeanDefinition): T;
+        applyBeanPostProcessorsAfterInitialization<T>(existingBean: T, beanDefinition: BeanDefinition): T;
         protected doGetFactory<T>(beanDefinition: BeanDefinition): ObjectFactory<T>;
         resolveDependency(typeDescriptor: DependencyDescriptor): any;
         protected abstract doResolveDependency(typeDescriptor: DependencyDescriptor): any;
@@ -633,4 +633,7 @@ declare namespace Typejector.Component.Context {
 declare namespace Typejector {
     import Context = Component.Context.Context;
     let context: Context;
+}
+declare module "typejector" {
+    export = Typejector;
 }

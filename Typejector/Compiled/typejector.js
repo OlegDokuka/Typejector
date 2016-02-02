@@ -1941,6 +1941,7 @@ var Typejector;
                 var Collections = Typejector.Util.Collections;
                 var postConstructor = Typejector.Annotation.postConstructor;
                 var inject = Typejector.Annotation.inject;
+                var lazy = Typejector.Annotation.lazy;
                 var AbstractAutowireCapableBeanFactory = (function (_super) {
                     __extends(AbstractAutowireCapableBeanFactory, _super);
                     function AbstractAutowireCapableBeanFactory() {
@@ -1971,13 +1972,29 @@ var Typejector;
                         assert(instance);
                         assert(beanDefinition);
                         instance = this.applyBeanPostProcessorsBeforeInitialization(instance, beanDefinition);
-                        this.doResolvePropertyValues(beanDefinition, Collections.toArray(beanDefinition.properties));
+                        this.doResolvePropertyValues(beanDefinition, Collections.toArray(beanDefinition.properties))
+                            .forEach(function (propValue) {
+                            var propName = propValue.dependency.occurrence.name;
+                            if (propValue.dependency.occurrence.annotations.has(lazy)) {
+                                Object.defineProperty(instance, propName, Support.Provider.of(propValue.instanceGetter.getObject));
+                            }
+                            else {
+                                instance[propName] = propValue.instanceGetter.getObject();
+                            }
+                        });
                         Collections
                             .filter(beanDefinition.methods, function (it) { return Collections.contains(it.annotations, inject); })
                             .forEach(function (method) {
-                            _this.doResolvePropertyValues(beanDefinition, method.arguments);
+                            var propertyValues = _this.doResolvePropertyValues(beanDefinition, method.arguments);
+                            var args = propertyValues.map(function (propValue) { return propValue.instanceGetter.getObject(); });
+                            instance[method.name].apply(instance, args);
                         });
                         instance = this.applyBeanPostProcessorsAfterInitialization(instance, beanDefinition);
+                        Collections.filter(beanDefinition.methods, function (it) { return Collections.contains(it.annotations, postConstructor); }).forEach(function (method) {
+                            var propertyValues = _this.doResolvePropertyValues(beanDefinition, method.arguments);
+                            var args = propertyValues.map(function (propValue) { return propValue.instanceGetter.getObject(); });
+                            instance[method.name].apply(instance, args);
+                        });
                         return instance;
                     };
                     AbstractAutowireCapableBeanFactory.prototype.doResolvePropertyValues = function (beanDefinition, params) {
@@ -1990,39 +2007,30 @@ var Typejector;
                         }
                         return properties;
                     };
-                    AbstractAutowireCapableBeanFactory.prototype.applyBeanPostProcessorsBeforeInitialization = function (existingBean, beanDefinititon) {
+                    AbstractAutowireCapableBeanFactory.prototype.applyBeanPostProcessorsBeforeInitialization = function (existingBean, beanDefinition) {
                         var instance = existingBean;
                         assert(existingBean);
-                        assert(beanDefinititon);
+                        assert(beanDefinition);
                         for (var _i = 0, _a = this.getBeanPostProcessors(); _i < _a.length; _i++) {
                             var beanProcessor = _a[_i];
-                            instance = beanProcessor.postProcessBeforeInitialization(instance, beanDefinititon);
+                            instance = beanProcessor.postProcessBeforeInitialization(instance, beanDefinition);
                             if (instance == null) {
                                 return instance;
                             }
                         }
                         return instance;
                     };
-                    AbstractAutowireCapableBeanFactory.prototype.applyBeanPostProcessorsAfterInitialization = function (existingBean, beanDefinititon) {
-                        var _this = this;
+                    AbstractAutowireCapableBeanFactory.prototype.applyBeanPostProcessorsAfterInitialization = function (existingBean, beanDefinition) {
                         var instance = existingBean;
                         assert(existingBean);
-                        assert(beanDefinititon);
+                        assert(beanDefinition);
                         for (var _i = 0, _a = this.getBeanPostProcessors(); _i < _a.length; _i++) {
                             var beanProcessor = _a[_i];
-                            instance = beanProcessor.postProcessAfterInitialization(instance, beanDefinititon);
+                            instance = beanProcessor.postProcessAfterInitialization(instance, beanDefinition);
                             if (instance == undefined) {
                                 return instance;
                             }
                         }
-                        Collections.filter(beanDefinititon.methods, function (it) { return Collections.contains(it.annotations, postConstructor); }).forEach(function (method) {
-                            var args = [];
-                            for (var _i = 0, _a = method.arguments; _i < _a.length; _i++) {
-                                var argType = _a[_i];
-                                args.push(_this.resolveDependency(argType));
-                            }
-                            instance[method.name].apply(instance, args);
-                        });
                         return instance;
                     };
                     AbstractAutowireCapableBeanFactory.prototype.doGetFactory = function (beanDefinition) {
@@ -2154,7 +2162,13 @@ var Typejector;
                         for (var _i = 0; _i < arguments.length; _i++) {
                             propertyValues[_i - 0] = arguments[_i];
                         }
-                        propertyValues.forEach(function (val, index) { return val.instanceGetter = { getObject: function () { return _this.beanFactory.resolveDependency(val.dependency); } }; });
+                        propertyValues.forEach(function (val, index) {
+                            try {
+                                val.instanceGetter = { getObject: function () { return _this.beanFactory.resolveDependency(val.dependency); } };
+                            }
+                            catch (e) {
+                            }
+                        });
                         return true;
                     };
                     InitializeBeanPostProcessor.prototype.postProcessAfterInitialization = function (bean, beanDefinition) {

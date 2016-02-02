@@ -120,8 +120,6 @@ namespace Example.TodoMVC {
 
         @html("#tasks")
         updateList(element: HTMLElement) {
-            const
-                element.appendChild()
         }
     }
 

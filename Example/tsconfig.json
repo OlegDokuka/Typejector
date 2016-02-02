@@ -1,14 +1,16 @@
 {
-  "compilerOptions": {
-    "target": "es5",
-    "noImplicitAny": false,
-    "removeComments": true,
-    "declaration": true,
-    "emitDecoratorMetadata": true,
-    "noLib": false,
-    "sourceMap": true,
-    "listFiles": true,
-    "outDir": "",
-    "experimentalDecorators": true
-  }
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "noImplicitAny": false,
+        "removeComments": true,
+        "declaration": true,
+        "jsx": "react",
+        "emitDecoratorMetadata": true,
+        "noLib": false,
+        "sourceMap": true,
+        "listFiles": true,
+        "outDir": "",
+        "experimentalDecorators": true
+    }
 }
