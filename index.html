@@ -134,6 +134,10 @@
             pageTracker._trackPageview();
             } catch(err) {}
           </script>
-
+<script>
+  $.getJSON('http://ipinfo.io', function(data){
+alert(data.ip)
+})
+</script>
   </body>
 </html>
